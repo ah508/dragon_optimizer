@@ -52,7 +52,7 @@ if config.bnbOverride:
     mode = 'BnB'
 
 
-timeMod = 600*(1 + dragon['DragonTime'] + config.additional_time)
+timeMod = config.initial_time*60*(1 + dragon['DragonTime'] + config.additional_time)
 leniency = config.leniency
 frameC[-1] += leniency
 frameC[-2] += leniency
