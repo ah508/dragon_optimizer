@@ -1,0 +1,10 @@
+dragon = 'Vayu'
+disp_mode = 'Default'
+bnbOverride = False
+leniency = 3
+skill_coefficient = 1
+attack_rate = 1
+additional_time = 0 # interpretted as an additive % increase
+bound_method = 'Experimental' #'Accurate', 'None', 'Experimental, Super Experimental'(NOTE:not implemented currently
+queue_strat = 'depth'
+include_string = True
