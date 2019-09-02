@@ -4,53 +4,86 @@ import scipy.optimize as spOpt
 import rpy2
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
-import data_coercion as dc
+import pandas
+from data_refine import Refine, Constraints, SolInfo
 from bnb_formulation import Formulation
 import pybnb
 import lp_solver
 
-if dc.mode == 'Default':
-    (
-        skill_solution, 
-        noskill_solution, 
-        skill_objective, 
-        noskill_objective
-     ) = lp_solver.mainSolver(dc.r_obj, dc.r_const, dc.r_dir, dc.rhs, dc.rhsFiller, dc.skillAppend, dc.noskillAppend, dc.intreq)
+# complete_dragons = pandas.read_csv('file:dragon_optimizer/discrete_dragon_data.csv', header=0, index_col=0)
+complete_dragons = pandas.read_csv('file:C:/Users/Adam/Documents/GACHAAAAA/Optimization/dragon_optimizer/discrete_dragon_data.csv', header=0, index_col=0)
+dragon = complete_dragons.loc[config.dragon]
 
-    skill_damage, noskill_damage = fZero(1, skill_objective, noskill_objective, dc.damage, dc.timeMod, dc.tTime, dc.sTime, 'Compare')
+info = Refine(dragon)
+info.trimmed()
+info.speedCheck()
+lpConstraints = Constraints(info.rlength, info.frames)
+lpConstraints.rowGeneration()
+solverInfo = SolInfo(info, lpConstraints)
 
-    dparser(skill_damage[0], noskill_damage[0], skill_objective[0], noskill_objective[0], skill_solution, noskill_solution)
+bufferable = False
+for element in info.cancels:
+    if element != 0:
+        bufferable = True
+        break
 
-if dc.mode == 'BnB':
-    optimal_string = None
-    skillProblem = Formulation()
-    solver = pybnb.Solver()
-    bnbSkill = solver.solve(skillProblem,
-                        absolute_gap=0.0001, node_limit=10000000, queue_strategy=config.queue_strat)
-    skill_obj = bnbSkill.best_node.state[0]
-    skill_sol = bnbSkill.best_node.state[-1]
-    skill_string = bnbSkill.best_node.state[3]
+mode = 'Default'
+if info.cond != [1, 0] or bufferable:
+    mode = 'BnB'
+elif info.tCancel:
+    mode = 'Transform Cancel'
+#note: this breaks jeanne.
+if config.bnbOverride:
+    mode = 'BnB'
 
-    if not dc.bufferable and not config.bnbOverride:
-        noskill_sol, noskill_obj = lp_solver.mainSolver(dc.r_obj, dc.r_const, dc.r_dir, dc.rhs, dc.rhsFiller, dc.skillAppend, dc.noskillAppend, dc.intreq)
-        skill_damage, noskill_damage = fZero(1, skill_obj, noskill_obj, dc.damage, dc.timeMod, dc.tTime, dc.sTime, 'Compare')
+
+#TODO: set up options for skill only and no skill only, reflect those changes in lp_solver and bnb_formulation.
+#      pare down to reflect the use of new classes.
+#      fix lp_solver and bnb_formulation because this breaks them
+
+# if mode == 'Default':
+#     (
+#         skill_solution, 
+#         noskill_solution, 
+#         skill_objective, 
+#         noskill_objective
+#      ) = lp_solver.mainSolver(dc.r_obj, dc.r_const, dc.r_dir, dc.rhs, dc.rhsFiller, dc.skillAppend, dc.noskillAppend, dc.intreq)
+
+#     skill_damage, noskill_damage = fZero(1, skill_objective, noskill_objective, dc.damage, dc.timeMod, dc.tTime, dc.sTime, 'Compare')
+
+#     dparser(skill_damage[0], noskill_damage[0], skill_objective[0], noskill_objective[0], skill_solution, noskill_solution)
+
+# if mode == 'BnB':
+#     adjacency = info.adjacencyGen()
+#     optimal_string = None
+#     skillProblem = Formulation()
+#     solver = pybnb.Solver()
+#     bnbSkill = solver.solve(skillProblem,
+#                         absolute_gap=0.0001, node_limit=10000000, queue_strategy=config.queue_strat)
+#     skill_obj = bnbSkill.best_node.state[0]
+#     skill_sol = bnbSkill.best_node.state[-1]
+#     skill_string = bnbSkill.best_node.state[3]
+
+#     if not dc.bufferable and not config.bnbOverride:
+#         noskill_sol, noskill_obj = lp_solver.mainSolver(dc.r_obj, dc.r_const, dc.r_dir, dc.rhs, dc.rhsFiller, dc.skillAppend, dc.noskillAppend, dc.intreq)
+#         skill_damage, noskill_damage = fZero(1, skill_obj, noskill_obj, dc.damage, dc.timeMod, dc.tTime, dc.sTime, 'Compare')
         
-        if config.include_string:
-            dparser(skill_damage, noskill_damage[0], skill_obj, noskill_obj[0], skill_sol, noskill_sol, opt_sk_str=skill_string)
-        else:
-            dparser(skill_damage, noskill_damage[0], skill_obj, noskill_obj[0], skill_sol, noskill_sol)
+#         if config.include_string:
+#             dparser(skill_damage, noskill_damage[0], skill_obj, noskill_obj[0], skill_sol, noskill_sol, opt_sk_str=skill_string)
+#         else:
+#             dparser(skill_damage, noskill_damage[0], skill_obj, noskill_obj[0], skill_sol, noskill_sol)
 
-    else:
-        noskillProblem = Formulation()
-        noskillProblem._useSkill = False
-        bnbNoskill = solver.solve(noskillProblem, 
-                                absolute_gap=0.0001, node_limit=10000000, queue_strategy=config.queue_strat)
-        noskill_obj = bnbNoskill.best_node.state[0]
-        noskill_sol = bnbNoskill.best_node.state[-1]
-        noskill_string = bnbNoskill.best_node.state[3]
-        skill_damage, noskill_damage = fZero(1, skill_obj, noskill_obj, dc.damage, dc.timeMod, dc.tTime, dc.sTime, 'Compare')
+#     else:
+#         noskillProblem = Formulation()
+#         noskillProblem._useSkill = False
+#         bnbNoskill = solver.solve(noskillProblem, 
+#                                 absolute_gap=0.0001, node_limit=10000000, queue_strategy=config.queue_strat)
+#         noskill_obj = bnbNoskill.best_node.state[0]
+#         noskill_sol = bnbNoskill.best_node.state[-1]
+#         noskill_string = bnbNoskill.best_node.state[3]
+#         skill_damage, noskill_damage = fZero(1, skill_obj, noskill_obj, dc.damage, dc.timeMod, dc.tTime, dc.sTime, 'Compare')
 
-        if config.include_string:
-            dparser(skill_damage, noskill_damage, skill_obj, noskill_obj, skill_sol, noskill_sol, opt_sk_str=skill_string, opt_nosk_str=noskill_string)
-        else:
-            dparser(skill_damage, noskill_damage, skill_obj, noskill_obj, skill_sol, noskill_sol)
+#         if config.include_string:
+#             dparser(skill_damage, noskill_damage, skill_obj, noskill_obj, skill_sol, noskill_sol, opt_sk_str=skill_string, opt_nosk_str=noskill_string)
+#         else:
+#             dparser(skill_damage, noskill_damage, skill_obj, noskill_obj, skill_sol, noskill_sol)

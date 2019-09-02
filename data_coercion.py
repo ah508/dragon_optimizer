@@ -7,6 +7,13 @@ import config
 from fractions import Fraction
 from data_refine import Refine, Constraints, SolInfo
 
+
+
+#DEFUNCT
+# to be removed at a later date.
+
+
+
 # complete_dragons = pandas.read_csv('file:dragon_optimizer/discrete_dragon_data.csv', header=0, index_col=0)
 complete_dragons = pandas.read_csv('file:C:/Users/Adam/Documents/GACHAAAAA/Optimization/dragon_optimizer/discrete_dragon_data.csv', header=0, index_col=0)
 dragon = complete_dragons.loc[config.dragon]
