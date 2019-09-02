@@ -1,7 +1,7 @@
-dragon = 'Agni'
-disp_mode = 'Default'
+dragon = 'Phoenix(2H)'
+disp_mode = 'Skill'
 bnbOverride = False
-leniency = 3
+leniency = 0
 skill_coefficient = 1
 attack_rate = 1
 additional_time = 0 # interpretted as an additive % increase

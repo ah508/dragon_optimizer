@@ -82,7 +82,7 @@ constraint += list(np.zeros(reflength-1)) + [1]
 constraint += frameC
 direction += ['<=', '<=', '<=', '<=']
 
-rowcount = 2*reflength + 1
+rowcount = 2*reflength - 1
 r_obj = robjects.FloatVector(damage)
 intreq = robjects.IntVector(range(1, len(damage)))
 r_const = robjects.r['matrix'](constraint, nrow=rowcount, byrow=True)
