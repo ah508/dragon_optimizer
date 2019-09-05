@@ -8,7 +8,7 @@ import pandas
 from data_refine import Refine, SolInfo
 from bnb_formulation import Formulation
 import pybnb
-import lp_solver
+from lp_solver import LPsolution
 
 # complete_dragons = pandas.read_csv('file:dragon_optimizer/discrete_dragon_data.csv', header=0, index_col=0)
 complete_dragons = pandas.read_csv('file:C:/Users/Adam/Documents/GACHAAAAA/Optimization/dragon_optimizer/discrete_dragon_data.csv', header=0, index_col=0)
@@ -18,8 +18,6 @@ info = Refine(dragon)
 info.trimmed()
 info.speedCheck()
 info.addConstraints()
-# lpConstraints = Constraints(info.rlength, info.frames)
-# lpConstraints.rowGeneration()
 solverInfo = SolInfo(info)
 
 bufferable = False
@@ -38,9 +36,28 @@ if config.bnbOverride:
     mode = 'BnB'
 
 
-#TODO: set up options for skill only and no skill only, reflect those changes in lp_solver and bnb_formulation.
+#TODO: set up options for skill only and no skill only, reflect those changes in lp_solver[done] and bnb_formulation.
 #      pare down to reflect the use of new classes.
-#      fix lp_solver and bnb_formulation because this breaks them
+#      fix lp_solver[done] and bnb_formulation because this breaks them
+
+if mode == 'Default':
+    if config.disp_mode == 'Default' or 'Both':
+        skill = LPsolution(solverInfo, 1)
+        noskill = LPsolution(solverInfo, 0)
+
+    elif config.disp_mode == 'Skill':
+        skill = LPsolution(solverInfo, 1)
+        noskill = 0
+        if config.disp_compare:
+            noskill = LPsolution(solverInfo, 0)
+
+    elif config.disp_mode == 'No Skill':
+        noskill = LPsolution(solverInfo, 0)
+        skill = 0
+        if config.disp_compare:
+            skill = LPsolution(solverInfo, 1)
+        
+
 
 # if mode == 'Default':
 #     (
