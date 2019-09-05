@@ -1,5 +1,6 @@
 # import config
 # import data_coercion as dc
+import numpy as np
 import rpy2
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
@@ -7,11 +8,14 @@ lpSolve = importr('lpSolve')
 
 class LPsolution:
     def __init__(self, solinfo, skill):
+        self.skill = skill
         rhs = robjects.IntVector(solinfo.rhs + solinfo.filler + [1, 0, skill, solinfo.time])
         self.result = lpSolve.lp("max", solinfo.obj, solinfo.const, solinfo.dir, rhs, int_vec=solinfo.intreq)
         self.solution = self.result.rx2('solution')
         
-
+    def characteristics(self, info):
+        self.objective = np.dot(self.solution, info.damage)
+        self.mps = self.objective/(info.time + info.transformTime + self.skill*info.skillTime)
 
 
 
