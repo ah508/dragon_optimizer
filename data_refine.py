@@ -103,7 +103,8 @@ class SolInfo:
         self.dir = robjects.StrVector(constraints.direction)
         self.intreq = robjects.IntVector(range(1, len(self.damage)))
         self.rhs = [1] + list(np.zeros(information.rlength - 5))
-        self.skillAppend = [1, 0, 1, information.time]
-        self.noskillAppend = [1, 0, 0, information.time]
+        self.time = information.time
+        # self.skillAppend = [1, 0, 1, information.time]
+        # self.noskillAppend = [1, 0, 0, information.time]
         self.filler = list(np.zeros(information.rlength - 1))
 #####
