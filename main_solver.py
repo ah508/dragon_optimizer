@@ -5,7 +5,7 @@ import rpy2
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 import pandas
-from data_refine import Refine, Constraints, SolInfo
+from data_refine import Refine, SolInfo
 from bnb_formulation import Formulation
 import pybnb
 import lp_solver
@@ -17,9 +17,10 @@ dragon = complete_dragons.loc[config.dragon]
 info = Refine(dragon)
 info.trimmed()
 info.speedCheck()
-lpConstraints = Constraints(info.rlength, info.frames)
-lpConstraints.rowGeneration()
-solverInfo = SolInfo(info, lpConstraints)
+info.addConstraints()
+# lpConstraints = Constraints(info.rlength, info.frames)
+# lpConstraints.rowGeneration()
+solverInfo = SolInfo(info)
 
 bufferable = False
 for element in info.cancels:

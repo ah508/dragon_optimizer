@@ -24,7 +24,6 @@ class Refine:
         self.transformTime = data['Transformation']
         self.skillTime = data['Skill Duration']
         self.time = config.initial_time*60*(1 + data['DragonTime'] + config.additional_time)
-        self.adjacency = []
         
 
     def trimmed(self):
@@ -62,19 +61,11 @@ class Refine:
                 elif i in range(0, self.rlength - 3) and j == i + 1:
                     self.adjacency[i][j] = self.frames[j]
         return self.adjacency
-#####
 
-
-#####
-class Constraints:
-    def __init__(self, rlength, frames):
-        self.rlength = rlength
-        self.frames = frames
-        self.constraint = [1] + list(np.zeros(rlength - 2))
+    def addConstraints(self):
+        self.constraint = [1] + list(np.zeros(self.rlength - 2))
         self.direction = ['==']
-        self.wait = list(np.zeros(rlength))
-
-    def rowGeneration(self):
+        self.wait = list(np.zeros(self.rlength))
         self.wait[-3] = 1
         self.wait[-4] = -1
         for cascade in range(1, -4):
@@ -94,17 +85,15 @@ class Constraints:
 
 #####
 class SolInfo:
-    def __init__(self, information, constraints):
+    def __init__(self, information):
         self.damage = information.damage
         self.frames = information.frames
         self.rowcount = 2*information.rlength - 1
         self.obj = robjects.FloatVector(self.damage - self.frames)
-        self.const = robjects.r['matrix'](constraints.constraint, nrow=self.rowcount, byrow=True)
-        self.dir = robjects.StrVector(constraints.direction)
+        self.const = robjects.r['matrix'](information.constraint, nrow=self.rowcount, byrow=True)
+        self.dir = robjects.StrVector(information.direction)
         self.intreq = robjects.IntVector(range(1, len(self.damage)))
         self.rhs = [1] + list(np.zeros(information.rlength - 5))
         self.time = information.time
-        # self.skillAppend = [1, 0, 1, information.time]
-        # self.noskillAppend = [1, 0, 0, information.time]
         self.filler = list(np.zeros(information.rlength - 1))
 #####
