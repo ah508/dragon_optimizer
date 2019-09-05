@@ -1,6 +1,7 @@
 import config
-from misc import fZero, dparser, ddisplay
-import scipy.optimize as spOpt
+# from misc import fZero, dparser, ddisplay
+from findZero import rootFind
+# import scipy.optimize as spOpt
 import rpy2
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
@@ -36,27 +37,35 @@ if config.bnbOverride:
     mode = 'BnB'
 
 
-#TODO: set up options for skill only and no skill only, reflect those changes in lp_solver[done] and bnb_formulation.
+#TODO: set up options for skill only and no skill only[done], reflect those changes in lp_solver[done] and bnb_formulation.
 #      pare down to reflect the use of new classes.
 #      fix lp_solver[done] and bnb_formulation because this breaks them
 
 if mode == 'Default':
+    skill = LPsolution()
+    noskill = LPsolution()
     if config.disp_mode == 'Default' or 'Both':
-        skill = LPsolution(solverInfo, 1)
-        noskill = LPsolution(solverInfo, 0)
+        skill.solve(solverInfo, 1)
+        noskill.solve(solverInfo, 0)
+        skill.characteristics(info)
+        noskill.characteristics(info)
 
     elif config.disp_mode == 'Skill':
-        skill = LPsolution(solverInfo, 1)
-        noskill = 0
+        skill.solve(solverInfo, 1)
         if config.disp_compare:
-            noskill = LPsolution(solverInfo, 0)
+            noskill.solve(solverInfo, 0)
 
     elif config.disp_mode == 'No Skill':
-        noskill = LPsolution(solverInfo, 0)
-        skill = 0
+        noskill.solve(solverInfo, 0)
         if config.disp_compare:
-            skill = LPsolution(solverInfo, 1)
-        
+            skill.solve(solverInfo, 1)
+    
+    if skill.solved and noskill.solved:
+        zero = rootFind(skill.objective, noskill.objective, info)
+    else:
+        zero = 'Not Computed'
+
+    # Output and formatting of results goes here
 
 
 # if mode == 'Default':

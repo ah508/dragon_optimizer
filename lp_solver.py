@@ -7,7 +7,11 @@ from rpy2.robjects.packages import importr
 lpSolve = importr('lpSolve')
 
 class LPsolution:
-    def __init__(self, solinfo, skill):
+    def __init__(self):
+        self.solved = False
+    
+    def solve(self, solinfo, skill):
+        self.solved = True
         self.skill = skill
         rhs = robjects.IntVector(solinfo.rhs + solinfo.filler + [1, 0, skill, solinfo.time])
         self.result = lpSolve.lp("max", solinfo.obj, solinfo.const, solinfo.dir, rhs, int_vec=solinfo.intreq)
