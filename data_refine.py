@@ -86,13 +86,11 @@ class Refine:
 #####
 class SolInfo:
     def __init__(self, information):
-        self.damage = information.damage
-        self.frames = information.frames
-        self.rowcount = 2*information.rlength - 1
-        self.obj = robjects.FloatVector(self.damage - self.frames)
-        self.const = robjects.r['matrix'](information.constraint, nrow=self.rowcount, byrow=True)
+        rowcount = 2*information.rlength - 1
+        self.obj = robjects.FloatVector(information.damage - information.frames)
+        self.const = robjects.r['matrix'](information.constraint, nrow=rowcount, byrow=True)
         self.dir = robjects.StrVector(information.direction)
-        self.intreq = robjects.IntVector(range(1, len(self.damage)))
+        self.intreq = robjects.IntVector(range(1, len(information.damage)))
         self.rhs = [1] + list(np.zeros(information.rlength - 5))
         self.time = information.time
         self.filler = list(np.zeros(information.rlength - 1))
