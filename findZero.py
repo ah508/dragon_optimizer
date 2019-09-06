@@ -8,7 +8,7 @@ def fZero(x, skill, noskill, info):
 
 def rootFind(skill, noskill, info):
     if info.damage[-1] != 0:
-        zero = spOpt.newton(fZero, 1, args=(skill, noskill, info))
+        zero = round(spOpt.newton(fZero, 1, args=(skill, noskill, info)), 3)
     elif skill.objective >= noskill.objective: 
         zero = '-Inf'
     elif skill.objective < noskill.objective:

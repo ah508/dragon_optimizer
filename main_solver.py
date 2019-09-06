@@ -10,7 +10,7 @@ from data_refine import Refine, SolInfo
 from bnb_formulation import BnBsolution
 import pybnb
 from lp_solver import LPsolution
-from output import lpOutput
+from output import MainDisplay
 
 # complete_dragons = pandas.read_csv('file:dragon_optimizer/discrete_dragon_data.csv', header=0, index_col=0)
 complete_dragons = pandas.read_csv('file:C:/Users/Adam/Documents/GACHAAAAA/Optimization/dragon_optimizer/discrete_dragon_data.csv', header=0, index_col=0)
@@ -40,12 +40,12 @@ if config.bnbOverride:
 
 #TODO: set up options for skill only and no skill only[done], reflect those changes in lp_solver[done] and bnb_formulation[done].
 #      pare down to reflect the use of new classes.
-#      fix lp_solver[done] and bnb_formulation because this breaks them
+#      fix lp_solver[done] and bnb_formulation[done] because this breaks them
 
 if mode == 'Default':
     skill = LPsolution()
     noskill = LPsolution()
-    if (config.disp_mode == 'Default' or 'Both') or config.disp_compare:
+    if config.disp_mode in ['Default', 'Both'] or config.disp_compare:
         skill.solve(info, solverInfo, 1)
         noskill.solve(info, solverInfo, 0)
 
@@ -63,11 +63,11 @@ if mode == 'Default':
     noskill.characteristics()
     
     if skill.solved and noskill.solved:
-        zero = round(rootFind(skill, noskill, info), 3)
+        zero = rootFind(skill, noskill, info)
     else:
         zero = 'Not Computed'
 
-    lpOutput(skill, noskill, info, zero)
+    final = MainDisplay(skill, noskill, info, zero)
 
 
 if mode == 'BnB':
@@ -76,7 +76,7 @@ if mode == 'BnB':
         noskill = LPsolution()
         noskill.solve(info, solverInfo, 0)
     
-    elif (config.disp_mode == 'Skill' or 'No Skill') and config.disp_compare and not (bufferable or config.bnbOverride):
+    elif config.disp_mode in ['Skill', 'No Skill'] and config.disp_compare and not (bufferable or config.bnbOverride):
         info.adjacencyGen()
         skill = BnBsolution(info, solverInfo, 1)
         noskill = LPsolution()
@@ -87,7 +87,7 @@ if mode == 'BnB':
         info.adjacencyGen()
         skill = BnBsolution(info, solverInfo, 1)
         noskill = BnBsolution(info, solverInfo, 0)
-        if (config.disp_mode == 'Default' or 'Both') or config.disp_compare:
+        if config.disp_mode in ['Default', 'Both'] or config.disp_compare:
             skill.findSolution()
             noskill.findSolution()
         
@@ -101,11 +101,13 @@ if mode == 'BnB':
     noskill.characteristics()
 
     if skill.solved and noskill.solved:
-        zero = round(rootFind(skill, noskill, info), 3)
+        zero = rootFind(skill, noskill, info)
     else:
         zero = 'Not Computed'
 
-    bnbOutput(skill, noskill, info, zero)
+    final = MainDisplay(skill, noskill, info, zero)
+
+final.output()
 
 
         

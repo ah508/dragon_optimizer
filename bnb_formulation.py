@@ -27,7 +27,7 @@ class BnBsolution:
 
     def characteristics(self):
         if self.solved:
-            self.objective = self.result.best_node.state[0]
+            self.objective = round(self.result.best_node.state[0], 3)
             self.string = self.result.best_node.state[3]
             self.duration = round((self.info.time + self.info.transformTime + self.useSkill*self.info.skillTime)/60, 3)
             self.leniency = self.info.time - self.result.best_node.state[1]
