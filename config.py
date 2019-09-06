@@ -1,5 +1,6 @@
 dragon = 'Agni'
 disp_mode = 'Default'
+disp_compare = False
 bnbOverride = False
 leniency = 3
 skill_coefficient = 1

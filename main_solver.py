@@ -7,9 +7,10 @@ import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 import pandas
 from data_refine import Refine, SolInfo
-from bnb_formulation import Formulation
+# from bnb_formulation import Formulation
 import pybnb
 from lp_solver import LPsolution
+from output import lpOutput
 
 # complete_dragons = pandas.read_csv('file:dragon_optimizer/discrete_dragon_data.csv', header=0, index_col=0)
 complete_dragons = pandas.read_csv('file:C:/Users/Adam/Documents/GACHAAAAA/Optimization/dragon_optimizer/discrete_dragon_data.csv', header=0, index_col=0)
@@ -44,29 +45,29 @@ if config.bnbOverride:
 if mode == 'Default':
     skill = LPsolution()
     noskill = LPsolution()
-    if config.disp_mode == 'Default' or 'Both':
+    if (config.disp_mode == 'Default' or 'Both') or config.disp_compare:
         skill.solve(solverInfo, 1)
         noskill.solve(solverInfo, 0)
 
     elif config.disp_mode == 'Skill':
         skill.solve(solverInfo, 1)
-        if config.disp_compare:
-            noskill.solve(solverInfo, 0)
+        # if config.disp_compare:
+        #     noskill.solve(solverInfo, 0)
 
     elif config.disp_mode == 'No Skill':
         noskill.solve(solverInfo, 0)
-        if config.disp_compare:
-            skill.solve(solverInfo, 1)
+        # if config.disp_compare:
+        #     skill.solve(solverInfo, 1)
 
     skill.characteristics(info)
     noskill.characteristics(info)
     
     if skill.solved and noskill.solved:
-        zero = rootFind(skill, noskill, info)
+        zero = round(rootFind(skill, noskill, info), 3)
     else:
         zero = 'Not Computed'
 
-    # Output and formatting of results goes here
+    lpOutput(skill, noskill, info, zero)
 
 
 # if mode == 'Default':

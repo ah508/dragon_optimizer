@@ -18,8 +18,11 @@ class LPsolution:
         self.solution = self.result.rx2('solution')
         
     def characteristics(self, info):
-        self.objective = np.dot(self.solution, info.damage)
-        self.mps = self.objective/(info.time + info.transformTime + self.skill*info.skillTime)
+        if self.solved:
+            self.objective = np.dot(self.solution, info.damage)
+            self.duration = round((info.time + info.transformTime + self.skill*info.skillTime)/60, 3)
+            self.leniency = info.time - np.dot(self.solution, info.frames)
+            self.mps = round(self.objective/self.duration, 3)
 
 
 
