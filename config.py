@@ -1,5 +1,6 @@
-dragon = 'Phoenix(2H)'
-disp_mode = 'Skill'
+dragon = 'Agni'
+disp_mode = 'Default'
+disp_compare = False
 bnbOverride = False
 leniency = 0
 skill_coefficient = 1
