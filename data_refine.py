@@ -65,21 +65,23 @@ class Refine:
     def addConstraints(self):
         self.constraint = [1] + list(np.zeros(self.rlength - 2))
         self.direction = ['==']
-        self.wait = list(np.zeros(self.rlength))
-        self.wait[-3] = 1
-        self.wait[-4] = -1
-        for cascade in range(1, -4):
-            constraint += list(np.zeros(cascade + 1)) + [-1, 1] + list(np.zeros(self.rlength - cascade - 3))
-            direction += ['<=']
-        constraint += [0]
+        wait = list(np.zeros(self.rlength))
+        wait[-3] = 1
+        wait[-4] = -1
+        for cascade in range(1, self.rlength-4):
+            self.constraint += list(np.zeros(cascade + 1)) + [-1, 1] + list(np.zeros(self.rlength - cascade - 3))
+            self.direction += ['<=']
+        self.constraint += [0]
         for limiters in range(1, self.rlength):
-            constraint += list(np.zeros(limiters)) + [1] + list(np.zeros(self.rlength - limiters - 1))
-            direction += ['>=']
-        constraint += [0, 1] + list(np.zeros(self.rlength - 5)) + [-1, -1, -1]
-        constraint += self.wait
-        constraint += list(np.zeros(self.rlength - 1)) + [1]
-        constraint += self.frames
-        direction += ['<=', '<=', '<=', '<=']
+            self.constraint += list(np.zeros(limiters)) + [1] + list(np.zeros(self.rlength - limiters - 1))
+            self.direction += ['>=']
+        self.constraint += [0, 1] + list(np.zeros(self.rlength - 5)) + [-1, -1, -1]
+        self.constraint += wait
+        self.constraint += list(np.zeros(self.rlength - 1)) + [1]
+        self.constraint += self.frames
+        # self.constraint = constraint
+        self.direction += ['<=', '<=', '<=', '<=']
+        # self.direction = direction
 #####
 
 
@@ -87,10 +89,15 @@ class Refine:
 class SolInfo:
     def __init__(self, information):
         rowcount = 2*information.rlength - 1
-        self.obj = robjects.FloatVector(information.damage - information.frames)
+        objective = [i - j for i,j in zip(information.damage, information.frames)]
+        self.obj = robjects.FloatVector(objective)
+        # print(self.obj)
         self.const = robjects.r['matrix'](information.constraint, nrow=rowcount, byrow=True)
+        # print(self.const)
         self.dir = robjects.StrVector(information.direction)
+        # print(self.dir)
         self.intreq = robjects.IntVector(range(1, len(information.damage)))
+        # print(self.intreq)
         self.rhs = [1] + list(np.zeros(information.rlength - 5))
         self.time = information.time
         self.filler = list(np.zeros(information.rlength - 1))
