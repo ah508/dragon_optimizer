@@ -38,9 +38,7 @@ if config.bnbOverride:
     mode = 'BnB'
 
 
-#TODO: set up options for skill only and no skill only[done], reflect those changes in lp_solver[done] and bnb_formulation[done].
-#      pare down to reflect the use of new classes.
-#      fix lp_solver[done] and bnb_formulation[done] because this breaks them
+#TODO: bugtesting, adjusting constraints for minimax
 
 if mode == 'Default':
     skill = LPsolution()
