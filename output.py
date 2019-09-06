@@ -1,5 +1,6 @@
 import config
 
+#####
 def brickWriter(result, zero):
     print('____________________________________________________')
     print(f'MOD/s                        |   {result.mps}')
@@ -9,8 +10,9 @@ def brickWriter(result, zero):
     print(f'Duration                     |   {result.duration} s')
     print('‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
     print(' ')
+#####
 
-
+#####
 def lpWriter(lpOutput, info, zero):
     print('__________')
     for i in range(0, len(lpOutput.solution)):
@@ -43,6 +45,8 @@ def lpOutput(skill, noskill, info, zero):
     elif config.disp_mode == 'No Skill':
         print('Display No Skill Only')
         lpWriter(noskill, info, zero)
+#####
 
-
-        
+#####
+def bnbOutput(skill, noskill, info, zero):
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~')

@@ -7,7 +7,7 @@ import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 import pandas
 from data_refine import Refine, SolInfo
-# from bnb_formulation import Formulation
+from bnb_formulation import BnBsolution
 import pybnb
 from lp_solver import LPsolution
 from output import lpOutput
@@ -38,7 +38,7 @@ if config.bnbOverride:
     mode = 'BnB'
 
 
-#TODO: set up options for skill only and no skill only[done], reflect those changes in lp_solver[done] and bnb_formulation.
+#TODO: set up options for skill only and no skill only[done], reflect those changes in lp_solver[done] and bnb_formulation[done].
 #      pare down to reflect the use of new classes.
 #      fix lp_solver[done] and bnb_formulation because this breaks them
 
@@ -46,21 +46,21 @@ if mode == 'Default':
     skill = LPsolution()
     noskill = LPsolution()
     if (config.disp_mode == 'Default' or 'Both') or config.disp_compare:
-        skill.solve(solverInfo, 1)
-        noskill.solve(solverInfo, 0)
+        skill.solve(info, solverInfo, 1)
+        noskill.solve(info, solverInfo, 0)
 
     elif config.disp_mode == 'Skill':
-        skill.solve(solverInfo, 1)
+        skill.solve(info, solverInfo, 1)
         # if config.disp_compare:
         #     noskill.solve(solverInfo, 0)
 
     elif config.disp_mode == 'No Skill':
-        noskill.solve(solverInfo, 0)
+        noskill.solve(info, solverInfo, 0)
         # if config.disp_compare:
         #     skill.solve(solverInfo, 1)
 
-    skill.characteristics(info)
-    noskill.characteristics(info)
+    skill.characteristics()
+    noskill.characteristics()
     
     if skill.solved and noskill.solved:
         zero = round(rootFind(skill, noskill, info), 3)
@@ -68,6 +68,54 @@ if mode == 'Default':
         zero = 'Not Computed'
 
     lpOutput(skill, noskill, info, zero)
+
+
+if mode == 'BnB':
+    if config.disp_mode == 'No Skill' and not (bufferable or config.bnbOverride or config.disp_compare):
+        skill = LPsolution()
+        noskill = LPsolution()
+        noskill.solve(info, solverInfo, 0)
+    
+    elif (config.disp_mode == 'Skill' or 'No Skill') and config.disp_compare and not (bufferable or config.bnbOverride):
+        info.adjacencyGen()
+        skill = BnBsolution(info, solverInfo, 1)
+        noskill = LPsolution()
+        skill.findSolution()
+        noskill.solve(info, solverInfo, 0)
+
+    else:
+        info.adjacencyGen()
+        skill = BnBsolution(info, solverInfo, 1)
+        noskill = BnBsolution(info, solverInfo, 0)
+        if (config.disp_mode == 'Default' or 'Both') or config.disp_compare:
+            skill.findSolution()
+            noskill.findSolution()
+        
+        elif config.disp_mode == 'No Skill':
+            noskill.findSolution()
+
+        elif config.disp_mode == 'Skill':
+            skill.findSolution()
+        
+    skill.characteristics()
+    noskill.characteristics()
+
+    if skill.solved and noskill.solved:
+        zero = round(rootFind(skill, noskill, info), 3)
+    else:
+        zero = 'Not Computed'
+
+    bnbOutput(skill, noskill, info, zero)
+
+
+        
+
+        
+
+    
+
+
+
 
 
 # if mode == 'Default':

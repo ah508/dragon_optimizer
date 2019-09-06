@@ -9,19 +9,21 @@ lpSolve = importr('lpSolve')
 class LPsolution:
     def __init__(self):
         self.solved = False
+        self.type = 'LP'
     
-    def solve(self, solinfo, skill):
+    def solve(self, info, solinfo, skill):
         self.solved = True
+        self.info = info
         self.skill = skill
         rhs = robjects.IntVector(solinfo.rhs + solinfo.filler + [1, 0, skill, solinfo.time])
         self.result = lpSolve.lp("max", solinfo.obj, solinfo.const, solinfo.dir, rhs, int_vec=solinfo.intreq)
         self.solution = self.result.rx2('solution')
         
-    def characteristics(self, info):
+    def characteristics(self):
         if self.solved:
-            self.objective = np.dot(self.solution, info.damage)
-            self.duration = round((info.time + info.transformTime + self.skill*info.skillTime)/60, 3)
-            self.leniency = info.time - np.dot(self.solution, info.frames)
+            self.objective = np.dot(self.solution, self.info.damage)
+            self.duration = round((self.info.time + self.info.transformTime + self.skill*self.info.skillTime)/60, 3)
+            self.leniency = self.info.time - np.dot(self.solution, self.info.frames)
             self.mps = round(self.objective/self.duration, 3)
 
 

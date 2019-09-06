@@ -60,7 +60,7 @@ class Refine:
                         self.adjacency[i][j] += self.cancels[i] - config.leniency
                 elif i in range(0, self.rlength - 3) and j == i + 1:
                     self.adjacency[i][j] = self.frames[j]
-        return self.adjacency
+        # return self.adjacency
 
     def addConstraints(self):
         self.constraint = [1] + list(np.zeros(self.rlength - 2))
@@ -91,6 +91,7 @@ class SolInfo:
         rowcount = 2*information.rlength - 1
         objective = [i - j for i,j in zip(information.damage, information.frames)]
         self.obj = robjects.FloatVector(objective)
+        self.altObj = robjects.FloatVector(information.damage)
         # print(self.obj)
         self.const = robjects.r['matrix'](information.constraint, nrow=rowcount, byrow=True)
         # print(self.const)
