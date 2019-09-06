@@ -47,8 +47,6 @@ if mode == 'Default':
     if config.disp_mode == 'Default' or 'Both':
         skill.solve(solverInfo, 1)
         noskill.solve(solverInfo, 0)
-        skill.characteristics(info)
-        noskill.characteristics(info)
 
     elif config.disp_mode == 'Skill':
         skill.solve(solverInfo, 1)
@@ -59,9 +57,12 @@ if mode == 'Default':
         noskill.solve(solverInfo, 0)
         if config.disp_compare:
             skill.solve(solverInfo, 1)
+
+    skill.characteristics(info)
+    noskill.characteristics(info)
     
     if skill.solved and noskill.solved:
-        zero = rootFind(skill.objective, noskill.objective, info)
+        zero = rootFind(skill, noskill, info)
     else:
         zero = 'Not Computed'
 
