@@ -82,7 +82,7 @@ class MainDisplay:
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~')
         if config.disp_mode == 'Default':
             print('Default Mode')
-            if self.zero.isnumeric():
+            if str(self.zero).isnumeric():
                 if self.zero < 1:
                     print('Skill is always Optimal.')
             if self.skill.mps >= self.noskill.mps:
