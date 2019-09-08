@@ -6,7 +6,7 @@ import rpy2
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 import pandas
-from data_refine import Refine, SolInfo
+from data_refine import Refine, SolInfo, SubSolInfo
 from bnb_formulation import BnBsolution
 import pybnb
 from lp_solver import LPsolution
@@ -21,6 +21,8 @@ info.trimmed()
 info.speedCheck()
 info.addConstraints()
 solverInfo = SolInfo(info)
+if config.obj_strat == 'Min Frames':
+    subSolverInfo = SubSolInfo(info)
 
 bufferable = False
 for element in info.cancels:
@@ -46,14 +48,25 @@ if mode == 'Default':
     if config.disp_mode in ['Default', 'Both'] or config.disp_compare:
         skill.solve(info, solverInfo, 1)
         noskill.solve(info, solverInfo, 0)
+        if config.obj_strat == 'Min Frames':
+            skill.characteristics(objective_only=True)
+            noskill.characteristics(objective_only=True)
+            skill.solve(info, subSolverInfo, 1, add_const=skill.objective)
+            noskill.solve(info, subSolverInfo, 0, add_const=noskill.objective)
 
     elif config.disp_mode == 'Skill':
         skill.solve(info, solverInfo, 1)
+        if config.obj_strat == 'Min Frames':
+            skill.characteristics(objective_only=True)
+            skill.solve(info, subSolverInfo, 1, add_const=skill.objective)
         # if config.disp_compare:
         #     noskill.solve(solverInfo, 0)
 
     elif config.disp_mode == 'No Skill':
         noskill.solve(info, solverInfo, 0)
+        if config.obj_strat == 'Min Frames':
+            noskill.characteristics(objective_only=True)
+            noskill.solve(info, subSolverInfo, 0, add_const=noskill.objective)
         # if config.disp_compare:
         #     skill.solve(solverInfo, 1)
 

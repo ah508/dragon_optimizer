@@ -89,17 +89,29 @@ class Refine:
 class SolInfo:
     def __init__(self, information):
         rowcount = 2*information.rlength - 1
-        objective = [i - j for i,j in zip(information.damage, information.frames)]
-        self.obj = robjects.FloatVector(objective)
         self.altObj = robjects.FloatVector(information.damage)
-        # print(self.obj)
+        if config.obj_strat in ['Default', 'Min Frames']:
+            self.obj = self.altObj
+        elif config.obj_strat == 'Dirty':
+            objective = [i - j for i,j in zip(information.damage, information.frames)]
+            self.obj = robjects.FloatVector(objective)
+
         self.const = robjects.r['matrix'](information.constraint, nrow=rowcount, byrow=True)
-        # print(self.const)
         self.dir = robjects.StrVector(information.direction)
-        # print(self.dir)
         self.intreq = robjects.IntVector(range(1, len(information.damage)))
-        # print(self.intreq)
         self.rhs = [1] + list(np.zeros(information.rlength - 5))
         self.time = information.time
         self.filler = list(np.zeros(information.rlength - 1))
+        
+class SubSolInfo:
+    def __init__(self, information):
+        rowcount = 2*information.rlength
+        self.obj = robjects.FloatVector(information.frames)
+        self.const = robjects.r['matrix'](information.constraint + information.damage, nrow=rowcount, byrow=True)
+        self.dir = robjects.StrVector(information.direction + ['=='])
+        self.intreq = robjects.IntVector(range(1, len(information.damage)))
+        self.rhs = [1] + list(np.zeros(information.rlength - 5))
+        self.time = information.time
+        self.filler = list(np.zeros(information.rlength - 1))
+
 #####
