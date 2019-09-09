@@ -61,6 +61,7 @@ class Refine:
                 elif i in range(0, self.rlength - 3) and j == i + 1:
                     self.adjacency[i][j] = self.frames[j]
         # return self.adjacency
+        # print(self.adjacency)
 
     def addConstraints(self):
         self.constraint = [1] + list(np.zeros(self.rlength - 2))
@@ -95,16 +96,21 @@ class SolInfo:
         elif config.obj_strat == 'Dirty':
             objective = [i - j for i,j in zip(information.damage, information.frames)]
             self.obj = robjects.FloatVector(objective)
-
+        # print(self.obj)
         self.const = robjects.r['matrix'](information.constraint, nrow=rowcount, byrow=True)
+        # print(self.const)
         self.dir = robjects.StrVector(information.direction)
+        # print(self.dir)
         self.intreq = robjects.IntVector(range(1, len(information.damage)))
         self.rhs = [1] + list(np.zeros(information.rlength - 5))
         self.time = information.time
         self.filler = list(np.zeros(information.rlength - 1))
-        
+###
+
+###     
 class SubSolInfo:
     def __init__(self, information):
+        # print('calculating subsol')
         rowcount = 2*information.rlength
         self.obj = robjects.FloatVector(information.frames)
         self.const = robjects.r['matrix'](information.constraint + information.damage, nrow=rowcount, byrow=True)

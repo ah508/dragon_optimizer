@@ -1,3 +1,6 @@
+import time
+start_time = time.process_time()
+
 import config
 # from misc import fZero, dparser, ddisplay
 from findZero import rootFind
@@ -39,8 +42,11 @@ elif info.tCancel:
 if config.bnbOverride:
     mode = 'BnB'
 
+print('parsed:')
+print(time.process_time() - start_time)
 
-#TODO: bugtesting, adjusting constraints for minimax
+
+#TODO: bugtesting, adjusting constraints[done]
 
 if mode == 'Default':
     skill = LPsolution()
@@ -70,6 +76,8 @@ if mode == 'Default':
         # if config.disp_compare:
         #     skill.solve(solverInfo, 1)
 
+    print('post solve:')
+    print(time.process_time() - start_time)
     skill.characteristics()
     noskill.characteristics()
     
@@ -120,6 +128,9 @@ if mode == 'BnB':
 
 final.output()
 
+print('++++++++++')
+print(time.process_time() - start_time)
+print('++++++++++')
 
         
 
