@@ -80,9 +80,7 @@ class Refine:
         self.constraint += wait
         self.constraint += list(np.zeros(self.rlength - 1)) + [1]
         self.constraint += self.frames
-        # self.constraint = constraint
         self.direction += ['<=', '<=', '<=', '<=']
-        # self.direction = direction
 #####
 
 
@@ -119,5 +117,4 @@ class SubSolInfo:
         self.rhs = [1] + list(np.zeros(information.rlength - 5))
         self.time = information.time
         self.filler = list(np.zeros(information.rlength - 1))
-
-#####
+###

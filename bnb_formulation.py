@@ -1,6 +1,4 @@
 import config
-# import data_coercion as dc
-# from data_coercion import adjacency as adjacency
 from functools import lru_cache
 import numpy as np
 import pybnb
@@ -39,10 +37,7 @@ def lp_sol(combo, useSkill, modifier, solInfo):
     cc = copy.copy(combo)
     cc = list(cc)
     del cc[0]
-    # if useSkill:
     r_rhs = robjects.IntVector([*solInfo.rhs, *cc, *[1, 0, useSkill, solInfo.time]])
-    # else:
-        # r_rhs = robjects.IntVector([*dc.rhs, *cc, *dc.noskillAppend])
     r_sol = lpSolve.lp("max", solInfo.altObj, solInfo.const, solInfo.dir, r_rhs).rx2('objval')
     return modifier*r_sol[0]
 
