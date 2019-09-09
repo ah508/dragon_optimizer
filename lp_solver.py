@@ -16,10 +16,12 @@ class LPsolution:
         self.info = info
         self.skill = skill
         if 'add_const' in kwargs:
-            rhs = robjects.IntVector(solinfo.rhs + solinfo.filler + [1, 0, skill, solinfo.time, kwargs['add_const']])
+            rhs = robjects.FloatVector(solinfo.rhs + solinfo.filler + [1, 0, skill, solinfo.time, kwargs['add_const']])
+            method = "min"
         else:
             rhs = robjects.IntVector(solinfo.rhs + solinfo.filler + [1, 0, skill, solinfo.time])
-        self.result = lpSolve.lp("max", solinfo.obj, solinfo.const, solinfo.dir, rhs, int_vec=solinfo.intreq)
+            method = "max"
+        self.result = lpSolve.lp(method, solinfo.obj, solinfo.const, solinfo.dir, rhs, int_vec=solinfo.intreq)
         self.solution = self.result.rx2('solution')
         
     def characteristics(self, **kwargs):
