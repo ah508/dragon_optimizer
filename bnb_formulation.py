@@ -16,7 +16,7 @@ class BnBsolution:
         self.type = 'BnB'
         self.solved = False
 
-    def findSolution(self):
+    def solve(self):
         self.solved = True
         formula = Formulation(self.info, self.solInfo, self.useSkill)
         solver = pybnb.Solver()
