@@ -1,16 +1,20 @@
 import config
 import scipy.optimize as spOpt
 
-def fZero(x, skill, noskill, info):
-    skillDPS = (x*info.damage[-1]/config.skill_coefficient + skill.objective - info.damage[-1])/(skill.duration)
-    noskillDPS = noskill.objective/noskill.duration
-    return noskillDPS - skillDPS
+def fZero(x, string1, string2, info):
+    comboDPS = []
+    for combo in [string1, string2]:
+        if combo.useSkill:
+            comboDPS += [(x*info.damage[-1]/config.skill_coefficient + combo.objective - info.damage[-1])/(combo.duration)]
+        else:
+            comboDPS += [combo.objective/combo.duration]
+    return comboDPS[0] - comboDPS[1]
 
-def rootFind(skill, noskill, info):
+def rootFind(string1, string2, info):
     if info.damage[-1] != 0:
-        zero = round(spOpt.newton(fZero, 1, args=(skill, noskill, info)), 3)
-    elif skill.objective >= noskill.objective: 
+        zero = round(spOpt.newton(fZero, 1, args=(string1, string2, info)), 3)
+    elif string1.objective >= string2.objective: 
         zero = '-Inf'
-    elif skill.objective < noskill.objective:
+    elif string1.objective < string2.objective:
         zero = 'Inf'
     return zero

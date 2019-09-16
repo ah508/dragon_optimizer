@@ -1,9 +1,10 @@
 import config
 
 class MainDisplay:
-    def __init__(self, skill, noskill, info, zero):
+    def __init__(self, skill, noskill, tcancel, info, zero):
         self.skill = skill
         self.noskill = noskill
+        self.tcancel = tcancel
         self.info = info
         self.zero = zero
 
@@ -12,24 +13,34 @@ class MainDisplay:
         if config.disp_mode == 'Default':
             print('Default Mode')
             try:
-                if self.zero < 1:
-                    print('Skill is always Optimal.')
+                if self.zero[0] < 1 or self.zero[1] < 1:
+                    print('Skill > No Skill.')
+                if self.zero[1] <= self.zero[0]:
+                    print('Transform Cancel is Favorable.')
             except TypeError:
                 pass
-            if self.skill.mps >= self.noskill.mps:
+            max_MPS = max([self.skill.mps, self.noskill.mps, self.tcancel.mps])
+            if max_MPS == self.skill.mps: 
                 print('> Skill <')
                 self.printSwitch(self.skill)
-            else:
+            elif max_MPS == self.noskill.mps:
                 print('> No Skill <')
                 self.printSwitch(self.noskill)
+            elif max_MPS == self.tcancel.mps:
+                print('> Transform Cancel <')
+                self.printSwitch(self.tcancel)
+                
 
-        elif config.disp_mode == 'Both':
-            print('Display Both Solutions')
+        elif config.disp_mode == 'Full List':
+            print('Display All Solutions')
             print('> Skill <')
             self.printSwitch(self.skill)
             print('- - - - -')
             print('> No Skill <')
             self.printSwitch(self.noskill)
+            print('- - - - -')
+            print('> Transform Cancel <')
+            self.printSwitch(self.tcancel)
         
         elif config.disp_mode == 'Skill':
             print('Display Skill Only')
@@ -38,6 +49,10 @@ class MainDisplay:
         elif config.disp_mode == 'No Skill':
             print('Display No Skill Only')
             self.printSwitch(self.noskill)
+
+        elif config.disp_mode == 'Transform Cancel':
+            print('Display Transform Cancel Only')
+            self.printSwitch(self.tcancel)
 
     def printSwitch(self, sOutput):
         if sOutput.type == 'LP':
@@ -64,13 +79,15 @@ class MainDisplay:
         self.brickWriter(lpOutput)
 
     def brickWriter(self, result):
-        print('____________________________________________________')
-        print(f'MOD/s                        |   {result.mps}')
-        print(f'Total Mod                    |   {result.objective}')
-        print(f'Skill Coefficient Breakpoint |   {self.zero}')
-        print(f'Leniency                     |   {result.leniency} f')
-        print(f'Duration                     |   {result.duration} s')
-        print('‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
+        print('____________________________________________________________')
+        print(f'MOD/s                                  |   {result.mps}')
+        print(f'Total Mod                              |   {result.objective}')
+        print(f'Skill ~ No Skill Breakpoint            |   {self.zero[0]}')
+        print(f'Transform Cancel ~ No Skill Breakpoint |   {self.zero[1]}')
+        print(f'Transform Cancel ~ Skill Breakpoint    |   {self.zero[2]}')
+        print(f'Leniency                               |   {result.leniency} f')
+        print(f'Duration                               |   {result.duration} s')
+        print('‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
         print(' ')
 
     

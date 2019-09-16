@@ -28,10 +28,20 @@ class LPsolution:
         self.result = lpSolve.lp(method, solverInfo.obj, solverInfo.const, solverInfo.dir, rhs, int_vec=solverInfo.intreq)
         self.solution = self.result.rx2('solution')
         
-    def characteristics(self, **kwargs):
+    def characteristics(self, objective_only=False, tCancel=False):
         if self.solved:
+            if tCancel and not objective_only:
+                self.useSkill = 1
+                self.solution[-1] = 1.0
+                cancel_frames = self.info.tCancel
+            else:
+                cancel_frames = 0
             self.objective = np.dot(self.solution, self.info.damage)
-            if 'objective_only' not in kwargs:
-                self.duration = round((self.info.time + self.info.transformTime + self.useSkill*self.info.skillTime)/60, 3)
+            if not objective_only:
+                self.duration = round((self.info.time + self.info.transformTime + cancel_frames + self.useSkill*self.info.skillTime)/60, 3)
                 self.leniency = self.info.time - np.dot(self.solution, self.info.frames)
+                if tCancel:
+                    self.leniency += 3
                 self.mps = round(self.objective/self.duration, 3)
+        # else:
+        #     self.mps = 0

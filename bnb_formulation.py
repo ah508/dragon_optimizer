@@ -9,27 +9,34 @@ from rpy2.robjects.packages import importr
 lpSolve = importr('lpSolve')
 
 class BnBsolution:
-    def __init__(self, info, solInfo, useSkill):
+    def __init__(self, info, solInfo, useSkill, tCancel=False):
         self.info = info
         self.solInfo = solInfo
         self.useSkill = useSkill
+        self.tCancel = tCancel
         self.type = 'BnB'
         self.solved = False
 
     def solve(self):
         self.solved = True
-        formula = Formulation(self.info, self.solInfo, self.useSkill)
+        formula = Formulation(self.info, self.solInfo, self.useSkill, self.tCancel)
         solver = pybnb.Solver()
         self.result = solver.solve(formula, absolute_gap=0.0001, node_limit=10000000, queue_strategy=config.queue_strat)
         self.solution = self.result.best_node.state[-1]
 
-    def characteristics(self):
+    def characteristics(self, tCancel=False):
         if self.solved:
             self.objective = round(self.result.best_node.state[0], 3)
             self.string = self.result.best_node.state[3]
-            self.duration = round((self.info.time + self.info.transformTime + self.useSkill*self.info.skillTime)/60, 3)
+            if tCancel:
+                cancel_frames = self.info.tCancel
+            else:
+                cancel_frames = 0
+            self.duration = round((self.info.time + self.info.transformTime + cancel_frames + self.useSkill*self.info.skillTime)/60, 3)
             self.leniency = self.info.time - self.result.best_node.state[1]
             self.mps = round(self.objective/self.duration, 3)
+        # else:
+        #     self.mps = 0
 
 
 @lru_cache(maxsize=2048)
@@ -42,10 +49,11 @@ def lp_sol(combo, useSkill, modifier, solInfo):
     return modifier*r_sol[0]
 
 class Formulation(pybnb.Problem):
-    def __init__(self, info, solInfo, useSkill):
+    def __init__(self, info, solInfo, useSkill, tCancel):
         self._info = info
         self._solInfo = solInfo
         self._useSkill = useSkill
+        self._tCancel = tCancel
         self._currentNode = 0
         self._sumDamage = 150
         self._time = 0
@@ -65,12 +73,12 @@ class Formulation(pybnb.Problem):
     def bound(self):
         if config.bound_method == 'Experimental':
             bound = lp_sol(self._comboCount, self._useSkill, self._contModif, self._solInfo)
-            return bound
+            return round(bound, 3)
             
 
         elif config.bound_method == 'Accurate':
             bound = lp_sol(self._comboCount, self._useSkill, self._contModif, self._solInfo)
-            return bound
+            return round(bound, 3)
 
         elif config.bound_method == 'None':
             return 15000
@@ -98,6 +106,7 @@ class Formulation(pybnb.Problem):
             self._currentNode, 
             self._optString, 
             self._condition, 
+            self._tCancel,
             self._comboCount
             )
 
@@ -108,6 +117,7 @@ class Formulation(pybnb.Problem):
             self._currentNode, 
             self._optString, 
             self._condition, 
+            self._tCancel,
             self._comboCount
             ) = node.state
 
@@ -124,13 +134,15 @@ class Formulation(pybnb.Problem):
         for nextNode in range(0, len(self._info.adjacency)-1):
             if self._info.adjacency[self._currentNode][nextNode] == -1:
                 continue
+            if self._tCancel:
+                continue
             time = self._time + self._info.adjacency[self._currentNode][nextNode]
             comboCount = self._comboCount[:nextNode] + (self._comboCount[nextNode] + 1,) + self._comboCount[nextNode+1:]
             if time > self._endTime:
                 continue
             child = pybnb.Node()
             child.state = (self._sumDamage + damages[nextNode], time, nextNode, 
-                self._optString + [nextNode], [self._condition[0], self._condition[1] - self._info.adjacency[self._currentNode][nextNode]], comboCount)
+                self._optString + [nextNode], [self._condition[0], self._condition[1] - self._info.adjacency[self._currentNode][nextNode]], self._tCancel, comboCount)
             yield child
 
         if(self._comboCount[-1] < 1 and self._time + self._info.frames[-1] <= self._endTime and self._useSkill):
@@ -138,7 +150,7 @@ class Formulation(pybnb.Problem):
             comboCount = self._comboCount[:-1] +(1,)
             child = pybnb.Node()
             child.state = (self._sumDamage + damages[self._info.rlength-1], time, 
-            self._info.rlength-1, self._optString + [self._info.rlength-1], self._info.cond, comboCount)
+            self._info.rlength-1, self._optString + [self._info.rlength-1], self._info.cond, False, comboCount)
             yield child
 
         
