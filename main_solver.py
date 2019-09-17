@@ -1,5 +1,5 @@
-# import time
-# start_time = time.process_time()
+import time
+start_time = time.process_time()
 
 import config
 from findZero import rootFind
@@ -14,6 +14,10 @@ import copy
 from lp_solver import LPsolution
 from output import MainDisplay
 
+print('imports finished:')
+print(time.process_time() - start_time)
+print('-')
+
 # complete_dragons = pandas.read_csv('file:dragon_optimizer/discrete_dragon_data.csv', header=0, index_col=0)
 complete_dragons = pandas.read_csv('file:discrete_dragon_data.csv', header=0, index_col=0)
 dragon = complete_dragons.loc[config.dragon]
@@ -21,11 +25,15 @@ dragon = complete_dragons.loc[config.dragon]
 info = Refine(dragon)
 info.trimmed()
 info.speedCheck()
+info.hasteCheck()
 info.addConstraints()
 info.adjacencyGen()
 solverInfo = SolInfo(info)
-# if config.obj_strat == 'Min Frames':
 subSolverInfo = SubSolInfo(info)
+
+print('data formatted:')
+print(time.process_time() - start_time)
+print('-')
 
 bufferable = False
 for element in info.cancels:
@@ -49,6 +57,10 @@ else:
     skill = LPsolution(info, solverInfo, subSolverInfo, 1)
     noskill = LPsolution(info, solverInfo, subSolverInfo, 0)
     tcancel = LPsolution(info, solverInfo, subSolverInfo, 0) 
+
+print('solution type determined:')
+print(time.process_time() - start_time)
+print('-')
 
 if config.disp_compare or config.disp_mode in ['Default', 'Full List']:
     skill.solve()
@@ -85,6 +97,10 @@ skill.characteristics()
 noskill.characteristics()
 tcancel.characteristics(tCancel=True)
 
+print('solved:')
+print(time.process_time() - start_time)
+print('-')
+
 zero = ['Not Computed', 'Not Computed', 'Not Computed']
 if skill.solved and noskill.solved:
     zero[0] = rootFind(skill, noskill, info)
@@ -93,11 +109,15 @@ if noskill.solved and tcancel.solved:
 if skill.solved and tcancel.solved:
     zero[2] = rootFind(tcancel, skill, info)
 
+print("zero'd:")
+print(time.process_time() - start_time)
+print('-')
 
 final = MainDisplay(skill, noskill, tcancel, info, zero)
 final.output()
 
 
-# print('++++++++++')
-# print(time.process_time() - start_time)
-# print('++++++++++')
+print('++++++++++')
+print('FINISHED:')
+print(time.process_time() - start_time)
+print('++++++++++')

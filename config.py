@@ -1,10 +1,11 @@
 dragon = 'Agni'
 disp_mode = 'Default' #Default, Skill, No Skill, Transform Cancel, Full List
 disp_compare = False
-bnbOverride = False
+bnbOverride = True
 leniency = 3
 skill_coefficient = 2.55
 attack_rate = 1 
+haste_coefficient = 1
 additional_time = 0 # interpretted as an additive % increase
 initial_time = 10 # seconds
 obj_strat = 'Min Frames' #'Default', 'Min Frames', 'Dirty'(illegitimate min frames)

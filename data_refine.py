@@ -9,11 +9,12 @@ import rpy2.robjects as robjects
 class Refine:
     def __init__(self, data):
         self.reference = ['T  ', 'C1a', 'C1b', 'C2a', 'C2b', 'C3a', 'C3b', 'C4a', 'C4b', 'C5a', 'C5b', 'W  ', 'D  ', 'S  ']
-        self.damage = [150] + [data[9 + 4*i] for i in range(0, 10)] + [0, 0] + [data['Skill Damage']*config.skill_coefficient]
-        self.cancels = [0] + [data[11 + 4*i] for i in range(0, 10)] + [0, 0, 0]
-        self.cooldown = [0] + [data[12 + 4*i] for i in range(0, 10)] + [0, 0, 0,]
+        self.damage = [150] + [data[10 + 5*i] for i in range(0, 10)] + [0, 0] + [data['Skill Damage']*config.skill_coefficient]
+        self.cancels = [0] + [data[12 + 5*i] for i in range(0, 10)] + [0, 0, 0]
+        self.cooldown = [0] + [data[13 + 5*i] for i in range(0, 10)] + [0, 0, 0]
+        self.sp_gen = [0] + [data[14 + 5*i] for i in range(0, 10)] + [0, 0, 0]
         lastC = [i for i, e in enumerate(self.cooldown) if e != 0]
-        self.frames = [0] + [data[10 + 4*i] for i in range(0, 10)] + [self.cooldown[lastC[-1]]] + [data['Dodge Frames']] + [0]
+        self.frames = [0] + [data[11 + 5*i] for i in range(0, 10)] + [self.cooldown[lastC[-1]]] + [data['Dodge Frames']] + [0]
         self.tCancel = data['Transform Cancel']
         self.rlength = 0
         if type(data['Skill Effect']) == str:
@@ -44,6 +45,10 @@ class Refine:
             for i in range(1, self.rlength - 3):
                 self.frames[i] = ceil(self.frames[i]/config.attack_rate)
             self.skillTime = ceil(self.skillTime/config.attack_rate)
+
+    def hasteCheck(self):
+        if config.haste_coefficient != 1:
+            self.sp_gen[i] = ceil(self.sp_gen[i]*config.haste_coefficient)
 
     def adjacencyGen(self):
         self.adjacency = np.full([self.rlength, self.rlength], -1)
