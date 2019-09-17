@@ -48,7 +48,8 @@ class Refine:
 
     def hasteCheck(self):
         if config.haste_coefficient != 1:
-            self.sp_gen[i] = ceil(self.sp_gen[i]*config.haste_coefficient)
+            for i in range(1, self.rlength - 3):
+                self.sp_gen[i] = ceil(self.sp_gen[i]*config.haste_coefficient)
 
     def adjacencyGen(self):
         self.adjacency = np.full([self.rlength, self.rlength], -1)
