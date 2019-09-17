@@ -16,6 +16,7 @@ class Refine:
         lastC = [i for i, e in enumerate(self.cooldown) if e != 0]
         self.frames = [0] + [data[11 + 5*i] for i in range(0, 10)] + [self.cooldown[lastC[-1]]] + [data['Dodge Frames']] + [0]
         self.tCancel = data['Transform Cancel']
+        self.skillUses = data['Skill Uses']
         self.rlength = 0
         if type(data['Skill Effect']) == str:
             sEffect = float(Fraction(data['Skill Effect']))
