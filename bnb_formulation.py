@@ -32,7 +32,7 @@ class BnBsolution:
                 cancel_frames = self.info.tCancel
             else:
                 cancel_frames = 0
-            self.duration = round((self.info.time + self.info.transformTime + cancel_frames + self.useSkill*self.info.skillTime)/60, 3)
+            self.duration = round((self.info.time + self.info.transformTime + cancel_frames + self.useSkill*self.info.skillUses*self.info.skillTime)/60, 3)
             self.leniency = self.info.time - self.result.best_node.state[1]
             self.mps = round(self.objective/self.duration, 3)
         # else:
@@ -156,7 +156,7 @@ class Formulation(pybnb.Problem):
                 condition = self._info.cond
             else:
                 condition = [self._info.cond[0]*(1+self._comboCount[-1]) - self._comboCount[-1], self._info.cond[1]]
-            comboCount = self._comboCount[:-1] +(1,)
+            comboCount = self._comboCount[:-1] +(self._comboCount[-1] + 1,)
             child = pybnb.Node()
             child.state = (self._sumDamage + damages[self._info.rlength-1], time, 
             self._info.rlength-1, self._optString + [self._info.rlength-1], condition, False, 0, comboCount) 

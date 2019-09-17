@@ -31,10 +31,10 @@ class Refine:
     def trimmed(self):
         delVec = []
         for i in range(1, len(self.damage)-3):
-            if [self.damage[i], self.cancels[i], self.cooldown[i], self.frames[i]] == [0, 0, 0, 0]:
+            if [self.damage[i], self.cancels[i], self.cooldown[i], self.frames[i], self.sp_gen[i]] == [0, 0, 0, 0, 0]:
                 delVec += [i]
         delVec.reverse()
-        for vector in [self.damage, self.cancels, self.cooldown, self.frames, self.reference]:
+        for vector in [self.damage, self.cancels, self.cooldown, self.frames, self.reference, self.sp_gen]:
             for indices in delVec:
                 del vector[indices]
         self.rlength = len(self.reference)
