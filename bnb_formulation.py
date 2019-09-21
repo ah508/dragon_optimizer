@@ -127,12 +127,6 @@ class Formulation(pybnb.Problem):
     def branch(self):
         if(self._time > self._endTime):
             return self.infeasible_objective()
-        
-        damages = copy.copy(self._info.damage)
-
-        if (self._condition[1] > 0):
-            for i in range(0, len(damages)-1):
-                damages[i] = damages[i]*self._condition[0]
 
         for nextNode in range(0, len(self._info.adjacency)-1):
             if self._info.adjacency[self._currentNode][nextNode] == -1:
@@ -140,25 +134,30 @@ class Formulation(pybnb.Problem):
             if self._tCancel:
                 continue
             time = self._time + self._info.adjacency[self._currentNode][nextNode]
-            comboCount = self._comboCount[:nextNode] + (self._comboCount[nextNode] + 1,) + self._comboCount[nextNode+1:]
-            skill_SP = min(30, self._skillSP + self._info.sp_gen[nextNode])
             if time > self._endTime:
                 continue
+            comboCount = self._comboCount[:nextNode] + (self._comboCount[nextNode] + 1,) + self._comboCount[nextNode+1:]
+            skill_SP = min(30, self._skillSP + self._info.sp_gen[nextNode])
+            condition = [self._condition[0], self._condition[1]-self._info.adjacency[self._currentNode][nextNode]]
+            if condition[1] < 0:
+                condition = [1, 0]
+            damage = self._sumDamage + self._info.damage[nextNode]*condition[0]
             child = pybnb.Node()
-            child.state = (self._sumDamage + damages[nextNode], time, nextNode, 
-                self._optString + [nextNode], [self._condition[0], self._condition[1] - self._info.adjacency[self._currentNode][nextNode]], self._tCancel, skill_SP, comboCount) 
+            child.state = (damage, time, nextNode, 
+                self._optString + [nextNode], condition, self._tCancel, skill_SP, comboCount) 
             yield child
 
-        # if self._comboCount[-1] < self._info.skillUses and self._time +..... and self._useSkill and self._skillSP == 30):
+        
         if(self._comboCount[-1] < self._info.skillUses and self._time + self._info.frames[-1] <= self._endTime and self._useSkill and self._skillSP == 30):
             time = self._time + self._info.frames[-1]
             if self._comboCount[-1] == 0:
                 condition = self._info.cond
             else:
                 condition = [self._info.cond[0]*(1+self._comboCount[-1]) - self._comboCount[-1], self._info.cond[1]]
+            # NOTE: not robust at all^
             comboCount = self._comboCount[:-1] +(self._comboCount[-1] + 1,)
             child = pybnb.Node()
-            child.state = (self._sumDamage + damages[self._info.rlength-1], time, 
+            child.state = (self._sumDamage + self._info.damage[self._info.rlength-1], time, 
             self._info.rlength-1, self._optString + [self._info.rlength-1], condition, False, 0, comboCount) 
             yield child
 
