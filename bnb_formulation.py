@@ -9,9 +9,8 @@ from rpy2.robjects.packages import importr
 lpSolve = importr('lpSolve')
 
 class BnBsolution:
-    def __init__(self, info, solInfo, useSkill, tCancel=False):
+    def __init__(self, info, useSkill, tCancel=False):
         self.info = info
-        self.solInfo = solInfo
         self.useSkill = useSkill
         self.tCancel = tCancel
         self.type = 'BnB'
@@ -19,7 +18,8 @@ class BnBsolution:
 
     def solve(self):
         self.solved = True
-        formula = Formulation(self.info, self.solInfo, self.useSkill, self.tCancel)
+        self.info.normInfo(bnb=True, skill=self.useSkill)
+        formula = Formulation(self.info, self.useSkill, self.tCancel)
         solver = pybnb.Solver()
         self.result = solver.solve(formula, absolute_gap=0.0001, node_limit=10000000, queue_strategy=config.queue_strat)
         self.solution = self.result.best_node.state[-1]
@@ -49,9 +49,8 @@ def lp_sol(combo, useSkill, modifier, solInfo):
     return modifier*r_sol[0]
 
 class Formulation(pybnb.Problem):
-    def __init__(self, info, solInfo, useSkill, tCancel):
+    def __init__(self, info, useSkill, tCancel):
         self._info = info
-        self._solInfo = solInfo
         self._useSkill = useSkill
         self._tCancel = tCancel
         self._currentNode = 0
@@ -73,12 +72,12 @@ class Formulation(pybnb.Problem):
 
     def bound(self):
         if config.bound_method == 'Experimental':
-            bound = lp_sol(self._comboCount, self._useSkill, self._contModif, self._solInfo)
+            bound = lp_sol(self._comboCount, self._useSkill, self._contModif, self._info)
             return round(bound, 3)
             
 
         elif config.bound_method == 'Accurate':
-            bound = lp_sol(self._comboCount, self._useSkill, self._contModif, self._solInfo)
+            bound = lp_sol(self._comboCount, self._useSkill, self._contModif, self._info)
             return round(bound, 3)
 
         elif config.bound_method == 'None':

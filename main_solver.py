@@ -7,11 +7,11 @@ import rpy2
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 import pandas
-from data_refine import Refine, SolInfo, SubSolInfo
+from data_refine import Refine
 from bnb_formulation import BnBsolution
 import pybnb
 import copy
-from lp_solver import LPsolution
+from lp_solver import LPsolution, SLPsolution
 from output import MainDisplay
 
 print('imports finished:')
@@ -23,13 +23,6 @@ complete_dragons = pandas.read_csv('file:discrete_dragon_data.csv', header=0, in
 dragon = complete_dragons.loc[config.dragon]
 
 info = Refine(dragon)
-info.trimmed()
-info.speedCheck()
-info.hasteCheck()
-info.addConstraints()
-info.adjacencyGen()
-solverInfo = SolInfo(info)
-subSolverInfo = SubSolInfo(info)
 
 print('data formatted:')
 print(time.process_time() - start_time)
@@ -44,19 +37,20 @@ for element in info.cancels:
 bnb = (config.bnbOverride or bufferable)
 
 if bnb:
-    skill = BnBsolution(info, solverInfo, 1)
-    noskill = BnBsolution(info, solverInfo, 0)
-    tcancel = BnBsolution(info, solverInfo, 1, tCancel=True)
+    info.adjacencyGen()
+    skill = BnBsolution(info, 1)
+    noskill = BnBsolution(info, 0)
+    tcancel = BnBsolution(info, 1, tCancel=True)
 
 elif info.cond != [1, 0]:
-    skill = BnBsolution(info, solverInfo, 1)
-    noskill = LPsolution(info, solverInfo, subSolverInfo, 0)
-    tcancel = BnBsolution(info, solverInfo, 1, tCancel=True)
+    skill = SLPsolution(info, 1)
+    noskill = LPsolution(info, 0)
+    tcancel = SLPsolution(info, 1)
 
 else:
-    skill = LPsolution(info, solverInfo, subSolverInfo, 1)
-    noskill = LPsolution(info, solverInfo, subSolverInfo, 0)
-    tcancel = LPsolution(info, solverInfo, subSolverInfo, 0) 
+    skill = LPsolution(info, 1)
+    noskill = LPsolution(info, 0)
+    tcancel = LPsolution(info, 0) 
 
 print('solution type determined:')
 print(time.process_time() - start_time)
@@ -69,15 +63,14 @@ if config.disp_compare or config.disp_mode in ['Default', 'Full List']:
     if config.obj_strat == 'Min Frames' and not bnb:
         noskill.characteristics(objective_only=True)
         noskill.solve(add_const=noskill.objective)
-        if info.cond == [1, 0]:
-            skill.characteristics(objective_only=True)
-            skill.solve(add_const=skill.objective)
-            tcancel.characteristics(objective_only=True)
-            tcancel.solve(add_const=tcancel.objective)
+        skill.characteristics(objective_only=True)
+        skill.solve(add_const=skill.objective)
+        tcancel.characteristics(objective_only=True)
+        tcancel.solve(add_const=tcancel.objective)
 
 elif config.disp_mode == 'Skill':
     skill.solve()
-    if config.obj_strat == 'Min Frames' and not bnb and info.cond == [1, 0]:
+    if config.obj_strat == 'Min Frames' and not bnb:
         skill.characteristics(objective_only=True)
         skill.solve(add_const=skill.objective)
 
@@ -89,7 +82,7 @@ elif config.disp_mode == 'No Skill':
 
 elif config.disp_mode == 'Transform Cancel':
     tcancel.solve()
-    if config.obj_strat == 'Min Frames' and not bnb and info.cond == [1, 0]:
+    if config.obj_strat == 'Min Frames' and not bnb:
         tcancel.characteristics(objective_only=True)
         tcancel.solve(add_const=tcancel.objective)
 

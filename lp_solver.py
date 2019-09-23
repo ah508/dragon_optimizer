@@ -1,5 +1,4 @@
-# import config
-# import data_coercion as dc
+import config
 import numpy as np
 import rpy2
 import rpy2.robjects as robjects
@@ -7,25 +6,22 @@ from rpy2.robjects.packages import importr
 lpSolve = importr('lpSolve')
 
 class LPsolution:
-    def __init__(self, info, solInfo, subSolInfo, useSkill):
+    def __init__(self, info, useSkill):
         self.solved = False
         self.info = info
-        self.subSolInfo = subSolInfo
-        self.solInfo = solInfo
         self.useSkill = useSkill
         self.type = 'LP'
     
     def solve(self, **kwargs):
         self.solved = True
         if 'add_const' in kwargs:
-            rhs = robjects.FloatVector(self.solInfo.rhs + self.solInfo.filler + [1, 0, self.useSkill, self.solInfo.time, kwargs['add_const']])
+            self.info.normInfo(skill=self.useSkill, sub=kwargs['add_const'])
             method = "min"
-            solverInfo = self.subSolInfo
         else:
-            rhs = robjects.IntVector(self.solInfo.rhs + self.solInfo.filler + [1, 0, self.useSkill, self.solInfo.time])
+            self.info.normInfo(skill=self.useSkill)
             method = "max"
-            solverInfo = self.solInfo
-        self.result = lpSolve.lp(method, solverInfo.obj, solverInfo.const, solverInfo.dir, rhs, int_vec=solverInfo.intreq)
+        rhs = robjects.FloatVector(self.info.rhs)
+        self.result = lpSolve.lp(method, self.info.obj, self.info.const, self.info.dir, rhs, int_vec=self.info.intreq)
         self.solution = self.result.rx2('solution')
         
     def characteristics(self, objective_only=False, tCancel=False):
@@ -41,7 +37,40 @@ class LPsolution:
                 self.duration = round((self.info.time + self.info.transformTime + cancel_frames + self.useSkill*self.info.skillTime)/60, 3)
                 self.leniency = self.info.time - np.dot(self.solution, self.info.frames)
                 if tCancel:
-                    self.leniency += 3
+                    self.leniency += config.leniency
                 self.mps = round(self.objective/self.duration, 3)
-        # else:
-        #     self.mps = 0
+
+class SLPsolution:
+    def __init__(self, info, tcancel):
+        self.solved = False
+        self.info = info
+        self.tcancel = tcancel
+        self.type = 'SLP'
+
+    def solve(self, **kwargs):
+        self.solved = True
+        if 'add_const' in kwargs:
+            self.info.sepInfo(tcancel=self.tcancel, sub=kwargs['add_const'])
+            method = "min"
+        else:
+            self.info.sepInfo(tcancel=self.tcancel)
+            method = "max"
+        rhs = robjects.FloatVector(self.info.rhs)
+        self.result = lpSolve.lp(method, self.info.obj, self.info.const, self.info.dir, rhs, int_vec=self.info.intreq)
+        self.solution = self.result.rx2('solution')
+    
+    def characteristics(self, objective_only=False, tCancel=False):
+        if self.solved:
+            if tCancel and not objective_only:
+                cancel_frames = self.info.tcancel
+            else:
+                cancel_frames = 0
+            self.objective = np.dot(self.solution, self.info.objVec)
+        if not objective_only:
+            self.duration = round((self.info.time + self.info.transformTime + cancel_frames + self.info.skillTime)/60, 3)
+            self.leniency = self.info.time - np.dot(self.solution, self.info.timeVec) 
+            if tCancel:
+                self.leniency += config.leniency
+            self.mps = round(self.objective/self.duration, 3)
+
+

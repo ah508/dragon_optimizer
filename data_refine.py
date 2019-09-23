@@ -26,6 +26,9 @@ class Refine:
         self.transformTime = data['Transformation']
         self.skillTime = data['Skill Duration']
         self.time = config.initial_time*60*(1 + data['DragonTime'] + config.additional_time)
+        self.trimmed()
+        self.hasteCheck()
+        self.speedCheck()
         
 
     def trimmed(self):
@@ -52,6 +55,43 @@ class Refine:
             for i in range(1, self.rlength - 3):
                 self.sp_gen[i] = ceil(self.sp_gen[i]*config.haste_coefficient)
 
+    def normInfo(self, bnb=False, skill=1, sub=0):
+        if sub:
+            self.rowcount +=1
+            objective = robjects.IntVector(self.frames)
+            self.constraint += self.damage
+            self.direction += ['==']
+            self.rhs += [sub]
+        else:
+            self.addConstraints(bnb=bnb, skill=skill)
+            self.altObj = robjects.FloatVector(self.damage)
+            if config.obj_strat in ['Default', 'Min Frames']:
+                self.obj = self.altObj
+            elif config.obj_strat == 'Dirty':
+                objective = [i - j for i,j in zip(self.damage, self.frames)]
+        self.obj = robjects.FloatVector(objective)
+        self.const = robjects.r['matrix'](self.constraint, nrow=self.rowcount, byrow=True)
+        self.dir = robjects.StrVector(self.direction)
+        self.intreq = robjects.IntVector(range(1, len(self.damage)))
+
+    def sepInfo(self, tcancel=0, sub=0):
+        if sub:
+            self.constraint += [1, 1] + list(np.zeros(self.rlength*3 - 6))
+            self.rowcount += 1
+            self.objective = [0, 0] + self.frames[:-1] + self.frames[1:] + list(np.zeros(self.rlength - 4))
+            self.direction += ['==']
+        else:
+            self.sepConstraints(tcancel=tcancel)
+            self.rowcount = 3*self.rlength - 3
+            self.objVec = [0, 0] + self.damage[:-1] + [self.cond[0]*i for i in self.damage[1:-1]] + [-1*self.damage[-1]] + list(np.zeros(self.rlength - 4))
+            self.timeVec = [0, 0] + self.frames[:-1] + self.frames[1:] + list(np.zeros(self.rlength - 4))
+        self.obj = robjects.FloatVector(self.objective)
+        self.const = robjects.r['matrix'](self.constraint, nrow=self.rowcount, byrow=True)
+        self.dir = robjects.StrVector(self.direction)
+        self.intreq = robjects.IntVector(range(3, self.rlength*3 - 4))
+        
+        
+
     def adjacencyGen(self):
         self.adjacency = np.full([self.rlength, self.rlength], -1)
         for i in range(0, self.rlength):
@@ -67,10 +107,8 @@ class Refine:
                         self.adjacency[i][j] += self.cancels[i] - config.leniency
                 elif i in range(0, self.rlength - 3) and j == i + 1:
                     self.adjacency[i][j] = self.frames[j]
-        # return self.adjacency
-        # print(self.adjacency)
 
-    def addConstraints(self):
+    def addConstraints(self, bnb=False, skill=1):
         self.constraint = [1] + list(np.zeros(self.rlength - 2))
         self.direction = ['==']
         wait = list(np.zeros(self.rlength))
@@ -80,16 +118,23 @@ class Refine:
             self.constraint += list(np.zeros(cascade + 1)) + [-1, 1] + list(np.zeros(self.rlength - cascade - 3))
             self.direction += ['<=']
         self.constraint += [0]
-        for limiters in range(1, self.rlength):
-            self.constraint += list(np.zeros(limiters)) + [1] + list(np.zeros(self.rlength - limiters - 1))
-            self.direction += ['>=']
+        if bnb:
+            for limiters in range(1, self.rlength):
+                self.constraint += list(np.zeros(limiters)) + [1] + list(np.zeros(self.rlength - limiters - 1))
+                self.direction += ['>=']
+            self.rowcount = 2*self.rlength - 1
+            self.rhs = [1] + list(np.zeros(self.rlength - 5))
+        else:
+            self.rowcount = self.rlength
+            self.rhs = [1] + list(np.zeros(self.rlength - 5)) + [1, 0, skill, self.time]
         self.constraint += [0, 1] + list(np.zeros(self.rlength - 5)) + [-1, -1, -1]
         self.constraint += wait
         self.constraint += list(np.zeros(self.rlength - 1)) + [1]
         self.constraint += self.frames
         self.direction += ['<=', '<=', '<=', '<=']
+        
 
-    def alternativeConstraints(self):
+    def sepConstraints(self, tcancel=0):
         self.objective = [1, 1] + list(np.zeros(self.rlength*3 - 6))
         self.constraint = [0, 0, 1] + list(np.zeros(self.rlength*3 - 7))
         self.direction = ['==']
@@ -114,7 +159,7 @@ class Refine:
         self.constraint += list(np.zeros(2*self.rlength)) + list(np.ones(self.rlength - 4))
         self.constraint += list(np.zeros(2*self.rlength - 1)) + [1] + list(np.zeros(self.rlength - 4))
         self.direction += ['<=', '<=', '==', '<=']
-        self.rhs += [1, 0, 1, 1]
+        self.rhs += [1-tcancel, 0, 1, 1]
         self.constraint += [0, 0] + self.frames[:-1] + self.frames[1:] + list(np.zeros(self.rlength - 4))
         self.constraint += list(np.zeros(self.rlength + 1)) + self.frames[1:] + list(np.zeros(self.rlength - 4))
         self.direction += ['<=', '<=']
@@ -123,28 +168,29 @@ class Refine:
         self.constraint += [0, 1] + list(np.zeros(self.rlength - 1)) + [-1*self.cond[0]*i for i in self.damage[1:-1]] + [-1*self.damage[-1]] + list(np.zeros(self.rlength - 4))
         self.direction += ['<=', '<=']
         self.rhs += [0, 0]
+
+
 #####
 
 
 #####
-class SolInfo:
-    def __init__(self, information):
-        rowcount = 2*information.rlength - 1
-        self.altObj = robjects.FloatVector(information.damage)
-        if config.obj_strat in ['Default', 'Min Frames']:
-            self.obj = self.altObj
-        elif config.obj_strat == 'Dirty':
-            objective = [i - j for i,j in zip(information.damage, information.frames)]
-            self.obj = robjects.FloatVector(objective)
-        # print(self.obj)
-        self.const = robjects.r['matrix'](information.constraint, nrow=rowcount, byrow=True)
-        # print(self.const)
-        self.dir = robjects.StrVector(information.direction)
-        # print(self.dir)
-        self.intreq = robjects.IntVector(range(1, len(information.damage)))
-        self.rhs = [1] + list(np.zeros(information.rlength - 5))
-        self.time = information.time
-        self.filler = list(np.zeros(information.rlength - 1))
+# class SolInfo:
+#     def __init__(self, information):
+#         rowcount = 2*information.rlength - 1
+#         self.altObj = robjects.FloatVector(information.damage)
+#         if config.obj_strat in ['Default', 'Min Frames']:
+#             self.obj = self.altObj
+#         elif config.obj_strat == 'Dirty':
+#             objective = [i - j for i,j in zip(information.damage, information.frames)]
+#             self.obj = robjects.FloatVector(objective)
+#         # print(self.obj)
+#         self.const = robjects.r['matrix'](information.constraint, nrow=rowcount, byrow=True)
+#         # print(self.const)
+#         self.dir = robjects.StrVector(information.direction)
+#         # print(self.dir)
+#         self.intreq = robjects.IntVector(range(1, len(information.damage)))
+#         self.rhs = [1] + list(np.zeros(information.rlength - 5))
+#         self.time = information.time
 ###
 
 ###     
@@ -158,5 +204,4 @@ class SubSolInfo:
         self.intreq = robjects.IntVector(range(1, len(information.damage)))
         self.rhs = [1] + list(np.zeros(information.rlength - 5))
         self.time = information.time
-        self.filler = list(np.zeros(information.rlength - 1))
 ###
