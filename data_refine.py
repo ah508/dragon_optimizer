@@ -88,6 +88,41 @@ class Refine:
         self.constraint += list(np.zeros(self.rlength - 1)) + [1]
         self.constraint += self.frames
         self.direction += ['<=', '<=', '<=', '<=']
+
+    def alternativeConstraints(self):
+        self.objective = [1, 1] + list(np.zeros(self.rlength*3 - 6))
+        self.constraint = [0, 0, 1] + list(np.zeros(self.rlength*3 - 7))
+        self.direction = ['==']
+        self.rhs = [1]
+        for cascade in range(0, self.rlength - 4):
+            self.constraint += list(np.zeros(cascade + 3)) + [-1, 1] + list(np.zeros(self.rlength - cascade - 4))
+            self.constraint += list(np.zeros(self.rlength + cascade - 1)) + [-1] + list(np.zeros(self.rlength - cascade - 5))
+            self.direction += ['<=']
+            self.rhs += [0]
+        for cascade in range(0, self.rlength - 4):
+            self.constraint += list(np.zeros(self.rlength + cascade + 1)) + [-1, 1] + list(np.zeros(self.rlength - cascade - 4))
+            self.constraint += list(np.zeros(cascade + 1)) + [1] + list(np.zeros(self.rlength - cascade - 5))
+            self.direction += ['<=']
+            self.rhs += [0]
+        for cascade in range(0, self.rlength - 4):
+            self.constraint += list(np.zeros(self.rlength + cascade + 1)) + [-1] + list(np.zeros(self.rlength - cascade - 3))
+            self.constraint += list(np.zeros(cascade + 1)) + [1] + list(np.zeros(self.rlength - cascade -5))
+            self.direction += ['<=']
+            self.rhs += [0]
+        self.constraint += [0, 0, 0, 1] + list(np.zeros(self.rlength - 5)) + [-1, -1] + list(np.zeros(self.rlength*2 - 5))
+        self.constraint += list(np.zeros(self.rlength + 1)) + [1] + list(np.zeros(self.rlength - 5)) + [-1, -1, -1] + list(np.zeros(self.rlength - 4))
+        self.constraint += list(np.zeros(2*self.rlength)) + list(np.ones(self.rlength - 4))
+        self.constraint += list(np.zeros(2*self.rlength - 1)) + [1] + list(np.zeros(self.rlength - 4))
+        self.direction += ['<=', '<=', '==', '<=']
+        self.rhs += [1, 0, 1, 1]
+        self.constraint += [0, 0] + self.frames[:-1] + self.frames[1:] + list(np.zeros(self.rlength - 4))
+        self.constraint += list(np.zeros(self.rlength + 1)) + self.frames[1:] + list(np.zeros(self.rlength - 4))
+        self.direction += ['<=', '<=']
+        self.rhs += [self.time] + [self.cond[1] + config.leniency]
+        self.constraint += [1, 0] + [-1*i for i in self.damage[:-1]] + list(np.zeros(2*self.rlength - 5))
+        self.constraint += [0, 1] + list(np.zeros(self.rlength - 1)) + [-1*self.cond[0]*i for i in self.damage[1:-1]] + [-1*self.damage[-1]] + list(np.zeros(self.rlength - 4))
+        self.direction += ['<=', '<=']
+        self.rhs += [0, 0]
 #####
 
 
