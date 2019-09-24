@@ -58,7 +58,7 @@ class Refine:
     def normInfo(self, bnb=False, skill=1, sub=0):
         if sub:
             self.rowcount +=1
-            objective = robjects.IntVector(self.frames)
+            objective = robjects.FloatVector(self.frames)
             self.constraint += self.damage
             self.direction += ['==']
             self.rhs += [sub]
@@ -69,7 +69,7 @@ class Refine:
                 self.obj = self.altObj
             elif config.obj_strat == 'Dirty':
                 objective = [i - j for i,j in zip(self.damage, self.frames)]
-        self.obj = robjects.FloatVector(objective)
+                self.obj = robjects.FloatVector(objective)
         self.const = robjects.r['matrix'](self.constraint, nrow=self.rowcount, byrow=True)
         self.dir = robjects.StrVector(self.direction)
         self.intreq = robjects.IntVector(range(1, len(self.damage)))
@@ -79,11 +79,12 @@ class Refine:
             self.constraint += [1, 1] + list(np.zeros(self.rlength*3 - 6))
             self.rowcount += 1
             self.objective = [0, 0] + self.frames[:-1] + self.frames[1:] + list(np.zeros(self.rlength - 4))
+            self.rhs += [sub]
             self.direction += ['==']
         else:
             self.sepConstraints(tcancel=tcancel)
             self.rowcount = 3*self.rlength - 3
-            self.objVec = [0, 0] + self.damage[:-1] + [self.cond[0]*i for i in self.damage[1:-1]] + [-1*self.damage[-1]] + list(np.zeros(self.rlength - 4))
+            self.objVec = [0, 0] + self.damage[:-1] + [self.cond[0]*i for i in self.damage[1:-1]] + [self.damage[-1]] + list(np.zeros(self.rlength - 4))
             self.timeVec = [0, 0] + self.frames[:-1] + self.frames[1:] + list(np.zeros(self.rlength - 4))
         self.obj = robjects.FloatVector(self.objective)
         self.const = robjects.r['matrix'](self.constraint, nrow=self.rowcount, byrow=True)
@@ -194,14 +195,14 @@ class Refine:
 ###
 
 ###     
-class SubSolInfo:
-    def __init__(self, information):
-        # print('calculating subsol')
-        rowcount = 2*information.rlength
-        self.obj = robjects.FloatVector(information.frames)
-        self.const = robjects.r['matrix'](information.constraint + information.damage, nrow=rowcount, byrow=True)
-        self.dir = robjects.StrVector(information.direction + ['=='])
-        self.intreq = robjects.IntVector(range(1, len(information.damage)))
-        self.rhs = [1] + list(np.zeros(information.rlength - 5))
-        self.time = information.time
+# class SubSolInfo:
+#     def __init__(self, information):
+#         # print('calculating subsol')
+#         rowcount = 2*information.rlength
+#         self.obj = robjects.FloatVector(information.frames)
+#         self.const = robjects.r['matrix'](information.constraint + information.damage, nrow=rowcount, byrow=True)
+#         self.dir = robjects.StrVector(information.direction + ['=='])
+#         self.intreq = robjects.IntVector(range(1, len(information.damage)))
+#         self.rhs = [1] + list(np.zeros(information.rlength - 5))
+#         self.time = information.time
 ###

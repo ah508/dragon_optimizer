@@ -22,7 +22,7 @@ print('-')
 complete_dragons = pandas.read_csv('file:discrete_dragon_data.csv', header=0, index_col=0)
 dragon = complete_dragons.loc[config.dragon]
 
-info = Refine(dragon)
+info, info_1, info_2, info_3 = Refine(dragon), Refine(dragon), Refine(dragon), Refine(dragon)
 
 print('data formatted:')
 print(time.process_time() - start_time)
@@ -43,14 +43,14 @@ if bnb:
     tcancel = BnBsolution(info, 1, tCancel=True)
 
 elif info.cond != [1, 0]:
-    skill = SLPsolution(info, 1)
-    noskill = LPsolution(info, 0)
-    tcancel = SLPsolution(info, 1)
+    skill = SLPsolution(info_1, 0)
+    noskill = LPsolution(info_2, 0)
+    tcancel = SLPsolution(info_3, 1)
 
 else:
-    skill = LPsolution(info, 1)
-    noskill = LPsolution(info, 0)
-    tcancel = LPsolution(info, 0) 
+    skill = LPsolution(info_1, 1)
+    noskill = LPsolution(info_2, 0)
+    tcancel = LPsolution(info_3, 0) 
 
 print('solution type determined:')
 print(time.process_time() - start_time)

@@ -59,6 +59,8 @@ class MainDisplay:
             self.lpWriter(sOutput, self.info)
         elif sOutput.type == 'BnB':
             self.bnbWriter(sOutput, self.info)
+        elif sOutput.type == 'SLP':
+            self.slpWriter(sOutput, self.info)
 
     def bnbWriter(self, bnbOutput, info):
         print('___')
@@ -77,6 +79,22 @@ class MainDisplay:
                 print(f'{info.reference[i]} :  {lpOutput.solution[i]}')
         print('‾‾‾‾‾‾‾‾‾‾')
         self.brickWriter(lpOutput)
+
+    def slpWriter(self, slpOutput, info):
+        tots = slpOutput.solution[0:2]
+        unboosted = slpOutput.solution[2:info.rlength+1]
+        boosted = slpOutput.solution[info.rlength+1:2*info.rlength]
+        exitVars = slpOutput.solution[2*info.rlength:]
+        print('Unboosted           Boosted')
+        print('____________        ____________')
+        print('M  : %6.2f          M  : %6.2f' %(tots[0], tots[1]))
+        for i in range(0, len(unboosted)):
+            print(f'{info.reference[i]} : {unboosted[i]}             {info.reference[i+1]} : {boosted[i]}')
+        print('‾‾‾‾‾‾‾‾‾‾‾‾        ‾‾‾‾‾‾‾‾‾‾‾‾')
+        for i in range(0, len(exitVars)):
+            if exitVars[i] != 0:
+                print(f'Exit Variable: {info.reference[i+2]}')
+        self.brickWriter(slpOutput)
 
     def brickWriter(self, result):
         print('____________________________________________________________')

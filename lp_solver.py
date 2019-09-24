@@ -44,6 +44,7 @@ class SLPsolution:
     def __init__(self, info, tcancel):
         self.solved = False
         self.info = info
+        self.useSkill = True
         self.tcancel = tcancel
         self.type = 'SLP'
 
@@ -62,15 +63,15 @@ class SLPsolution:
     def characteristics(self, objective_only=False, tCancel=False):
         if self.solved:
             if tCancel and not objective_only:
-                cancel_frames = self.info.tcancel
+                cancel_frames = self.info.tCancel
             else:
                 cancel_frames = 0
             self.objective = np.dot(self.solution, self.info.objVec)
-        if not objective_only:
-            self.duration = round((self.info.time + self.info.transformTime + cancel_frames + self.info.skillTime)/60, 3)
-            self.leniency = self.info.time - np.dot(self.solution, self.info.timeVec) 
-            if tCancel:
-                self.leniency += config.leniency
-            self.mps = round(self.objective/self.duration, 3)
+            if not objective_only:
+                self.duration = round((self.info.time + self.info.transformTime + cancel_frames + self.info.skillTime)/60, 3)
+                self.leniency = self.info.time - np.dot(self.solution, self.info.timeVec) 
+                if tCancel:
+                    self.leniency += config.leniency
+                self.mps = round(self.objective/self.duration, 3)
 
 
