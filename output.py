@@ -86,11 +86,11 @@ class MainDisplay:
         boosted = slpOutput.solution[info.rlength+1:2*info.rlength]
         exitVars = slpOutput.solution[2*info.rlength:]
         print('Unboosted           Boosted')
-        print('____________        ____________')
-        print('M  : %6.2f          M  : %6.2f' %(tots[0], tots[1]))
+        print('_____________        _____________')
+        print('M   : %6.2f        M   : %6.2f' %(tots[0], tots[1]))
         for i in range(0, len(unboosted)):
-            print(f'{info.reference[i]} : {unboosted[i]}             {info.reference[i+1]} : {boosted[i]}')
-        print('‾‾‾‾‾‾‾‾‾‾‾‾        ‾‾‾‾‾‾‾‾‾‾‾‾')
+            print(f'{info.reference[i]} : {unboosted[i]}            {info.reference[i+1]} : {boosted[i]}')
+        print('‾‾‾‾‾‾‾‾‾‾‾‾‾        ‾‾‾‾‾‾‾‾‾‾‾‾‾')
         for i in range(0, len(exitVars)):
             if exitVars[i] != 0:
                 print(f'Exit Variable: {info.reference[i+2]}')

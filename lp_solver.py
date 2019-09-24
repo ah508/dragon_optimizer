@@ -34,6 +34,7 @@ class LPsolution:
                 cancel_frames = 0
             self.objective = np.dot(self.solution, self.info.damage)
             if not objective_only:
+                self.objective = round(self.objective, 3)
                 self.duration = round((self.info.time + self.info.transformTime + cancel_frames + self.useSkill*self.info.skillTime)/60, 3)
                 self.leniency = self.info.time - np.dot(self.solution, self.info.frames)
                 if tCancel:
@@ -68,6 +69,7 @@ class SLPsolution:
                 cancel_frames = 0
             self.objective = np.dot(self.solution, self.info.objVec)
             if not objective_only:
+                self.objective = round(self.objective, 3)
                 self.duration = round((self.info.time + self.info.transformTime + cancel_frames + self.info.skillTime)/60, 3)
                 self.leniency = self.info.time - np.dot(self.solution, self.info.timeVec) 
                 if tCancel:
