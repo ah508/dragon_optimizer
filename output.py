@@ -1,11 +1,10 @@
 import config
 
 class MainDisplay:
-    def __init__(self, skill, noskill, tcancel, info, zero):
+    def __init__(self, skill, noskill, tcancel, zero):
         self.skill = skill
         self.noskill = noskill
         self.tcancel = tcancel
-        self.info = info
         self.zero = zero
 
     def output(self):
@@ -56,44 +55,44 @@ class MainDisplay:
 
     def printSwitch(self, sOutput):
         if sOutput.type == 'LP':
-            self.lpWriter(sOutput, self.info)
+            self.lpWriter(sOutput)
         elif sOutput.type == 'BnB':
-            self.bnbWriter(sOutput, self.info)
+            self.bnbWriter(sOutput)
         elif sOutput.type == 'SLP':
-            self.slpWriter(sOutput, self.info)
+            self.slpWriter(sOutput)
 
-    def bnbWriter(self, bnbOutput, info):
+    def bnbWriter(self, bnbOutput):
         print('___')
         for i in bnbOutput.string:
-            if info.reference[i] in ['T  ', 'W  ', 'D  ', 'S  ']:
-                print(f'{info.reference[i]}')
+            if bnbOutput.reference[i] in ['T  ', 'W  ', 'D  ', 'S  ']:
+                print(f'{bnbOutput.reference[i]}')
             else:
-                print(f'{info.reference[i]} ', end=' ')
+                print(f'{bnbOutput.reference[i]} ', end=' ')
         print('\n‾‾‾')
         self.brickWriter(bnbOutput)
 
-    def lpWriter(self, lpOutput, info):
+    def lpWriter(self, lpOutput):
         print('__________')
         for i in range(0, len(lpOutput.solution)):
-            if (i < info.rlength-3 and lpOutput.solution[i] != 0 and info.damage[i] != 0) or i >= info.rlength-3:
-                print(f'{info.reference[i]} :  {lpOutput.solution[i]}')
+            if (i < lpOutput.rlength-3 and lpOutput.solution[i] != 0 and lpOutput.damage[i] != 0) or i >= lpOutput.rlength-3:
+                print(f'{lpOutput.reference[i]} :  {lpOutput.solution[i]}')
         print('‾‾‾‾‾‾‾‾‾‾')
         self.brickWriter(lpOutput)
 
-    def slpWriter(self, slpOutput, info):
+    def slpWriter(self, slpOutput):
         tots = slpOutput.solution[0:2]
-        unboosted = slpOutput.solution[2:info.rlength+1]
-        boosted = slpOutput.solution[info.rlength+1:2*info.rlength]
-        exitVars = slpOutput.solution[2*info.rlength:]
+        unboosted = slpOutput.solution[2:slpOutput.rlength+1]
+        boosted = slpOutput.solution[slpOutput.rlength+1:2*slpOutput.rlength]
+        exitVars = slpOutput.solution[2*slpOutput.rlength:]
         print('Unboosted           Boosted')
         print('_____________        _____________')
         print('M   : %6.2f        M   : %6.2f' %(tots[0], tots[1]))
         for i in range(0, len(unboosted)):
-            print(f'{info.reference[i]} : {unboosted[i]}            {info.reference[i+1]} : {boosted[i]}')
+            print(f'{slpOutput.reference[i]} : {unboosted[i]}            {slpOutput.reference[i+1]} : {boosted[i]}')
         print('‾‾‾‾‾‾‾‾‾‾‾‾‾        ‾‾‾‾‾‾‾‾‾‾‾‾‾')
         for i in range(0, len(exitVars)):
             if exitVars[i] != 0:
-                print(f'Exit Variable: {info.reference[i+2]}')
+                print(f'Exit Variable: {slpOutput.reference[i+2]}')
         self.brickWriter(slpOutput)
 
     def brickWriter(self, result):

@@ -1,6 +1,7 @@
 import config
 from functools import lru_cache
 import numpy as np
+from data_refine import BnBinfo
 import pybnb
 import copy
 import rpy2
@@ -8,18 +9,20 @@ import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 lpSolve = importr('lpSolve')
 
-class BnBsolution:
-    def __init__(self, info, useSkill, tCancel=False):
-        self.info = info
+class BnBsolution(BnBinfo):
+    def __init__(self, dragon, useSkill, transformCancel=False):
+        super().__init__(dragon)
+        self.adjacencyGen()
         self.useSkill = useSkill
-        self.tCancel = tCancel
+        self.transformCancel = transformCancel
         self.type = 'BnB'
         self.solved = False
 
     def solve(self):
         self.solved = True
-        self.info.normInfo(bnb=True, skill=self.useSkill)
-        formula = Formulation(self.info, self.useSkill, self.tCancel)
+        self.normInfo(bnb=True, skill=self.useSkill)
+        info = copy.deepcopy(self)
+        formula = Formulation(info, self.useSkill, self.transformCancel)
         solver = pybnb.Solver()
         self.result = solver.solve(formula, absolute_gap=0.0001, node_limit=10000000, queue_strategy=config.queue_strat)
         self.solution = self.result.best_node.state[-1]
@@ -29,11 +32,11 @@ class BnBsolution:
             self.objective = round(self.result.best_node.state[0], 3)
             self.string = self.result.best_node.state[3]
             if tCancel:
-                cancel_frames = self.info.tCancel
+                cancel_frames = self.tCancel
             else:
                 cancel_frames = 0
-            self.duration = round((self.info.time + self.info.transformTime + cancel_frames + self.useSkill*self.info.skillUses*self.info.skillTime)/60, 3)
-            self.leniency = self.info.time - self.result.best_node.state[1]
+            self.duration = round((self.time + self.transformTime + cancel_frames + self.useSkill*self.skillUses*self.skillTime)/60, 3)
+            self.leniency = self.time - self.result.best_node.state[1]
             self.mps = round(self.objective/self.duration, 3)
         # else:
         #     self.mps = 0

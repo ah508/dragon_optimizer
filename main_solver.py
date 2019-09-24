@@ -22,7 +22,7 @@ print('-')
 complete_dragons = pandas.read_csv('file:discrete_dragon_data.csv', header=0, index_col=0)
 dragon = complete_dragons.loc[config.dragon]
 
-info, info_1, info_2, info_3 = Refine(dragon), Refine(dragon), Refine(dragon), Refine(dragon)
+info = Refine(dragon)
 
 print('data formatted:')
 print(time.process_time() - start_time)
@@ -37,20 +37,19 @@ for element in info.cancels:
 bnb = (config.bnbOverride or bufferable)
 
 if bnb:
-    info.adjacencyGen()
-    skill = BnBsolution(info, 1)
-    noskill = BnBsolution(info, 0)
-    tcancel = BnBsolution(info, 1, tCancel=True)
+    skill = BnBsolution(dragon, 1)
+    noskill = BnBsolution(dragon, 0)
+    tcancel = BnBsolution(dragon, 1, transformCancel=True)
 
 elif info.cond != [1, 0]:
-    skill = SLPsolution(info_1, 0)
-    noskill = LPsolution(info_2, 0)
-    tcancel = SLPsolution(info_3, 1)
+    skill = SLPsolution(dragon, 0)
+    noskill = LPsolution(dragon, 0)
+    tcancel = SLPsolution(dragon, 1)
 
 else:
-    skill = LPsolution(info_1, 1)
-    noskill = LPsolution(info_2, 0)
-    tcancel = LPsolution(info_3, 0) 
+    skill = LPsolution(dragon, 1)
+    noskill = LPsolution(dragon, 0)
+    tcancel = LPsolution(dragon, 0) 
 
 print('solution type determined:')
 print(time.process_time() - start_time)
@@ -96,17 +95,17 @@ print('-')
 
 zero = ['Not Computed', 'Not Computed', 'Not Computed']
 if skill.solved and noskill.solved:
-    zero[0] = rootFind(skill, noskill, info)
+    zero[0] = rootFind(skill, noskill)
 if noskill.solved and tcancel.solved:
-    zero[1] = rootFind(tcancel, noskill, info)
+    zero[1] = rootFind(tcancel, noskill)
 if skill.solved and tcancel.solved:
-    zero[2] = rootFind(tcancel, skill, info)
+    zero[2] = rootFind(tcancel, skill)
 
 print("zero'd:")
 print(time.process_time() - start_time)
 print('-')
 
-final = MainDisplay(skill, noskill, tcancel, info, zero)
+final = MainDisplay(skill, noskill, tcancel, zero)
 final.output()
 
 
