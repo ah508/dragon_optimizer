@@ -14,102 +14,122 @@ import copy
 from lp_solver import LPsolution, SLPsolution
 from output import MainDisplay
 
-print('imports finished:')
-print(time.process_time() - start_time)
-print('-')
+if not config.suppress_status:
+    print('imports finished:')
+    print(time.process_time() - start_time)
+    print('-')
 
-# complete_dragons = pandas.read_csv('file:dragon_optimizer/discrete_dragon_data.csv', header=0, index_col=0)
-complete_dragons = pandas.read_csv('file:discrete_dragon_data.csv', header=0, index_col=0)
-dragon = complete_dragons.loc[config.dragon]
+class Main_Solver:
+    def __init__(self):
+        global start_time
+        complete_dragons = pandas.read_csv('file:discrete_dragon_data.csv', header=0, index_col=0)
+        self.dragon = complete_dragons.loc[config.dragon]
+        self.info = Refine(self.dragon)
+        if not config.suppress_status:
+            print('data formatted:')
+            print(time.process_time() - start_time)
+            print('-')
 
-info = Refine(dragon)
+    def detSolType(self):
+        global start_time
+        bufferable = False
+        for element in self.info.cancels:
+            if element != 0:
+                bufferable = True
+                break
 
-print('data formatted:')
-print(time.process_time() - start_time)
-print('-')
+        self.bnb = (config.bnbOverride or bufferable)
 
-bufferable = False
-for element in info.cancels:
-    if element != 0:
-        bufferable = True
-        break
+        if self.bnb:
+            self.skill = BnBsolution(self.dragon, 1)
+            self.noskill = BnBsolution(self.dragon, 0)
+            self.tcancel = BnBsolution(self.dragon, 1, transformCancel=True)
 
-bnb = (config.bnbOverride or bufferable)
+        elif self.info.cond != [1, 0]:
+            self.skill = SLPsolution(self.dragon, 0)
+            self.noskill = LPsolution(self.dragon, 0)
+            self.tcancel = SLPsolution(self.dragon, 1)
 
-if bnb:
-    skill = BnBsolution(dragon, 1)
-    noskill = BnBsolution(dragon, 0)
-    tcancel = BnBsolution(dragon, 1, transformCancel=True)
+        else:
+            self.skill = LPsolution(self.dragon, 1)
+            self.noskill = LPsolution(self.dragon, 0)
+            self.tcancel = LPsolution(self.dragon, 0) 
 
-elif info.cond != [1, 0]:
-    skill = SLPsolution(dragon, 0)
-    noskill = LPsolution(dragon, 0)
-    tcancel = SLPsolution(dragon, 1)
+        if not config.suppress_status:
+            print('solution type determined:')
+            print(time.process_time() - start_time)
+            print('-')
 
-else:
-    skill = LPsolution(dragon, 1)
-    noskill = LPsolution(dragon, 0)
-    tcancel = LPsolution(dragon, 0) 
+    def solve_problems(self):
+        global start_time
+        if config.disp_compare or config.disp_mode in ['Default', 'Full List']:
+            self.skill.solve()
+            self.noskill.solve()
+            self.tcancel.solve()
+            if config.obj_strat == 'Min Frames' and not self.bnb:
+                self.noskill.characteristics(objective_only=True)
+                self.noskill.solve(add_const=self.noskill.objective)
+                self.skill.characteristics(objective_only=True)
+                self.skill.solve(add_const=self.skill.objective)
+                self.tcancel.characteristics(objective_only=True)
+                self.tcancel.solve(add_const=self.tcancel.objective)
 
-print('solution type determined:')
-print(time.process_time() - start_time)
-print('-')
+        elif config.disp_mode == 'Skill':
+            self.skill.solve()
+            if config.obj_strat == 'Min Frames' and not self.bnb:
+                self.skill.characteristics(objective_only=True)
+                self.skill.solve(add_const=self.skill.objective)
 
-if config.disp_compare or config.disp_mode in ['Default', 'Full List']:
-    skill.solve()
-    noskill.solve()
-    tcancel.solve()
-    if config.obj_strat == 'Min Frames' and not bnb:
-        noskill.characteristics(objective_only=True)
-        noskill.solve(add_const=noskill.objective)
-        skill.characteristics(objective_only=True)
-        skill.solve(add_const=skill.objective)
-        tcancel.characteristics(objective_only=True)
-        tcancel.solve(add_const=tcancel.objective)
+        elif config.disp_mode == 'No Skill':
+            self.noskill.solve()
+            if config.obj_strat == 'Min Frames' and not self.bnb:
+                self.noskill.characteristics(objective_only=True)
+                self.noskill.solve(add_const=self.noskill.objective)
 
-elif config.disp_mode == 'Skill':
-    skill.solve()
-    if config.obj_strat == 'Min Frames' and not bnb:
-        skill.characteristics(objective_only=True)
-        skill.solve(add_const=skill.objective)
+        elif config.disp_mode == 'Transform Cancel':
+            self.tcancel.solve()
+            if config.obj_strat == 'Min Frames' and not self.bnb:
+                self.tcancel.characteristics(objective_only=True)
+                self.tcancel.solve(add_const=self.tcancel.objective)
 
-elif config.disp_mode == 'No Skill':
-    noskill.solve()
-    if config.obj_strat == 'Min Frames' and not bnb:
-        noskill.characteristics(objective_only=True)
-        noskill.solve(add_const=noskill.objective)
+        self.skill.characteristics()
+        self.noskill.characteristics()
+        self.tcancel.characteristics(tCancel=True)
 
-elif config.disp_mode == 'Transform Cancel':
-    tcancel.solve()
-    if config.obj_strat == 'Min Frames' and not bnb:
-        tcancel.characteristics(objective_only=True)
-        tcancel.solve(add_const=tcancel.objective)
+        if not config.suppress_status:
+            print('solved:')
+            print(time.process_time() - start_time)
+            print('-')
 
-skill.characteristics()
-noskill.characteristics()
-tcancel.characteristics(tCancel=True)
+    def zero_problems(self):
+        global start_time
+        self.zero = ['Not Computed', 'Not Computed', 'Not Computed']
+        if self.skill.solved and self.noskill.solved:
+            self.zero[0] = rootFind(self.skill, self.noskill)
+        if self.noskill.solved and self.tcancel.solved:
+            self.zero[1] = rootFind(self.tcancel, self.noskill)
+        if self.skill.solved and self.tcancel.solved:
+            self.zero[2] = rootFind(self.tcancel, self.skill)
 
-print('solved:')
-print(time.process_time() - start_time)
-print('-')
+        if not config.suppress_status:
+            print("zero'd:")
+            print(time.process_time() - start_time)
+            print('-')
 
-zero = ['Not Computed', 'Not Computed', 'Not Computed']
-if skill.solved and noskill.solved:
-    zero[0] = rootFind(skill, noskill)
-if noskill.solved and tcancel.solved:
-    zero[1] = rootFind(tcancel, noskill)
-if skill.solved and tcancel.solved:
-    zero[2] = rootFind(tcancel, skill)
+    def display(self):
+        global start_time
+        final = MainDisplay(self.skill, self.noskill, self.tcancel, self.zero)
+        final.output()
+        
+        if not config.suppress_status:
+            print('++++++++++')
+            print('FINISHED:')
+            print(time.process_time() - start_time)
+            print('++++++++++')
 
-print("zero'd:")
-print(time.process_time() - start_time)
-print('-')
-
-final = MainDisplay(skill, noskill, tcancel, zero)
-final.output()
-
-
-print('++++++++++')
-print('FINISHED:')
-print(time.process_time() - start_time)
-print('++++++++++')
+if not config.suppress_status:
+    optimal_solution = Main_Solver()
+    optimal_solution.detSolType()
+    optimal_solution.solve_problems()
+    optimal_solution.zero_problems()
+    optimal_solution.display()
