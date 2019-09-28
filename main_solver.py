@@ -32,13 +32,13 @@ class Main_Solver:
 
     def detSolType(self):
         global start_time
-        bufferable = False
+        self.bufferable = False
         for element in self.info.cancels:
             if element != 0:
-                bufferable = True
+                self.bufferable = True
                 break
 
-        self.bnb = (config.bnbOverride or bufferable)
+        self.bnb = (config.bnbOverride or self.bufferable)
 
         if self.bnb:
             self.skill = BnBsolution(self.dragon, 1)
