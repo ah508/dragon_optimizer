@@ -22,7 +22,10 @@ class LPsolution(LPinfo):
             self.normInfo(skill=self.useSkill)
             method = "max"
         rhs = robjects.FloatVector(self.rhs)
-        self.result = lpSolve.lp(method, self.obj, self.const, self.dir, rhs, int_vec=self.intreq)
+        if config.integrality:
+            self.result = lpSolve.lp(method, self.obj, self.const, self.dir, rhs, int_vec=self.intreq)
+        else:
+            self.result = lpSolve.lp(method, self.obj, self.const, self.dir, rhs)
         self.solution = self.result.rx2('solution')
         
     def characteristics(self, objective_only=False, tCancel=False):
@@ -59,7 +62,10 @@ class SLPsolution(SLPinfo):
             self.sepInfo(tcancel=self.tcancel)
             method = "max"
         rhs = robjects.FloatVector(self.rhs)
-        self.result = lpSolve.lp(method, self.obj, self.const, self.dir, rhs, int_vec=self.intreq)
+        if config.integrality:
+            self.result = lpSolve.lp(method, self.obj, self.const, self.dir, rhs, int_vec=self.intreq)
+        else:
+            self.result = lpSolve.lp(method, self.obj, self.const, self.dir, rhs)
         self.solution = self.result.rx2('solution')
     
     def characteristics(self, objective_only=False, tCancel=False):

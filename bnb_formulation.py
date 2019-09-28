@@ -47,7 +47,7 @@ def lp_sol(combo, useSkill, modifier, solInfo):
     cc = copy.copy(combo)
     cc = list(cc)
     del cc[0]
-    r_rhs = robjects.IntVector([*solInfo.rhs, *cc, *[1, 0, useSkill, solInfo.time]])
+    r_rhs = robjects.IntVector([*solInfo.rhs, *cc, *[1, 0, useSkill*solInfo.skillUses, solInfo.time]])
     r_sol = lpSolve.lp("max", solInfo.altObj, solInfo.const, solInfo.dir, r_rhs).rx2('objval')
     return modifier*r_sol[0]
 
@@ -63,7 +63,11 @@ class Formulation(pybnb.Problem):
         self._condition = [0, 0]
         self._endTime = info.time
         self._comboCount = (1,) + tuple(np.zeros(info.rlength-1))
-        self._contModif = ((info.cond[0]-1)*info.cond[1]/info.time)+1
+        if info.skillUses == 1:
+            self._contModif = ((info.cond[0]-1)*info.cond[1]/info.time)+1
+        elif info.skillUses >= 2 and config.bound_method != 'None':
+            print("this method isn't designed to handle that")
+            quit()
         self._skillSP = 30
     
     

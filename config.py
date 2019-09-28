@@ -1,16 +1,18 @@
-dragon = 'Psiren'
+dragon = 'Cerberus'
 disp_mode = 'Default' #Default, Skill, No Skill, Transform Cancel, Full List
 disp_compare = False
-bnbOverride = True
+bnbOverride = False
+suppress_status = False
 leniency = 3
-skill_coefficient = 2.55
-attack_rate = 1 
+skill_coefficient = 1
+attack_rate = 1
 haste_coefficient = 1
 additional_time = 0 # interpretted as an additive % increase
-initial_time = 13 # seconds
-obj_strat = 'Min Frames' #'Default', 'Min Frames', 'Dirty'(illegitimate min frames)
+initial_time = 10 # seconds
+obj_strat = 'Default' #'Default', 'Min Frames', 'Dirty'(illegitimate min frames)
                          #NOTE: 'Dirty' is actually surprisingly accurate
-bound_method = 'None' #'Accurate', 'None', 'Experimental, Super Experimental'(NOTE:not implemented currently)
+integrality = True
+bound_method = 'Accurate' #'Accurate', 'None', 'Experimental, Super Experimental'(NOTE:not implemented currently)
 queue_strat = 'depth'
 include_string = True
 
