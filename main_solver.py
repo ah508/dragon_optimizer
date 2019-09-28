@@ -127,9 +127,3 @@ class Main_Solver:
             print(time.process_time() - start_time)
             print('++++++++++')
 
-if not config.suppress_status:
-    optimal_solution = Main_Solver()
-    optimal_solution.detSolType()
-    optimal_solution.solve_problems()
-    optimal_solution.zero_problems()
-    optimal_solution.display()

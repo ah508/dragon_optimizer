@@ -1,7 +1,6 @@
 import config
 config.suppress_status = True
 config.bnbOverride = False
-config.disp_mode = 'Skill'
 config.disp_compare = False
 config.obj_strat = 'Default'
 import time
@@ -60,8 +59,8 @@ class HullFinder:
         plt.show()
 
 
-testrun = HullFinder('Agni', ['Cerberus', 'Arctos', 'Sylvia'])
-testrun.find_hull()
+# testrun = HullFinder('Agni', ['Cerberus', 'Arctos', 'Sylvia'])
+# testrun.find_hull()
 # config.dragon = dragons[0]
 # solution_set_1 = main_solver.Main_Solver()
 # solution_set_1.detSolType()
