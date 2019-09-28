@@ -9,6 +9,7 @@ class MainDisplay:
 
     def output(self):
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~')
+        print(config.dragon)
         if config.disp_mode == 'Default':
             print('Default Mode')
             try:
