@@ -234,5 +234,7 @@ class BnBinfo(LPinfo):
                         self.adjacency[i][j] += self.cancels[i] - config.leniency
                 elif i in range(0, self.rlength - 3) and j == i + 1:
                     self.adjacency[i][j] = self.frames[j]
+                    if j == self.rlength - 3 and self.cancels[i] != 0:
+                        self.adjacency[i][j] += self.cancels[i]
 
 #####
