@@ -6,6 +6,7 @@ suppress_status = False # Suppresses output; may not be working properly
 leniency = 3            # The number of 'dead frames' between certain actions
 skill_coefficient = 1   # Coefficient across all brackets
 attack_rate = 1         # Attack speed, assumed to be ceiling for now
+rate_method = 'ceil'    # Changes the assumption for attack speed
 haste_coefficient = 1   # For those dragons which generate SP
 additional_time = 0     # Interpretted as an additive % increase to dragon time
 initial_time = 10       # Seconds

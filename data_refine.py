@@ -68,9 +68,14 @@ class Refine:
     
     def speedCheck(self):
         if config.attack_rate != 1:
-            for i in range(1, self.rlength - 3):
-                self.frames[i] = ceil(self.frames[i]/config.attack_rate)
-            self.skillTime = ceil(self.skillTime/config.attack_rate)
+            if config.rate_method == 'ceil':
+                for i in range(1, self.rlength - 3):
+                    self.frames[i] = ceil(self.frames[i]/config.attack_rate)
+                self.skillTime = ceil(self.skillTime/config.attack_rate)
+            elif config.rate_method == 'floor':
+                for i in range(1, self.rlength - 3):
+                    self.frames[i] = floor(self.frames[i]/config.attack_rate)
+                self.skillTime = floor(self.skillTime/config.attack_rate)
         # attack speed handling, as specified in config
         # for the time being, the values are conservatively ceil'd
 
