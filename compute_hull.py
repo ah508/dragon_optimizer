@@ -67,6 +67,6 @@ class HullFinder:
             plt.fill(self.warehouse[keys].hullf, self.warehouse[keys].hulld, label=keys, alpha=0.3)
         plt.xlabel('Time (frames)')
         plt.ylabel('Optimal Damage (%)')
-        plt.legend()
+        plt.legend(loc='upper left')
         plt.show()
         # plotting
