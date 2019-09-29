@@ -61,26 +61,6 @@ else:
     if args.displaytransformcancel:
         config.disp_mode += ['tcancel']
 
-# if args.display:
-#     if args.display in ['Skill', 'SKILL', 'skill', 'sk', 's', 'S']:
-#         config.disp_mode = 'Skill'
-#     elif args.display in ['No Skill', 'no skill', 'No skill', 'NO SKILL', 'NS', 'ns']:
-#         config.disp_mode = 'No Skill'
-#     elif args.display in ['Transform Cancel', 'transform cancel', 'TRANSFORM CANCEL', 'tc', 'TC']:
-#         config.disp_mode = 'Transform Cancel'
-#     elif args.display in ['Full List', 'full list', 'Full list', 'FL', 'fl']:
-#         config.disp_mode = 'Full List'
-#     else:
-#         confirmation = input('Input not recognized. Continue with Default? [Y/N] : ')
-#         if confirmation in yes:
-#             config.disp_mode = 'Default'
-#         elif confirmation in no:
-#             print('Exiting program.')
-#             quit()
-#         else:
-#             print('Input not recognized. Exiting program.')
-#             quit()
-
 if args.compare:
     config.disp_compare = True
 

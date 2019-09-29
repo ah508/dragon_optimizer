@@ -1,6 +1,6 @@
 dragon = 'Cerberus'     # The dragon in question
 disp_mode = 'Default'   # Default, or a list with any combination of 
-                                   # skill, noskill, tcancel
+                        # skill, noskill, tcancel
 disp_compare = False    # Displays zeros with other solution methods if you override default display
 bnbOverride = False     # Forces the solve to use BnB
 suppress_status = False # Suppresses output; may not be working properly

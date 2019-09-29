@@ -31,18 +31,6 @@ class MainDisplay:
             elif max_MPS == self.tcancel.mps:
                 print('> Transform Cancel <')
                 self.printSwitch(self.tcancel)
-                
-
-        # elif config.disp_mode == 'Full List':
-        #     print('Display All Solutions')
-        #     print('> Skill <')
-        #     self.printSwitch(self.skill)
-        #     print('- - - - -')
-        #     print('> No Skill <')
-        #     self.printSwitch(self.noskill)
-        #     print('- - - - -')
-        #     print('> Transform Cancel <')
-        #     self.printSwitch(self.tcancel)
         
         else:
             if 'skill' in config.disp_mode:
