@@ -1,16 +1,12 @@
 import time
 start_time = time.process_time()
-
+# time, for timing stuff
 import config
 from findZero import rootFind
 import rpy2
-import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
 import pandas
 from data_refine import Refine
 from bnb_formulation import BnBsolution
-import pybnb
-import copy
 from lp_solver import LPsolution, SLPsolution
 from output import MainDisplay
 
@@ -20,11 +16,14 @@ if not config.suppress_status:
     print('-')
 
 class Main_Solver:
+    # determines solution type, whether or not to solve, and whether or not to find the zeros
     def __init__(self):
         global start_time
         complete_dragons = pandas.read_csv('file:discrete_dragon_data.csv', header=0, index_col=0)
+        # reading the data from the csv with pandas
         self.dragon = complete_dragons.loc[config.dragon]
         self.info = Refine(self.dragon)
+        # data is refined
         if not config.suppress_status:
             print('data formatted:')
             print(time.process_time() - start_time)
@@ -37,8 +36,11 @@ class Main_Solver:
             if element != 0:
                 self.bufferable = True
                 break
+        # ascertaining bufferability
 
         self.bnb = (config.bnbOverride or self.bufferable)
+        # as of now, if the unit is bufferable, they must be handled by bnb
+        # this may be rectified in the future
 
         if self.bnb:
             self.skill = BnBsolution(self.dragon, 1)
@@ -54,6 +56,7 @@ class Main_Solver:
             self.skill = LPsolution(self.dragon, 1)
             self.noskill = LPsolution(self.dragon, 0)
             self.tcancel = LPsolution(self.dragon, 0) 
+        # solution types are assigned
 
         if not config.suppress_status:
             print('solution type determined:')
@@ -62,6 +65,8 @@ class Main_Solver:
 
     def solve_problems(self):
         global start_time
+        # determining which problems to solve, as specified in config
+        # if Min Frames is specified, initiates a second solve to minimize frames after maximizing damage
         if config.disp_compare or config.disp_mode in ['Default', 'Full List']:
             self.skill.solve()
             self.noskill.solve()
@@ -95,6 +100,7 @@ class Main_Solver:
         self.skill.characteristics()
         self.noskill.characteristics()
         self.tcancel.characteristics(tCancel=True)
+        # if a problem was not solved, characteristics are not generated
 
         if not config.suppress_status:
             print('solved:')
@@ -103,6 +109,7 @@ class Main_Solver:
 
     def zero_problems(self):
         global start_time
+        # finds the zero between options, if those options were solved for
         self.zero = ['Not Computed', 'Not Computed', 'Not Computed']
         if self.skill.solved and self.noskill.solved:
             self.zero[0] = rootFind(self.skill, self.noskill)
@@ -118,6 +125,7 @@ class Main_Solver:
 
     def display(self):
         global start_time
+        # output
         final = MainDisplay(self.skill, self.noskill, self.tcancel, self.zero)
         final.output()
         

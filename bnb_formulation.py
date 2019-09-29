@@ -10,9 +10,12 @@ from rpy2.robjects.packages import importr
 lpSolve = importr('lpSolve')
 
 class BnBsolution(BnBinfo):
+    # handles all information for the purposes of solving the problem by branch and bound
+    # also used for complete enumeration because... I don't want to write my own method for that yet
     def __init__(self, dragon, useSkill, transformCancel=False):
         super().__init__(dragon)
         self.adjacencyGen()
+        # generating an adjacency matrix
         self.useSkill = useSkill
         self.transformCancel = transformCancel
         self.type = 'BnB'
@@ -21,11 +24,16 @@ class BnBsolution(BnBinfo):
     def solve(self):
         self.solved = True
         self.normInfo(bnb=True, skill=self.useSkill)
+        # generating the LP relaxation
         info = copy.deepcopy(self)
+        # this is a relic of a bygone era, when all information was passed as an argument
         formula = Formulation(info, self.useSkill, self.transformCancel)
+        # Formulation could be rewritten to just use inheritence, but it works fine as is
+        # and with inheritence multiple inheritence would actually be a small concern
         solver = pybnb.Solver()
         self.result = solver.solve(formula, absolute_gap=0.0001, node_limit=10000000, queue_strategy=config.queue_strat)
         self.solution = self.result.best_node.state[-1]
+        # using pybnb to initiate a solve
 
     def characteristics(self, tCancel=False):
         if self.solved:
@@ -38,11 +46,16 @@ class BnBsolution(BnBinfo):
             self.duration = round((self.time + self.transformTime + cancel_frames + self.useSkill*self.skillUses*self.skillTime)/60, 3)
             self.leniency = self.time - self.result.best_node.state[1]
             self.mps = round(self.objective/self.duration, 3)
-        # else:
-        #     self.mps = 0
+            # determining the characteristics of the information post-solve
+            # rounding for display purposes
+            # objective is the objective value
+            # duration is the total time spent in transformation
+            # leniency is the number of frames you can lose and still complete the combo
+            #   note: bad variable name, contradicts the description of leniency in config
+            # mps is mod per second - total modifer divided by total time
 
 
-@lru_cache(maxsize=2048)
+@lru_cache(maxsize=2048) # caching for speed, 2048 chosen arbitrarily
 def lp_sol(combo, useSkill, modifier, solInfo):
     cc = copy.copy(combo)
     cc = list(cc)
@@ -50,8 +63,13 @@ def lp_sol(combo, useSkill, modifier, solInfo):
     r_rhs = robjects.IntVector([*solInfo.rhs, *cc, *[1, 0, useSkill*solInfo.skillUses, solInfo.time]])
     r_sol = lpSolve.lp("max", solInfo.altObj, solInfo.const, solInfo.dir, r_rhs).rx2('objval')
     return modifier*r_sol[0]
+    # this determines the bound on a node for the BnB
+    # might be a good idea to include it in the class itself, idk
 
 class Formulation(pybnb.Problem):
+    # construction of the branch and bound problem
+    # for more details on this, check out the link below:
+    # https://pybnb.readthedocs.io/en/stable/getting_started/index.html#defining-a-problem
     def __init__(self, info, useSkill, tCancel):
         self._info = info
         self._useSkill = useSkill
@@ -78,33 +96,17 @@ class Formulation(pybnb.Problem):
         return self._sumDamage
 
     def bound(self):
-        if config.bound_method == 'Experimental':
+        # if config.bound_method == 'Experimental':
+        #     bound = lp_sol(self._comboCount, self._useSkill, self._contModif, self._info)
+        #     return round(bound, 3)
+        if config.bound_method == 'Accurate':
             bound = lp_sol(self._comboCount, self._useSkill, self._contModif, self._info)
             return round(bound, 3)
-            
-
-        elif config.bound_method == 'Accurate':
-            bound = lp_sol(self._comboCount, self._useSkill, self._contModif, self._info)
-            return round(bound, 3)
-
         elif config.bound_method == 'None':
             return 15000
-
-        # elif config.bound_method == 'Super Experimental':
-        #     if [self._currentNode, self._comboCount[-1]] not in self._dmemo['step']:
-        #         self._dmemo['step'] += [[self._currentNode, self._comboCount[-1]]]
-        #         self._dmemo['damage'] += [self._sumDamage]
-        #         self._dmemo['time'] += [self._time]
-        #         return 10000000000
-        #     else:
-        #         index = self._dmemo['step'].index([self._currentNode, self._comboCount[-1]])
-        #         if self._sumDamage <= self._dmemo['damage'][index] and self._time >= self._dmemo['time'][index]:
-        #             return self.infeasible_objective()
-        #         else:
-        #             self._dmemo['damage'][index] = self._sumDamage
-        #             self._dmemo['time'][index] = self._time
-        #             return 10000000000
-
+        # Experimental and Accurate currently do exactly the same job
+        # once upon a time, they did different jobs
+        # Experimental is still there for experimental purposes
 
     def save_state(self, node):
         node.state = (
@@ -153,7 +155,6 @@ class Formulation(pybnb.Problem):
                 self._optString + [nextNode], condition, self._tCancel, skill_SP, comboCount) 
             yield child
 
-        
         if(self._comboCount[-1] < self._info.skillUses and self._time + self._info.frames[-1] <= self._endTime and self._useSkill and self._skillSP == 30):
             time = self._time + self._info.frames[-1]
             if self._comboCount[-1] == 0:
@@ -166,7 +167,8 @@ class Formulation(pybnb.Problem):
             child.state = (self._sumDamage + self._info.damage[self._info.rlength-1], time, 
             self._info.rlength-1, self._optString + [self._info.rlength-1], condition, False, 0, comboCount) 
             yield child
-
+        # the adjacency matrix defines a graph
+        # this method walks that graph to generate nodes for the bnb
         
     def notify_solve_begins(self,
                             comm,
@@ -182,3 +184,4 @@ class Formulation(pybnb.Problem):
                             worker_comm,
                             results):
         pass
+    # these let you know that the solve is still goin'

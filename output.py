@@ -1,6 +1,8 @@
 import config
 
 class MainDisplay:
+    # just a simple means of output
+    # I don't think there's really much here that needs explanation
     def __init__(self, skill, noskill, tcancel, zero):
         self.skill = skill
         self.noskill = noskill

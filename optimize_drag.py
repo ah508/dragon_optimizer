@@ -1,7 +1,5 @@
 import config
 import argparse
-from compute_hull import HullFinder
-from main_solver import Main_Solver
 
 parser = argparse.ArgumentParser(
     description='A program designed to optimize a given dragon over a particular timeframe.'
@@ -98,6 +96,7 @@ if args.hull and not psiren_call:
         print('Exiting program.')
         quit()
     elif confirmation in yes:
+        from compute_hull import HullFinder
         if args.add:
             hull = HullFinder(args.dragon, additional_dragons=args.add)
         else:
@@ -108,6 +107,7 @@ if args.hull and not psiren_call:
         quit()
 
 else:
+    from main_solver import Main_Solver
     if psiren_call:
         config.bnbOverride = True
         config.initial_time = 13

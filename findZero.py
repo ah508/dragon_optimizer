@@ -9,6 +9,9 @@ def fZero(x, string1, string2):
         else:
             comboDPS += [combo.objective/combo.duration]
     return comboDPS[0] - comboDPS[1]
+    # this is the function used for rootfinding in rootFind
+    # if skill is used, it needs to correct for the skill coefficient in config
+    # can (and should) be simplified a bit further, mps is already computed
 
 def rootFind(string1, string2):
     if string1.damage[-1] != 0:
@@ -18,3 +21,4 @@ def rootFind(string1, string2):
     elif string1.objective < string2.objective:
         zero = 'Inf'
     return zero
+    # handles finding the zero between two options
