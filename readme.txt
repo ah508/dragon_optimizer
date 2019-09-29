@@ -57,7 +57,7 @@ A. Yes, it is possible to solve all (or at least almost all) of the current prob
     have the time. As a result, the bnb won't be going anywhere for a while.
 
 Q. "Is it possible to do all of this by dynamic programming?"
-A. Yep. In many cases, (those that use enumerative methods) DP would be far superior.
+A. Yep. In certain cases, (those that use enumerative methods) DP would be far superior.
     Personally, I don't have much experience with dynamic programming though, so it's
     going on the to do list.
 
@@ -72,3 +72,18 @@ A. You may not have an up-to-date version of the csv. You can grab one from the 
 Q. "Are there plans to make this program more comprehensive?"
 A. Yeah, but I really only work on this in my spare time, so don't expect frequent updates
     or anything.
+
+Q. "I see that in the sheet, some attacks that are two hits are listed as just one attacks
+    with one hit. What's up with that?"
+A. In those cases, the attack in question is a proper projectile. If the first hit would
+    occur, the second hit follows inevitably. You would be correct to call out that this
+    introduces inaccuracies with buff handling and the end of dragon time, but 
+    unfortunately we have no way to account for the potential variability in the timing 
+    of those two hits. Regrettably, this is a concession we just have to make, as
+    seperating the entries increases the computational burden with no real benefit.
+
+Q. "Can I use results from this in my personal thing?"
+A. Given my experience with this community, I am reluctant to give blanket permission.
+    I would be remiss to permit propogation of results that claim to hold more weight than
+    they actually do, and so it would be preferable if you could ask directly and provide
+    a surface level explanation of what you intend.
