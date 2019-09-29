@@ -88,9 +88,9 @@ class Refine:
 class LPinfo(Refine):
     # a subclass of Refine that constructs the info needed for the LPP
     # also used to construct the LP relaxation used as a bound in BnB - see BnBinfo/bnb_formulation
-    def normInfo(self, bnb=False, skill=1, sub=0):
+    def normInfo(self, bnb=False, skill=1, sub=0, tcancel=0):
         if not sub:
-            self.addConstraints(bnb=bnb, skill=skill)
+            self.addConstraints(bnb=bnb, skill=skill, tcancel=tcancel)
             self.altObj = robjects.FloatVector(self.damage)
             if config.obj_strat in ['Default', 'Min Frames']:
                 self.obj = self.altObj
@@ -113,7 +113,7 @@ class LPinfo(Refine):
         # as this will eventually be passed to an active R instance, all of the necessary 
         #   information must be assigned to R objects
 
-    def addConstraints(self, bnb=False, skill=1):
+    def addConstraints(self, bnb=False, skill=1, tcancel=0):
         self.constraint = [1] + list(np.zeros(self.rlength - 2))
         self.direction = ['==']
         wait = list(np.zeros(self.rlength))
@@ -132,7 +132,7 @@ class LPinfo(Refine):
             # utilized only if the LP is to be used as a bound for a BnB process, otherwise it is extraneous
         else:
             self.rowcount = self.rlength
-            self.rhs = [1] + list(np.zeros(self.rlength - 5)) + [1, 0, skill, self.time]
+            self.rhs = [1] + list(np.zeros(self.rlength - 5)) + [1-tcancel, 0, skill, self.time]
         self.constraint += [0, 1] + list(np.zeros(self.rlength - 5)) + [-1, -1, -1]
         self.constraint += wait
         self.constraint += list(np.zeros(self.rlength - 1)) + [1]

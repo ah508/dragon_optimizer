@@ -33,28 +33,29 @@ class MainDisplay:
                 self.printSwitch(self.tcancel)
                 
 
-        elif config.disp_mode == 'Full List':
-            print('Display All Solutions')
-            print('> Skill <')
-            self.printSwitch(self.skill)
-            print('- - - - -')
-            print('> No Skill <')
-            self.printSwitch(self.noskill)
-            print('- - - - -')
-            print('> Transform Cancel <')
-            self.printSwitch(self.tcancel)
+        # elif config.disp_mode == 'Full List':
+        #     print('Display All Solutions')
+        #     print('> Skill <')
+        #     self.printSwitch(self.skill)
+        #     print('- - - - -')
+        #     print('> No Skill <')
+        #     self.printSwitch(self.noskill)
+        #     print('- - - - -')
+        #     print('> Transform Cancel <')
+        #     self.printSwitch(self.tcancel)
         
-        elif config.disp_mode == 'Skill':
-            print('Display Skill Only')
-            self.printSwitch(self.skill)
+        else:
+            if 'skill' in config.disp_mode:
+                print('> Skill <')
+                self.printSwitch(self.skill)
 
-        elif config.disp_mode == 'No Skill':
-            print('Display No Skill Only')
-            self.printSwitch(self.noskill)
+            if 'noskill' in config.disp_mode:
+                print('> No Skill <')
+                self.printSwitch(self.noskill)
 
-        elif config.disp_mode == 'Transform Cancel':
-            print('Display Transform Cancel Only')
-            self.printSwitch(self.tcancel)
+            if 'tcancel' in config.disp_mode:
+                print('> Transform Cancel <')
+                self.printSwitch(self.tcancel)
 
     def printSwitch(self, sOutput):
         if sOutput.type == 'LP':

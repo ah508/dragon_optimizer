@@ -55,7 +55,7 @@ class Main_Solver:
         else:
             self.skill = LPsolution(self.dragon, 1)
             self.noskill = LPsolution(self.dragon, 0)
-            self.tcancel = LPsolution(self.dragon, 0) 
+            self.tcancel = LPsolution(self.dragon, 1, transformCancel=1) 
         # solution types are assigned
 
         if not config.suppress_status:
@@ -67,39 +67,55 @@ class Main_Solver:
         global start_time
         # determining which problems to solve, as specified in config
         # if Min Frames is specified, initiates a second solve to minimize frames after maximizing damage
-        if config.disp_compare or config.disp_mode in ['Default', 'Full List']:
-            self.skill.solve()
-            self.noskill.solve()
-            self.tcancel.solve()
-            if config.obj_strat == 'Min Frames' and not self.bnb:
-                self.noskill.characteristics(objective_only=True)
-                self.noskill.solve(add_const=self.noskill.objective)
-                self.skill.characteristics(objective_only=True)
-                self.skill.solve(add_const=self.skill.objective)
-                self.tcancel.characteristics(objective_only=True)
-                self.tcancel.solve(add_const=self.tcancel.objective)
+        if config.disp_compare or config.disp_mode == 'Default':
+            attr_list = ['skill', 'noskill', 'tcancel']  
+        else:
+            attr_list = config.disp_mode
 
-        elif config.disp_mode == 'Skill':
-            self.skill.solve()
+        for attribute in attr_list:
+            getattr(self, attribute).solve()
             if config.obj_strat == 'Min Frames' and not self.bnb:
-                self.skill.characteristics(objective_only=True)
-                self.skill.solve(add_const=self.skill.objective)
+                getattr(self, attribute).characteristics(objective_only=True)
+                getattr(self, attribute).solve(add_const=getattr(self, attribute).objective)
+            getattr(self, attribute).characteristics()
+            # using just "attribute" for the attribute is kind of a sin
+            # fix later
 
-        elif config.disp_mode == 'No Skill':
-            self.noskill.solve()
-            if config.obj_strat == 'Min Frames' and not self.bnb:
-                self.noskill.characteristics(objective_only=True)
-                self.noskill.solve(add_const=self.noskill.objective)
 
-        elif config.disp_mode == 'Transform Cancel':
-            self.tcancel.solve()
-            if config.obj_strat == 'Min Frames' and not self.bnb:
-                self.tcancel.characteristics(objective_only=True)
-                self.tcancel.solve(add_const=self.tcancel.objective)
+        # elif config.disp_mode == 'No Skill':
+        #     attr_list = ['noskill']
+        #     self.skill.solve()
+        #     self.noskill.solve()
+        #     self.tcancel.solve()
+        #     if config.obj_strat == 'Min Frames' and not self.bnb:
+        #         self.noskill.characteristics(objective_only=True)
+        #         self.noskill.solve(add_const=self.noskill.objective)
+        #         self.skill.characteristics(objective_only=True)
+        #         self.skill.solve(add_const=self.skill.objective)
+        #         self.tcancel.characteristics(objective_only=True)
+        #         self.tcancel.solve(add_const=self.tcancel.objective)
 
-        self.skill.characteristics()
-        self.noskill.characteristics()
-        self.tcancel.characteristics(tCancel=True)
+        # elif config.disp_mode == 'Skill':
+        #     self.skill.solve()
+        #     if config.obj_strat == 'Min Frames' and not self.bnb:
+        #         self.skill.characteristics(objective_only=True)
+        #         self.skill.solve(add_const=self.skill.objective)
+
+        # elif config.disp_mode == 'No Skill':
+        #     self.noskill.solve()
+        #     if config.obj_strat == 'Min Frames' and not self.bnb:
+        #         self.noskill.characteristics(objective_only=True)
+        #         self.noskill.solve(add_const=self.noskill.objective)
+
+        # elif config.disp_mode == 'Transform Cancel':
+        #     self.tcancel.solve()
+        #     if config.obj_strat == 'Min Frames' and not self.bnb:
+        #         self.tcancel.characteristics(objective_only=True)
+        #         self.tcancel.solve(add_const=self.tcancel.objective)
+
+        # self.skill.characteristics()
+        # self.noskill.characteristics()
+        # self.tcancel.characteristics()
         # if a problem was not solved, characteristics are not generated
 
         if not config.suppress_status:

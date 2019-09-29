@@ -5,7 +5,12 @@ parser = argparse.ArgumentParser(
     description='A program designed to optimize a given dragon over a particular timeframe.'
 )
 parser.add_argument('dragon', help='The dragon (or dragons) you desire to optimize or compare. Case sensitive.')
-parser.add_argument('--display', help='An option for display type, [Skill, No Skill, Transform Cancel, Full List].')
+parser.add_argument('-ds', '--displayskill', action='store_true', 
+                    help='Forces skill display')
+parser.add_argument('-dns', '--displaynoskill', action='store_true', 
+                    help='Forces no skill display')
+parser.add_argument('-dtc', '--displaytransformcancel', action='store_true', 
+                    help='Forces transform cancel display')
 parser.add_argument('-c', '--compare', action='store_true',
                     help='Forces breakpoints to be displayed regardless of output type.')
 parser.add_argument('-bo', '--bnboverride', action='store_true',
@@ -44,25 +49,37 @@ if args.add:
 yes = ['Y', 'y', 'yes', 'Yes', 'YES']
 no = ['n', 'N', 'no', 'No', 'NO']
 
-if args.display:
-    if args.display in ['Skill', 'SKILL', 'skill', 'sk', 's', 'S']:
-        config.disp_mode = 'Skill'
-    elif args.display in ['No Skill', 'no skill', 'No skill', 'NO SKILL', 'NS', 'ns']:
-        config.disp_mode = 'No Skill'
-    elif args.display in ['Transform Cancel', 'transform cancel', 'TRANSFORM CANCEL', 'tc', 'TC']:
-        config.disp_mode = 'Transform Cancel'
-    elif args.display in ['Full List', 'full list', 'Full list', 'FL', 'fl']:
-        config.disp_mode = 'Full List'
-    else:
-        confirmation = input('Input not recognized. Continue with Default? [Y/N] : ')
-        if confirmation in yes:
-            config.disp_mode = 'Default'
-        elif confirmation in no:
-            print('Exiting program.')
-            quit()
-        else:
-            print('Input not recognized. Exiting program.')
-            quit()
+
+if not (args.displayskill or args.displaynoskill or args.displaytransformcancel):
+    config.disp_mode = 'Default'
+else:
+    config.disp_mode = []
+    if args.displayskill:
+        config.disp_mode += ['skill']
+    if args.displaynoskill:
+        config.disp_mode += ['noskill']
+    if args.displaytransformcancel:
+        config.disp_mode += ['tcancel']
+
+# if args.display:
+#     if args.display in ['Skill', 'SKILL', 'skill', 'sk', 's', 'S']:
+#         config.disp_mode = 'Skill'
+#     elif args.display in ['No Skill', 'no skill', 'No skill', 'NO SKILL', 'NS', 'ns']:
+#         config.disp_mode = 'No Skill'
+#     elif args.display in ['Transform Cancel', 'transform cancel', 'TRANSFORM CANCEL', 'tc', 'TC']:
+#         config.disp_mode = 'Transform Cancel'
+#     elif args.display in ['Full List', 'full list', 'Full list', 'FL', 'fl']:
+#         config.disp_mode = 'Full List'
+#     else:
+#         confirmation = input('Input not recognized. Continue with Default? [Y/N] : ')
+#         if confirmation in yes:
+#             config.disp_mode = 'Default'
+#         elif confirmation in no:
+#             print('Exiting program.')
+#             quit()
+#         else:
+#             print('Input not recognized. Exiting program.')
+#             quit()
 
 if args.compare:
     config.disp_compare = True

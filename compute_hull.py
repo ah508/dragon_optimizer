@@ -28,13 +28,20 @@ class HullFinder:
     def find_hull(self):
         for creature in self.dragons:
             config.dragon = creature
-            self.warehouse[creature] = self.Storage()
-            self.warehouse[creature].solution_set = main_solver.Main_Solver()
-            self.warehouse[creature].solution_set.detSolType()
-            for i in range(0, 600):
-                self.warehouse[creature].solution_set.skill.time = i
-                self.warehouse[creature].solution_set.solve_problems()
-                self.warehouse[creature].leaves.append([self.warehouse[creature].solution_set.skill.objective, i])
+            if config.disp_mode == 'Default':
+                attr_list = ['skill']
+            else:
+                attr_list = config.disp_mode
+            for mode in attr_list:
+                magic_key = creature + ' + ' + mode
+                config.disp_mode = [mode]
+                self.warehouse[magic_key] = self.Storage()
+                self.warehouse[magic_key].solution_set = main_solver.Main_Solver()
+                self.warehouse[magic_key].solution_set.detSolType()
+                for i in range(0, 600):
+                    getattr(self.warehouse[magic_key].solution_set, mode).time = i
+                    self.warehouse[magic_key].solution_set.solve_problems()
+                    self.warehouse[magic_key].leaves.append([getattr(self.warehouse[magic_key].solution_set, mode).objective, i])
             # finding the optimal solution for every time moment between 0 and 600
             # this is a terrible way to handle this BUT - it works for now.
             # I'll find some way to make it smoother later

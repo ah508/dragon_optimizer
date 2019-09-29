@@ -9,20 +9,21 @@ lpSolve = importr('lpSolve')
 class LPsolution(LPinfo):
     # a subclass of LPinfo for ease of accessing information
     # feeds the LP to a solver (R, lpSolve package)
-    def __init__(self, dragon, useSkill):
+    def __init__(self, dragon, useSkill, transformCancel=0):
         super().__init__(dragon)
         self.solved = False
         self.useSkill = useSkill
+        self.transformCancel = transformCancel
         self.type = 'LP'
     
     def solve(self, **kwargs):
         self.solved = True
         if 'add_const' in kwargs:
-            self.normInfo(skill=self.useSkill, sub=kwargs['add_const'])
+            self.normInfo(skill=self.useSkill, tcancel=self.transformCancel, sub=kwargs['add_const'])
             method = "min"
             # used when initiating a second solve to minimize frames
         else:
-            self.normInfo(skill=self.useSkill)
+            self.normInfo(skill=self.useSkill, tcancel=self.transformCancel)
             method = "max"
             # the normal method
             # generates the necessary information with normInfo (see: data_refine)
@@ -36,13 +37,17 @@ class LPsolution(LPinfo):
         self.solution = self.result.rx2('solution')
         # retrieving the solution vector from result (an R object)
         
-    def characteristics(self, objective_only=False, tCancel=False):
+    def characteristics(self, objective_only=False):
         if self.solved:
         # only computed if the problem was actually set up and solved
-            if tCancel and not objective_only:
-                self.useSkill = 1
-                self.solution[-1] = 1.0
+            if self.transformCancel and not objective_only:
+                # self.useSkill = 1
+                # self.solution[-1] = 1.0
                 cancel_frames = self.tCancel
+                # arright, look, I get it
+                # using both self.transformCancel and self.tCancel is a terrible sin
+                # a terrible, terrible, sin
+                # I'll fix it later, I swear
                 # when handled by LP, transformation cancelling is handled as if you had not used skill,
                 #   and then the damage and frames are applied afterwards
             else:
@@ -57,7 +62,7 @@ class LPsolution(LPinfo):
                 self.objective = round(self.objective, 3)
                 self.duration = round((self.time + self.transformTime + cancel_frames + self.useSkill*self.skillTime)/60, 3)
                 self.leniency = self.time - np.dot(self.solution, self.frames)
-                if tCancel:
+                if self.transformCancel:
                     self.leniency += config.leniency
                 self.mps = round(self.objective/self.duration, 3)
                 # rounding for display purposes
@@ -76,16 +81,16 @@ class SLPsolution(SLPinfo):
         super().__init__(dragon)
         self.solved = False
         self.useSkill = True
-        self.tcancel = tcancel
+        self.transformCancel = tcancel
         self.type = 'SLP'
 
     def solve(self, **kwargs):
         self.solved = True
         if 'add_const' in kwargs:
-            self.sepInfo(tcancel=self.tcancel, sub=kwargs['add_const'])
+            self.sepInfo(tcancel=self.transformCancel, sub=kwargs['add_const'])
             method = "min"
         else:
-            self.sepInfo(tcancel=self.tcancel)
+            self.sepInfo(tcancel=self.transformCancel)
             method = "max"
         rhs = robjects.FloatVector(self.rhs)
         if config.integrality:
@@ -94,9 +99,9 @@ class SLPsolution(SLPinfo):
             self.result = lpSolve.lp(method, self.obj, self.const, self.dir, rhs)
         self.solution = self.result.rx2('solution')
     
-    def characteristics(self, objective_only=False, tCancel=False):
+    def characteristics(self, objective_only=False):
         if self.solved:
-            if tCancel and not objective_only:
+            if self.transformCancel and not objective_only:
                 cancel_frames = self.tCancel
             else:
                 cancel_frames = 0
@@ -105,6 +110,6 @@ class SLPsolution(SLPinfo):
                 self.objective = round(self.objective, 3)
                 self.duration = round((self.time + self.transformTime + cancel_frames + self.skillTime)/60, 3)
                 self.leniency = self.time - np.dot(self.solution, self.timeVec) 
-                if tCancel:
+                if self.transformCancel:
                     self.leniency += config.leniency
                 self.mps = round(self.objective/self.duration, 3)
