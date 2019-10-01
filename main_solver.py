@@ -1,5 +1,6 @@
 import time
 start_time = time.process_time()
+start_time2 = time.time()
 # time, for timing stuff
 import config
 from findZero import rootFind
@@ -12,7 +13,8 @@ from output import MainDisplay
 
 if not config.suppress_status:
     print('imports finished:')
-    print(time.process_time() - start_time)
+    print(f'process time: {time.process_time() - start_time}')
+    print(f'real time: {time.time() - start_time2}')
     print('-')
 
 class Main_Solver:
@@ -21,12 +23,14 @@ class Main_Solver:
         global start_time
         complete_dragons = pandas.read_csv('file:discrete_dragon_data.csv', header=0, index_col=0)
         # reading the data from the csv with pandas
+        # should be moved to a different file so it doesn't need to be reread each time.
         self.dragon = complete_dragons.loc[config.dragon]
         self.info = Refine(self.dragon)
         # data is refined
         if not config.suppress_status:
             print('data formatted:')
-            print(time.process_time() - start_time)
+            print(f'process time: {time.process_time() - start_time}')
+            print(f'real time: {time.time() - start_time2}')
             print('-')
 
     def detSolType(self):
@@ -60,7 +64,8 @@ class Main_Solver:
 
         if not config.suppress_status:
             print('solution type determined:')
-            print(time.process_time() - start_time)
+            print(f'process time: {time.process_time() - start_time}')
+            print(f'real time: {time.time() - start_time2}')
             print('-')
 
     def solve_problems(self):
@@ -83,7 +88,8 @@ class Main_Solver:
 
         if not config.suppress_status:
             print('solved:')
-            print(time.process_time() - start_time)
+            print(f'process time: {time.process_time() - start_time}')
+            print(f'real time: {time.time() - start_time2}')
             print('-')
 
     def zero_problems(self):
@@ -99,7 +105,8 @@ class Main_Solver:
 
         if not config.suppress_status:
             print("zero'd:")
-            print(time.process_time() - start_time)
+            print(f'process time: {time.process_time() - start_time}')
+            print(f'real time: {time.time() - start_time2}')
             print('-')
 
     def display(self):
@@ -111,6 +118,7 @@ class Main_Solver:
         if not config.suppress_status:
             print('++++++++++')
             print('FINISHED:')
-            print(time.process_time() - start_time)
+            print(f'process time: {time.process_time() - start_time}')
+            print(f'real time: {time.time() - start_time2}')
             print('++++++++++')
 

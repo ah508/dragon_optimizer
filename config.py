@@ -14,6 +14,7 @@ initial_time = 10       # Seconds
 obj_strat = 'Default'   # 'Default', 'Min Frames', 'Dirty'(illegitimate min frames)
                         # NOTE: 'Dirty' is actually surprisingly accurate
 integrality = True      # Requires integrality constraints
+# dual = False            # Computes the dual solution. Doesn't exist yet.
 bound_method = 'Accurate' # 'Accurate', 'None'
 queue_strat = 'depth'   # The queue strategy for the branch and bound process
 include_string = True   # I'm pretty sure this isn't in use at all right now
