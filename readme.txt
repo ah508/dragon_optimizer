@@ -74,7 +74,7 @@ A. Yeah, but I really only work on this in my spare time, so don't expect freque
     updates or anything.
 
 Q. "I see that in the sheet, some attacks that are two hits are listed as just one 
-    attacks with one hit. What's up with that?"
+    single hit. What's up with that?"
 A. In those cases, the attack in question is a proper projectile. If the first hit would
     occur, the second hit follows inevitably. You would be correct to call out that this
     introduces inaccuracies with buff handling and the end of dragon time, but 
