@@ -11,16 +11,16 @@ class Refine:
     def __init__(self, data):
         self.reference = ['T  ', 'C1a', 'C1b', 'C2a', 'C2b', 'C3a', 'C3b', 'C4a', 'C4b', 'C5a', 'C5b', 'W  ', 'D  ', 'S  ']
         # a reference vector ultimately used for display purposes
-        self.damage = [150] + [data[10 + 5*i] for i in range(0, 10)] + [0, 0] + [data['Skill Damage']*config.skill_coefficient]
+        self.damage = [150] + [data[11 + 5*i] for i in range(0, 10)] + [0, 0] + [data['Skill Damage']*config.skill_coefficient]
         # stores damage values for each action - skill damage is adjusted according to config
-        self.cancels = [0] + [data[12 + 5*i] for i in range(0, 10)] + [0, 0, 0]
+        self.cancels = [0] + [data[13 + 5*i] for i in range(0, 10)] + [0, 0, 0]
         # stores cancel information - rarely used, but vital for 'bufferable' cases
-        self.cooldown = [0] + [data[13 + 5*i] for i in range(0, 10)] + [0, 0, 0]
+        self.cooldown = [0] + [data[14 + 5*i] for i in range(0, 10)] + [0, 0, 0]
         # this may become more relevant later on, but for the time being it's mostly used to determine wait values
-        self.sp_gen = [0] + [data[14 + 5*i] for i in range(0, 10)] + [0, 0, 0]
+        self.sp_gen = [0] + [data[15 + 5*i] for i in range(0, 10)] + [0, 0, 0]
         # stores SP generation information - currently only used for psiren
         lastC = [i for i, e in enumerate(self.cooldown) if e != 0]
-        self.frames = [0] + [data[11 + 5*i] for i in range(0, 10)] + [self.cooldown[lastC[-1]]] + [data['Dodge Frames']] + [0]
+        self.frames = [0] + [data[12 + 5*i] for i in range(0, 10)] + [self.cooldown[lastC[-1]]] + [data['Dodge Frames']] + [0]
         # indices for nonzero cooldown values are determined (c3 or c5, generally)
         # a vector for frames is constructed from usual framedata, and the last nonzero cooldown value
         self.tCancel = data['Transform Cancel']
@@ -29,19 +29,23 @@ class Refine:
         # for dragons with multiple uses of skill (curse you psiren!)
         self.rlength = 0
         # a filler value for reference length, properly assigned later
+        self.transformTime = data['Transformation']
+        # time consumed in the transformation animation (without canceling)
+        self.skillTime = data['Skill Duration']
+        # frames necessary to cast skill
         if type(data['Skill Effect']) == str:
             sEffect = float(Fraction(data['Skill Effect']))
             # someone somewhere is gonna bag me for using type here, I can feel it in my bones
         else:
             sEffect = data['Skill Effect']
+        if config.attack_rate != 1:
+            sETime = data['Effect Time'] + ceil((data['Effect Timing'] - self.skillTime)/config.attack_rate)
+        else:
+            sETime = data['Effect Time'] + data['Effect Timing'] - self.skillTime
         # if the effect of skill is a string instead of a number, then it is a fraction (and converted as such)
         # if we ever update to more accurate skill handling, this will need an update
-        self.cond = [sEffect, data['Effect Time']]
+        self.cond = [sEffect, sETime]
         # duration of skill effects
-        self.transformTime = data['Transformation']
-        # time consumed in the transformation animation (without canceling)
-        self.skillTime = data['Skill Duration']
-        # frames necessary to cast skill
         self.time = config.initial_time*60*(1 + data['DragonTime'] + config.additional_time)
         # total available frames in which to act
         self.trimmed()
