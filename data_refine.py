@@ -38,10 +38,11 @@ class Refine:
             # someone somewhere is gonna bag me for using type here, I can feel it in my bones
         else:
             sEffect = data['Skill Effect']
+        sETime = data['Effect Time']
         if config.attack_rate != 1:
-            sETime = data['Effect Time'] + ceil((data['Effect Timing'] - self.skillTime)/config.attack_rate)
-        else:
-            sETime = data['Effect Time'] + data['Effect Timing'] - self.skillTime
+            sETime += ceil((data['Effect Timing'] - self.skillTime)/config.attack_rate)
+        elif data['Effect Time'] != 0:
+            sETime += data['Effect Timing'] - self.skillTime
         # if the effect of skill is a string instead of a number, then it is a fraction (and converted as such)
         # if we ever update to more accurate skill handling, this will need an update
         self.cond = [sEffect, sETime]
