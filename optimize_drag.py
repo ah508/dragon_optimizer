@@ -26,7 +26,7 @@ parser.add_argument('--add', action='append',
 
 args = parser.parse_args()
 
-forbidden = ['Gold Fafnir', 'DyJeanne' 'Chthonius', ]
+forbidden = ['Gold Fafnir', 'DyJeanne']
 psiren_call = False
 
 if args.dragon in forbidden:
