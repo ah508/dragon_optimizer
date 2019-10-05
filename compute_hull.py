@@ -19,6 +19,8 @@ class HullFinder:
     def __init__(self, dragon, additional_dragons=[]):
         self.dragons = [dragon] + additional_dragons
         self.warehouse = {}
+        self.start_time = time.process_time()
+        print('timing starts now')
         # warehouse is a terrible variable name
 
     class Storage:
@@ -46,7 +48,7 @@ class HullFinder:
             # this is a terrible way to handle this BUT - it works for now.
             # I'll find some way to make it smoother later
             print('Segment')
-            print(time.process_time() - main_solver.start_time)
+            print(time.process_time() - self.start_time)
             print('-')
         
         for entity in self.warehouse.values():
@@ -68,7 +70,7 @@ class HullFinder:
             # determining the vertices - this is what lets us display the polygon below
 
         print('Done!')
-        print(time.process_time() - main_solver.start_time)
+        print(time.process_time() - self.start_time)
         
         for keys in self.warehouse:
             plt.fill(self.warehouse[keys].hullf, self.warehouse[keys].hulld, label=keys, alpha=0.3)

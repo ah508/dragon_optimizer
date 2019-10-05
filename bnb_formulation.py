@@ -10,12 +10,14 @@ from rpy2.robjects.packages import importr
 lpSolve = importr('lpSolve')
 
 class BnBsolution(BnBinfo):
-    # handles all information for the purposes of solving the problem by branch and bound
-    # also used for complete enumeration because... I don't want to write my own method for that yet
+    # Handles all information for the purposes of solving the problem by
+    # branch and bound.
+    # Also used for complete enumeration because... I don't want to
+    # write my own method for that yet.
     def __init__(self, dragon, useSkill, transformCancel=False):
         super().__init__(dragon)
         self.adjacencyGen()
-        # generating an adjacency matrix
+        # Generating an adjacency matrix.
         self.useSkill = useSkill
         self.transformCancel = transformCancel
         self.type = 'BnB'
@@ -24,16 +26,18 @@ class BnBsolution(BnBinfo):
     def solve(self):
         self.solved = True
         self.normInfo(bnb=True, skill=self.useSkill)
-        # generating the LP relaxation
+        # Generating the LP relaxation.
         info = copy.deepcopy(self)
-        # this is a relic of a bygone era, when all information was passed as an argument
+        # This is a relic of a bygone era, when all information was
+        # passed as an argument.
         formula = Formulation(info, self.useSkill, self.transformCancel)
-        # Formulation could be rewritten to just use inheritence, but it works fine as is
-        # and with inheritence multiple inheritence would actually be a small concern
+        # Formulation could be rewritten to just use inheritence, but
+        # it works fine as is.  With inheritence, multiple inheritence
+        # would also become a small concern.
         solver = pybnb.Solver()
         self.result = solver.solve(formula, absolute_gap=0.0001, node_limit=10000000, queue_strategy=config.queue_strat)
         self.solution = self.result.best_node.state[-1]
-        # using pybnb to initiate a solve
+        # Using pybnb to initiate a solve.
 
     def characteristics(self, tCancel=False):
         if self.solved:
@@ -46,16 +50,17 @@ class BnBsolution(BnBinfo):
             self.duration = round((self.time + self.transformTime + cancel_frames + self.useSkill*self.skillUses*self.skillTime)/60, 3)
             self.leniency = self.time - self.result.best_node.state[1]
             self.mps = round(self.objective/self.duration, 3)
-            # determining the characteristics of the information post-solve
-            # rounding for display purposes
-            # objective is the objective value
-            # duration is the total time spent in transformation
-            # leniency is the number of frames you can lose and still complete the combo
-            #   note: bad variable name, contradicts the description of leniency in config
-            # mps is mod per second - total modifer divided by total time
+            # Determining the characteristics of the information
+            # post-solve.  "objective" is the objective value, and 
+            # "duration" is the total time spent in transformation.
+            # "leniency" is the number of frames you can lose and still
+            # complete the combo.  "mps" is mod per second - total
+            # modifer divided by total time.
+            # NOTE: "leniency" is a bad variable name - it contradicts
+            # the meaning of leniency that is used in config.
 
 
-@lru_cache(maxsize=2048) # caching for speed, 2048 chosen arbitrarily
+@lru_cache(maxsize=2048)
 def lp_sol(combo, useSkill, modifier, solInfo):
     cc = copy.copy(combo)
     cc = list(cc)
@@ -63,12 +68,12 @@ def lp_sol(combo, useSkill, modifier, solInfo):
     r_rhs = robjects.IntVector([*solInfo.rhs, *cc, *[1, 0, useSkill*solInfo.skillUses, solInfo.time]])
     r_sol = lpSolve.lp("max", solInfo.altObj, solInfo.const, solInfo.dir, r_rhs).rx2('objval')
     return modifier*r_sol[0]
-    # this determines the bound on a node for the BnB
-    # might be a good idea to include it in the class itself, idk
+    # This determines the bound on a node for the BnB.
 
 class Formulation(pybnb.Problem):
-    # construction of the branch and bound problem
-    # for more details on this, check out the link below:
+    # Construction of the branch and bound problem.
+    # For more details on this, and the package it comes from, check
+    # out the link below:
     # https://pybnb.readthedocs.io/en/stable/getting_started/index.html#defining-a-problem
     def __init__(self, info, useSkill, tCancel):
         self._info = info
@@ -104,9 +109,9 @@ class Formulation(pybnb.Problem):
             return round(bound, 3)
         elif config.bound_method == 'None':
             return 15000
-        # Experimental and Accurate currently do exactly the same job
-        # once upon a time, they did different jobs
-        # Experimental is still there for experimental purposes
+        # Experimental and Accurate currently do exactly the same job.
+        # Experimental is still present as a comment because it is
+        # occasionally used for testing purposes.
 
     def save_state(self, node):
         node.state = (
@@ -162,13 +167,16 @@ class Formulation(pybnb.Problem):
             else:
                 condition = [self._info.cond[0]*(1+self._comboCount[-1]) - self._comboCount[-1], self._info.cond[1]]
             # NOTE: not robust at all^
+            # NOTE: actually DANGEROUSLY not robust.  However, as this
+            #       is currently only used for a single, highly
+            #       specific case, it can stay the time being...
             comboCount = self._comboCount[:-1] +(self._comboCount[-1] + 1,)
             child = pybnb.Node()
             child.state = (self._sumDamage + self._info.damage[self._info.rlength-1], time, 
             self._info.rlength-1, self._optString + [self._info.rlength-1], condition, False, 0, comboCount) 
             yield child
-        # the adjacency matrix defines a graph
-        # this method walks that graph to generate nodes for the bnb
+        # The adjacency matrix defines a graph.
+        # This method walks that graph to generate nodes for the bnb.
         
     def notify_solve_begins(self,
                             comm,

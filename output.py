@@ -72,13 +72,13 @@ class MainDisplay:
         self.brickWriter(lpOutput)
 
     def slpWriter(self, slpOutput):
-        tots = slpOutput.solution[0:2]
+        totals = slpOutput.solution[0:2]
         unboosted = slpOutput.solution[2:slpOutput.rlength+1]
         boosted = slpOutput.solution[slpOutput.rlength+1:2*slpOutput.rlength]
         exitVars = slpOutput.solution[2*slpOutput.rlength:]
         print('Unboosted           Boosted')
         print('_____________        _____________')
-        print('M   : %6.2f        M   : %6.2f' %(tots[0], tots[1]))
+        print('M   : %6.2f        M   : %6.2f' %(totals[0], totals[1]))
         for i in range(0, len(unboosted)):
             print(f'{slpOutput.reference[i]} : {unboosted[i]}            {slpOutput.reference[i+1]} : {boosted[i]}')
         print('‾‾‾‾‾‾‾‾‾‾‾‾‾        ‾‾‾‾‾‾‾‾‾‾‾‾‾')
