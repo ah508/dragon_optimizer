@@ -119,30 +119,50 @@ class LPinfo(Refine):
         #   information must be assigned to R objects
 
     def addConstraints(self, bnb=False, skill=1, tcancel=0):
-        self.constraint = [1] + list(np.zeros(self.rlength - 2))
+        if bnb:
+            self.constraint = np.zeros((self.rlength*2, self.rlength))
+            self.rhs = [1] + list(np.zeros(self.rlength-5))
+        else:
+            self.constraint = np.zeros((self.rlength, self.rlength))
+            self.rhs = np.zeros(self.rlength)
+            self.rhs[0] = 1
+            self.rhs[-4:] = np.array([1-tcancel, 0, skill, self.time])
+        self.constraint[0, 0] = 1
         self.direction = ['==']
-        wait = list(np.zeros(self.rlength))
-        wait[-3] = 1
-        wait[-4] = -1
-        for cascade in range(1, self.rlength-4):
-            self.constraint += list(np.zeros(cascade + 1)) + [-1, 1] + list(np.zeros(self.rlength - cascade - 3))
+        for cascade in range(1, self.rlength - 3):
+            self.constraint[cascade, cascade+1] = -1
+            self.constraint[cascade, cascade+2] = 1
             self.direction += ['<=']
-        self.constraint += [0]
         if bnb:
             for limiters in range(1, self.rlength):
-                self.constraint += list(np.zeros(limiters)) + [1] + list(np.zeros(self.rlength - limiters - 1))
+                self.constraint[self.rlength + limiters - 2, limiters] = 1
                 self.direction += ['>=']
-            self.rowcount = 2*self.rlength - 1
-            self.rhs = [1] + list(np.zeros(self.rlength - 5))
-            # utilized only if the LP is to be used as a bound for a BnB process, otherwise it is extraneous
-        else:
-            self.rowcount = self.rlength
-            self.rhs = [1] + list(np.zeros(self.rlength - 5)) + [1-tcancel, 0, skill, self.time]
-        self.constraint += [0, 1] + list(np.zeros(self.rlength - 5)) + [-1, -1, -1]
-        self.constraint += wait
-        self.constraint += list(np.zeros(self.rlength - 1)) + [1]
-        self.constraint += self.frames
-        self.direction += ['<=', '<=', '<=', '<=']
+        # self.constraint = [1] + list(np.zeros(self.rlength - 2))
+        # self.direction = ['==']
+        # wait = list(np.zeros(self.rlength))
+        # wait[-3] = 1
+        # wait[-4] = -1
+        # for cascade in range(1, self.rlength-4):
+        #     self.constraint += list(np.zeros(cascade + 1)) + [-1, 1] + list(np.zeros(self.rlength - cascade - 3))
+        #     self.direction += ['<=']
+        # self.constraint += [0]
+        # if bnb:
+        #     for limiters in range(1, self.rlength):
+        #         self.constraint += list(np.zeros(limiters)) + [1] + list(np.zeros(self.rlength - limiters - 1))
+        #         self.direction += ['>=']
+        #     self.rowcount = 2*self.rlength - 1
+        #     self.rhs = [1] + list(np.zeros(self.rlength - 5))
+        #     # utilized only if the LP is to be used as a bound for a BnB process, otherwise it is extraneous
+        # else:
+        #     self.rowcount = self.rlength
+        #     self.rhs = [1] + list(np.zeros(self.rlength - 5)) + [1-tcancel, 0, skill, self.time]
+        # self.constraint += [0, 1] + list(np.zeros(self.rlength - 5)) + [-1, -1, -1]
+        # self.constraint += wait
+        # self.constraint += list(np.zeros(self.rlength - 1)) + [1]
+        # self.constraint += self.frames
+        # self.direction += ['<=', '<=', '<=', '<=']
+
+
         # This method handles the construction of constraints for a particular dragon (or problem)
         # It is a rather messy affair.
         # To explain as simply as possible:
