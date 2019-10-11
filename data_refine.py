@@ -4,6 +4,8 @@ from math import ceil, floor #floor is currently not needed
 import numpy as np
 import rpy2
 import rpy2.robjects as robjects
+from rpy2.robjects.numpy2ri import numpy2ri
+robjects.numpy2ri.activate()
 
 #####
 class Refine:
@@ -105,14 +107,17 @@ class LPinfo(Refine):
             # normal construction of the constraints and objective function
             # objective function is constructed according to the specification in config
         else:
-            self.rowcount +=1
             objective = robjects.FloatVector(self.frames)
-            self.constraint += self.damage
+            self.constraint.resize((self.rlength+1, self.rlength))
+            self.constraint[-1, :] = np.array(self.damage)
             self.direction += ['==']
-            self.rhs += [sub]
+            self.rhs.resize(self.rlength+1)
+            self.rhs[-1] = sub
             # sub denotes a second solve to minimize frames
             # as such, an additional constraint is added and the objective function is changed
-        self.const = robjects.r['matrix'](self.constraint, nrow=self.rowcount, byrow=True)
+        # self.const = self.constraint
+        # print(self.constraint)
+        # print(self.rhs)
         self.dir = robjects.StrVector(self.direction)
         self.intreq = robjects.IntVector(range(1, len(self.damage)))
         # as this will eventually be passed to an active R instance, all of the necessary 
@@ -120,49 +125,28 @@ class LPinfo(Refine):
 
     def addConstraints(self, bnb=False, skill=1, tcancel=0):
         if bnb:
-            self.constraint = np.zeros((self.rlength*2, self.rlength))
-            self.rhs = [1] + list(np.zeros(self.rlength-5))
+            self.constraint = np.zeros((self.rlength*2 - 1, self.rlength))
+            self.rhs = [1] + list(np.zeros(self.rlength-4))
         else:
             self.constraint = np.zeros((self.rlength, self.rlength))
             self.rhs = np.zeros(self.rlength)
             self.rhs[0] = 1
-            self.rhs[-4:] = np.array([1-tcancel, 0, skill, self.time])
+            self.rhs[-3:] = np.array([1-tcancel, skill, self.time])
         self.constraint[0, 0] = 1
         self.direction = ['==']
         for cascade in range(1, self.rlength - 3):
-            self.constraint[cascade, cascade+1] = -1
-            self.constraint[cascade, cascade+2] = 1
+            self.constraint[cascade, cascade] = -1
+            self.constraint[cascade, cascade+1] = 1
             self.direction += ['<=']
         if bnb:
-            for limiters in range(1, self.rlength):
-                self.constraint[self.rlength + limiters - 2, limiters] = 1
+            for limiters in range(0, self.rlength - 1):
+                self.constraint[self.rlength + limiters - 3, limiters + 1] = 1
                 self.direction += ['>=']
-        # self.constraint = [1] + list(np.zeros(self.rlength - 2))
-        # self.direction = ['==']
-        # wait = list(np.zeros(self.rlength))
-        # wait[-3] = 1
-        # wait[-4] = -1
-        # for cascade in range(1, self.rlength-4):
-        #     self.constraint += list(np.zeros(cascade + 1)) + [-1, 1] + list(np.zeros(self.rlength - cascade - 3))
-        #     self.direction += ['<=']
-        # self.constraint += [0]
-        # if bnb:
-        #     for limiters in range(1, self.rlength):
-        #         self.constraint += list(np.zeros(limiters)) + [1] + list(np.zeros(self.rlength - limiters - 1))
-        #         self.direction += ['>=']
-        #     self.rowcount = 2*self.rlength - 1
-        #     self.rhs = [1] + list(np.zeros(self.rlength - 5))
-        #     # utilized only if the LP is to be used as a bound for a BnB process, otherwise it is extraneous
-        # else:
-        #     self.rowcount = self.rlength
-        #     self.rhs = [1] + list(np.zeros(self.rlength - 5)) + [1-tcancel, 0, skill, self.time]
-        # self.constraint += [0, 1] + list(np.zeros(self.rlength - 5)) + [-1, -1, -1]
-        # self.constraint += wait
-        # self.constraint += list(np.zeros(self.rlength - 1)) + [1]
-        # self.constraint += self.frames
-        # self.direction += ['<=', '<=', '<=', '<=']
-
-
+        self.constraint[-3, 1] = 1
+        self.constraint[-3, -3:] = -1*np.ones(3)
+        self.constraint[-2, -1] = 1
+        self.constraint[-1, :] = np.array(self.frames)
+        self.direction += ['<=', '<=', '<=']
         # This method handles the construction of constraints for a particular dragon (or problem)
         # It is a rather messy affair.
         # To explain as simply as possible:
@@ -190,56 +174,54 @@ class SLPinfo(Refine):
     def sepInfo(self, tcancel=0, sub=0):
         if not sub:
             self.sepConstraints(tcancel=tcancel)
-            self.rowcount = 3*self.rlength - 3
             self.objVec = [0, 0] + self.damage[:-1] + [self.cond[0]*i for i in self.damage[1:-1]] + [self.damage[-1]] + list(np.zeros(self.rlength - 4))
             self.timeVec = [0, 0] + self.frames[:-1] + self.frames[1:] + list(np.zeros(self.rlength - 4))
         else:
-            self.constraint += [1, 1] + list(np.zeros(self.rlength*3 - 6))
-            self.rowcount += 1
+            self.constraint.resize(3*self.rlength - 2, 3*self.rlength - 4)
+            self.constraint[-1, :2] = np.ones(2)
             self.objective = [0, 0] + self.frames[:-1] + self.frames[1:] + list(np.zeros(self.rlength - 4))
-            self.rhs += [sub]
+            self.rhs.resize(3*self.rlength - 2)
+            self.rhs[-1] = sub
             self.direction += ['==']
             # sub denotes a second solve to minimize frames
         self.obj = robjects.FloatVector(self.objective)
-        self.const = robjects.r['matrix'](self.constraint, nrow=self.rowcount, byrow=True)
         self.dir = robjects.StrVector(self.direction)
         self.intreq = robjects.IntVector(range(3, self.rlength*3 - 4))      
         # information assigned to R objects as necessary
 
     def sepConstraints(self, tcancel=0):
         self.objective = [1, 1] + list(np.zeros(self.rlength*3 - 6))
-        self.constraint = [0, 0, 1] + list(np.zeros(self.rlength*3 - 7))
+        self.constraint = np.zeros((3*self.rlength - 3, 3*self.rlength - 4))
+        self.constraint[0, 2] = 1
         self.direction = ['==']
-        self.rhs = [1]
-        for cascade in range(0, self.rlength - 4):
-            self.constraint += list(np.zeros(cascade + 3)) + [-1, 1] + list(np.zeros(self.rlength - cascade - 4))
-            self.constraint += list(np.zeros(self.rlength + cascade - 1)) + [-1] + list(np.zeros(self.rlength - cascade - 5))
+        self.rhs = np.zeros(3*self.rlength - 3)
+        self.rhs[0] = 1
+        self.rhs[-8:-2] = np.array([1-tcancel, 0, 1, 1, self.time, self.cond[1] + config.leniency])
+        for cascade in range(1, self.rlength - 3):
+            self.constraint[cascade, cascade + 2:cascade + 4] = np.array([-1, 1])
+            self.constraint[cascade, 3 - self.rlength + cascade] = -1
             self.direction += ['<=']
-            self.rhs += [0]
-        for cascade in range(0, self.rlength - 4):
-            self.constraint += list(np.zeros(self.rlength + cascade + 1)) + [-1, 1] + list(np.zeros(self.rlength - cascade - 4))
-            self.constraint += list(np.zeros(cascade + 1)) + [1] + list(np.zeros(self.rlength - cascade - 5))
+        for cascade in range(self.rlength - 3, 2*self.rlength - 7):
+            self.constraint[cascade, cascade + 4:cascade + 6] = np.array([-1, 1])
+            self.constraint[cascade, 7 - 2*self.rlength + cascade] = 1
             self.direction += ['<=']
-            self.rhs += [0]
-        for cascade in range(0, self.rlength - 4):
-            self.constraint += list(np.zeros(self.rlength + cascade + 1)) + [-1] + list(np.zeros(self.rlength - cascade - 3))
-            self.constraint += list(np.zeros(cascade + 1)) + [1] + list(np.zeros(self.rlength - cascade -5))
+        for cascade in range(2*self.rlength - 7, 3*self.rlength - 11):
+            self.constraint[cascade, cascade] = -1
+            self.constraint[cascade, 11 - 3*self.rlength + cascade] = 1
             self.direction += ['<=']
-            self.rhs += [0]
-        self.constraint += [0, 0, 0, 1] + list(np.zeros(self.rlength - 5)) + [-1, -1] + list(np.zeros(self.rlength*2 - 5))
-        self.constraint += list(np.zeros(self.rlength + 1)) + [1] + list(np.zeros(self.rlength - 5)) + [-1, -1, -1] + list(np.zeros(self.rlength - 4))
-        self.constraint += list(np.zeros(2*self.rlength)) + list(np.ones(self.rlength - 4))
-        self.constraint += list(np.zeros(2*self.rlength - 1)) + [1] + list(np.zeros(self.rlength - 4))
-        self.direction += ['<=', '<=', '==', '<=']
-        self.rhs += [1-tcancel, 0, 1, 1]
-        self.constraint += [0, 0] + self.frames[:-1] + self.frames[1:] + list(np.zeros(self.rlength - 4))
-        self.constraint += list(np.zeros(self.rlength + 1)) + self.frames[1:] + list(np.zeros(self.rlength - 4))
-        self.direction += ['<=', '<=']
-        self.rhs += [self.time] + [self.cond[1] + config.leniency]
-        self.constraint += [1, 0] + [-1*i for i in self.damage[:-1]] + list(np.zeros(2*self.rlength - 5))
-        self.constraint += [0, 1] + list(np.zeros(self.rlength - 1)) + [-1*self.cond[0]*i for i in self.damage[1:-1]] + [-1*self.damage[-1]] + list(np.zeros(self.rlength - 4))
-        self.direction += ['<=', '<=']
-        self.rhs += [0, 0]
+        self.constraint[-8, 3] = 1
+        self.constraint[-8, self.rlength - 1:self.rlength + 1] = -1*np.ones(2)
+        self.constraint[-7, self.rlength + 1] = 1
+        self.constraint[-7, 1 - self.rlength:4 - self.rlength] = -1*np.ones(3)
+        self.constraint[-6, 4 - self.rlength:] = np.ones(self.rlength-4)
+        self.constraint[-5, 3 - self.rlength] = 1
+        self.constraint[-4, 2:4 - self.rlength] = np.array(self.frames[:-1] + self.frames[1:])
+        self.constraint[-3, self.rlength + 1:4 - self.rlength] = np.array(self.frames[1:])
+        self.constraint[-2, 0] = 1
+        self.constraint[-2, 2:self.rlength + 1] = np.array([-1*i for i in self.damage[:-1]])
+        self.constraint[-1, 1] = 1
+        self.constraint[-1, self.rlength + 1:4 - self.rlength] = np.array([-1*self.cond[0]*i for i in self.damage[1:-1]] + [-1*self.damage[-1]])
+        self.direction += ['<=', '<=', '==', '<=', '<=', '<=', '<=', '<=']
         # second verse, same as the first... just a bit more complex this time
         # as this is separable linear programming (or at least, the principles used in the formulation of
         # this problem draw heavily from those that direct separable linear programming), I don't believe

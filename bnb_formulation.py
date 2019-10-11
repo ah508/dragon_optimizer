@@ -65,8 +65,8 @@ def lp_sol(combo, useSkill, modifier, solInfo):
     cc = copy.copy(combo)
     cc = list(cc)
     del cc[0]
-    r_rhs = robjects.IntVector([*solInfo.rhs, *cc, *[1, 0, useSkill*solInfo.skillUses, solInfo.time]])
-    r_sol = lpSolve.lp("max", solInfo.altObj, solInfo.const, solInfo.dir, r_rhs).rx2('objval')
+    r_rhs = robjects.IntVector([*solInfo.rhs, *cc, *[1, useSkill*solInfo.skillUses, solInfo.time]])
+    r_sol = lpSolve.lp("max", solInfo.altObj, solInfo.constraint, solInfo.dir, r_rhs).rx2('objval')
     return modifier*r_sol[0]
     # This determines the bound on a node for the BnB.
 

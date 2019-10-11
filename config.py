@@ -11,7 +11,7 @@ rate_method = 'ceil'    # Changes the assumption for attack speed
 haste_coefficient = 1   # For those dragons which generate SP
 additional_time = 0     # Interpretted as an additive % increase to dragon time
 initial_time = 10       # Seconds
-obj_strat = 'Default'   # 'Default', 'Min Frames', 'Dirty'(illegitimate min frames)
+obj_strat = 'Min Frames'   # 'Default', 'Min Frames', 'Dirty'(illegitimate min frames)
                         # NOTE: 'Dirty' is actually surprisingly accurate
 integrality = True      # Requires integrality constraints
 # dual = False            # Computes the dual solution. Doesn't exist yet.

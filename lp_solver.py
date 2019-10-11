@@ -27,12 +27,11 @@ class LPsolution(LPinfo):
             method = "max"
             # the normal method
             # generates the necessary information with normInfo (see: data_refine)
-        rhs = robjects.FloatVector(self.rhs)
         if config.integrality:
-            self.result = lpSolve.lp(method, self.obj, self.const, self.dir, rhs, int_vec=self.intreq)
+            self.result = lpSolve.lp(method, self.obj, self.constraint, self.dir, self.rhs, int_vec=self.intreq)
             # the normal method
         else:
-            self.result = lpSolve.lp(method, self.obj, self.const, self.dir, rhs)
+            self.result = lpSolve.lp(method, self.obj, self.constraint, self.dir, self.rhs)
             # used when integrality constraints are removed
         self.solution = self.result.rx2('solution')
         # retrieving the solution vector from result (an R object)
@@ -92,11 +91,10 @@ class SLPsolution(SLPinfo):
         else:
             self.sepInfo(tcancel=self.transformCancel)
             method = "max"
-        rhs = robjects.FloatVector(self.rhs)
         if config.integrality:
-            self.result = lpSolve.lp(method, self.obj, self.const, self.dir, rhs, int_vec=self.intreq)
+            self.result = lpSolve.lp(method, self.obj, self.constraint, self.dir, self.rhs, int_vec=self.intreq)
         else:
-            self.result = lpSolve.lp(method, self.obj, self.const, self.dir, rhs)
+            self.result = lpSolve.lp(method, self.obj, self.constraint, self.dir, self.rhs)
         self.solution = self.result.rx2('solution')
     
     def characteristics(self, objective_only=False):
