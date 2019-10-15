@@ -20,7 +20,7 @@ class HullFinder:
         self.dragons = [dragon] + additional_dragons
         self.warehouse = {}
         self.start_time = time.process_time()
-        print('timing starts now')
+        print('Timing starts now.')
         # warehouse is a terrible variable name
 
     class Storage:
@@ -53,14 +53,11 @@ class HullFinder:
         
         for entity in self.warehouse.values():
             entity.leafs = sorted(entity.leaves, key=lambda l:l[1])
-            max_damage = -1
             entity.hulld = []
             entity.hullf = []
             for point in entity.leafs:
-                if point[0] > max_damage:
-                    entity.hulld.append(point[0])
-                    entity.hullf.append(point[1])
-                    max_damage = point[0]
+                entity.hulld.append(point[0])
+                entity.hullf.append(point[1])
             entity.hullf.append(600)
             entity.hullf.append(600)
             entity.hullf.append(0)

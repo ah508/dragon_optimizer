@@ -1,23 +1,79 @@
-dragon = 'Cerberus'     # The dragon in question
-disp_mode = 'Default'   # Default, or a list with any combination of 
-                        # skill, noskill, tcancel
-disp_compare = False    # Displays zeros with other solution methods if you override default display
-bnbOverride = False     # Forces the solve to use BnB
-suppress_status = False # Suppresses output; may not be working properly
-leniency = 3            # The number of 'dead frames' between certain actions
-skill_coefficient = 1   # Coefficient across all brackets
-attack_rate = 1         # Attack speed, assumed to be ceiling for now
-rate_method = 'ceil'    # Changes the assumption for attack speed
-haste_coefficient = 1   # For those dragons which generate SP
-additional_time = 0     # Interpretted as an additive % increase to dragon time
-initial_time = 10       # Seconds
-obj_strat = 'Min Frames'   # 'Default', 'Min Frames', 'Dirty'(illegitimate min frames)
-                        # NOTE: 'Dirty' is actually surprisingly accurate
-integrality = True      # Requires integrality constraints
-# dual = False            # Computes the dual solution. Doesn't exist yet.
-bound_method = 'Accurate' # 'Accurate', 'None'
-queue_strat = 'depth'   # The queue strategy for the branch and bound process
-include_string = True   # I'm pretty sure this isn't in use at all right now
+"""The config file.
+
+Contains settings that are used throughout the rest of the program.
+
+Attributes
+----------
+dragon : str
+    The default dragon.
+disp_mode : str or [str]
+    The default display mode. May be either 'Default' or a list
+    including any combination of 'skill', 'noskill', or 'tcancel'.
+    'Default' will solve all problems, and display the maximum
+    mod/s from among them. The list will display solutions for
+    all methods included in the list.
+disp_compare : bool
+    Displays the zeros with the other solution methods if the
+    default display is overridden.
+bnbOverride : bool
+    Forces the solutions to be branch and bound.
+suppress_status : bool
+    Unused.
+leniency : int
+    The number of frames of error permitted on certiain actions.
+skill_coefficient : float
+    Cumulative value of all modifiers to skill damage.
+attack_rate : float
+    Attack speed modifier. 1 is normal speed.
+rate_method : str
+    Changes the assumed behavior for attack speed. May be either
+    'floor' or 'ceil'.
+haste_coefficient : float
+    A modifier for SP gains, when relevant.
+additional_time : float
+    An additive % increase to transformation time.
+initial_time : float
+    The initial allotted time, before modifiers.
+obj_strat : str
+    The strategy used when evaluating combos. May be either
+    'Default' 'Min Frames' or 'Dirty'. 'Default' performs no
+    additional optimization for time. 'Min Frames' minimizes
+    time after maximizing damage. 'Dirty' is like 'Min Frames'
+    but worse - though remarkably accurate in most cases.
+integrality : bool
+    Requires integrality constraints.
+dual : bool
+    Allows computation of the dual solution.
+    NOTE: Not yet implemented.
+bound_method : str
+    The method of bounding used in the branch and bound process.
+    May be either 'Accurate' or 'None'. 'None' amounts to complete
+    enumeration.
+queue_strat : str
+    Specifies the queue strategy for the branch and bound process.
+    See pybnb documentation for more.
+include_string : bool
+    Currently not in use.
+"""
+
+dragon = 'Cerberus'
+disp_mode = 'Default'
+disp_compare = False
+bnbOverride = False
+suppress_status = False
+leniency = 3
+skill_coefficient = 1
+attack_rate = 1
+rate_method = 'ceil'
+haste_coefficient = 1
+additional_time = 0
+initial_time = 10
+obj_strat = 'Min Frames'
+integrality = True
+# dual = False
+bound_method = 'Accurate'
+queue_strat = 'depth'
+include_string = True
 
 # Future Goals:
 # finally get around to making the whole darn thing an LP. 

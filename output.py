@@ -1,8 +1,24 @@
 import config
 
 class MainDisplay:
-    # just a simple means of output
-    # I don't think there's really much here that needs explanation
+    """Formats and prints output.
+
+    Parameters
+    ----------
+    skill : class instance
+        A solved instance of either LPsolution, SLPsolution, or
+        BnBsolution.
+    noskill : class instance
+        A solved instance of either LPsolution, SLPsolution, or
+        BnBsolution.
+    tcancel : class instance
+        A solved instance of either LPsolution, SLPsolution, or
+        BnBsolution.
+    zero : [float] or [str]
+        A vector of breakpoints between the three solutions. If
+        one or more of the three problems was not solved, then
+        that cell contains 'Not Computed.'
+    """
     def __init__(self, skill, noskill, tcancel, zero):
         self.skill = skill
         self.noskill = noskill
@@ -10,6 +26,17 @@ class MainDisplay:
         self.zero = zero
 
     def output(self):
+        """Determines the basic mode of output.
+        
+        Parameters
+        ----------
+        None. This method uses attributes of the class.
+
+        Returns
+        -------
+        None.
+        """
+
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~')
         print(config.dragon)
         if config.disp_mode == 'Default':
@@ -46,6 +73,18 @@ class MainDisplay:
                 self.printSwitch(self.tcancel)
 
     def printSwitch(self, sOutput):
+        """Determines which output method is suitible.
+
+        Parameters
+        ----------
+        sOutput : class instance
+            A solved instance of either BnBsolution, LPsolution,
+            or SLPsolution.
+
+        Returns
+        -------
+        None.
+        """
         if sOutput.type == 'LP':
             self.lpWriter(sOutput)
         elif sOutput.type == 'BnB':
@@ -54,6 +93,18 @@ class MainDisplay:
             self.slpWriter(sOutput)
 
     def bnbWriter(self, bnbOutput):
+        """Prints output for a branch and bound problem.
+        
+        Parameters
+        ----------
+        bnbOutput : class instance
+            A solved instance of BnBsolution.
+            
+        Returns
+        -------
+        None. Output is printed.
+        """
+
         print('___')
         for i in bnbOutput.string:
             if bnbOutput.reference[i] in ['T  ', 'W  ', 'D  ', 'S  ']:
@@ -64,6 +115,18 @@ class MainDisplay:
         self.brickWriter(bnbOutput)
 
     def lpWriter(self, lpOutput):
+        """Prints output for a linear programming problem.
+        
+        Parameters
+        ----------
+        lpOutput : class instance
+            A solved instance of LPsolution.
+            
+        Returns
+        -------
+        None. Output is printed.
+        """
+
         print('__________')
         for i in range(0, len(lpOutput.solution)):
             if (i < lpOutput.rlength-3 and lpOutput.solution[i] != 0 and lpOutput.damage[i] != 0) or i >= lpOutput.rlength-3:
@@ -72,6 +135,18 @@ class MainDisplay:
         self.brickWriter(lpOutput)
 
     def slpWriter(self, slpOutput):
+        """Prints output for a separable linear programming problem.
+        
+        Parameters
+        ----------
+        slpOutput : class instance
+            A solved instance of SLPsolution.
+            
+        Returns
+        -------
+        None. Output is printed
+        """
+
         totals = slpOutput.solution[0:2]
         unboosted = slpOutput.solution[2:slpOutput.rlength+1]
         boosted = slpOutput.solution[slpOutput.rlength+1:2*slpOutput.rlength]
@@ -88,6 +163,19 @@ class MainDisplay:
         self.brickWriter(slpOutput)
 
     def brickWriter(self, result):
+        """Prints general output for a chosen solution.
+        
+        Parameters
+        ----------
+        result : class instance
+            A solved instance of either BnBsolution, LPsolution,
+            or SLPsolution.
+            
+        Returns
+        -------
+        None. Output is printed.
+        """
+
         print('____________________________________________________________')
         print(f'MOD/s                                  |   {result.mps}')
         print(f'Total Mod                              |   {result.objective}')

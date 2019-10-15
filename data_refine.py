@@ -9,35 +9,79 @@ robjects.numpy2ri.activate()
 
 #####
 class Refine:
-    # Refine takes the data read from the csv and coerces it to a usable format
+    """Coerces the data read from the csv to a usable format.
+
+    Parses information from the selected subset of the data. This
+    information is common to and necessary for the construction of
+    later problems, and is hence intended for inheritence.
+
+    Attributes
+    ----------
+    reference : [str]
+        A reference vector ultimately used for display purposes
+    damage : [float]
+        Stores damage values for each action. Skill damage is
+        adjusted according to config.
+    cancels : [float]
+        Stores cancel information. Rarely used, but necessary
+        for bufferables.
+    cooldown : [float]
+        Used for determining wait times. May become more useful
+        later if more data is collected.
+    sp_gen : [float]
+        Stores SP generation information. Currently only used
+        for one case.
+    frames : [float]
+        Stores information on the 'cost' (in time) of
+        each action.
+    tCancel : int
+        Represents frames lost when canceling transformation
+        with skill. A negative value indicates frames saved.
+    skillUses : int
+        The maximum number of skill uses allowed. Currently
+        useful in only one case.
+    transformTime : int
+        Time consumed in the transformation animation without
+        skill canceling.
+    skillTime : float
+        Time consumed when using skill. Note: this is not the
+        'cost' of using skill.
+    cond : [float]
+        The effects (or 'condition') resulting from the use
+        of skill.
+    time : float
+        The total available resources (time) with which to act.
+        No rounding is done as the behavior is not currently
+        known.
+    rlength : int
+        The 'reference length.' Since this is a value that is
+        used frequently in other methods, it is assigned here
+        to reduce the need for: len(self.reference)
+
+    Parameters
+    ----------
+    data : DataFrame
+            The "data" for the dragon you intend to optimize.
+            Expected to match a specific format (that of the
+            imported csv)
+    """
+
     def __init__(self, data):
         self.reference = ['T  ', 'C1a', 'C1b', 'C2a', 'C2b', 'C3a', 'C3b', 'C4a', 'C4b', 'C5a', 'C5b', 'W  ', 'D  ', 'S  ']
-        # a reference vector ultimately used for display purposes
         self.damage = [150] + [data[11 + 5*i] for i in range(0, 10)] + [0, 0] + [data['Skill Damage']*config.skill_coefficient]
-        # stores damage values for each action - skill damage is adjusted according to config
         self.cancels = [0] + [data[13 + 5*i] for i in range(0, 10)] + [0, 0, 0]
-        # stores cancel information - rarely used, but vital for 'bufferable' cases
         self.cooldown = [0] + [data[14 + 5*i] for i in range(0, 10)] + [0, 0, 0]
-        # this may become more relevant later on, but for the time being it's mostly used to determine wait values
         self.sp_gen = [0] + [data[15 + 5*i] for i in range(0, 10)] + [0, 0, 0]
-        # stores SP generation information - currently only used for psiren
         lastC = [i for i, e in enumerate(self.cooldown) if e != 0]
         self.frames = [0] + [data[12 + 5*i] for i in range(0, 10)] + [self.cooldown[lastC[-1]]] + [data['Dodge Frames']] + [0]
-        # indices for nonzero cooldown values are determined (c3 or c5, generally)
-        # a vector for frames is constructed from usual framedata, and the last nonzero cooldown value
         self.tCancel = data['Transform Cancel']
-        # 'frames lost when canceling transformation with skill' - a negative value indicates frames saved
         self.skillUses = data['Skill Uses']
-        # for dragons with multiple uses of skill (curse you psiren!)
-        self.rlength = 0
-        # a filler value for reference length, properly assigned later
         self.transformTime = data['Transformation']
-        # time consumed in the transformation animation (without canceling)
         self.skillTime = data['Skill Duration']
-        # frames necessary to cast skill
         if type(data['Skill Effect']) == str:
             sEffect = float(Fraction(data['Skill Effect']))
-            # someone somewhere is gonna bag me for using type here, I can feel it in my bones
+            # Someone somewhere is going to be rather cross with me for
+            # using 'type' here, I can feel it in my bones.
         else:
             sEffect = data['Skill Effect']
         sETime = data['Effect Time']
@@ -45,20 +89,23 @@ class Refine:
             sETime += ceil((data['Effect Timing'] - self.skillTime)/config.attack_rate)
         elif data['Effect Time'] != 0:
             sETime += data['Effect Timing'] - self.skillTime
-        # if the effect of skill is a string instead of a number, then it is a fraction (and converted as such)
-        # if we ever update to more accurate skill handling, this will need an update
+        # If the effect of skill is a string instead of a number, then
+        # it is a fraction (and converted as such).
+        # This will need an update if skill handling is changed.
         self.cond = [sEffect, sETime]
-        # duration of skill effects
         self.time = config.initial_time*60*(1 + data['DragonTime'] + config.additional_time)
-        # total available frames in which to act
         self.trimmed()
+        self.rlength = len(self.reference)
         self.hasteCheck()
         self.speedCheck()
-        # the data is trimmed and adjusted according to other properties listed in config
-        # you can go without trimming, but it makes enumerative methods much more intensive
+        # The data is trimmed and adjusted according to other 
+        # properties listed in config. You can go without trimming, but
+        # it makes enumerative methods much more intensive.
         
 
     def trimmed(self):
+        """Removes extraneous values from the data."""
+        
         delVec = []
         for i in range(1, len(self.damage)-3):
             if [self.damage[i], self.cancels[i], self.cooldown[i], self.frames[i], self.sp_gen[i]] == [0, 0, 0, 0, 0]:
@@ -68,12 +115,13 @@ class Refine:
             for indices in delVec:
                 del vector[indices]
         # 'empty' columns are found and removed, as they serve no purpose
-        self.rlength = len(self.reference) # the reference length is properly assigned
         self.frames[-1] += config.leniency
         self.frames[-2] += config.leniency
-        # leniency is added as specified in config
+        # Leniency is added as specified in config.
     
     def speedCheck(self):
+        """Corrects for attack speed, if applicable."""
+
         if config.attack_rate != 1:
             if config.rate_method == 'ceil':
                 for i in range(1, self.rlength - 3):
@@ -83,19 +131,73 @@ class Refine:
                 for i in range(1, self.rlength - 3):
                     self.frames[i] = floor(self.frames[i]/config.attack_rate)
                 self.skillTime = floor(self.skillTime/config.attack_rate)
-        # attack speed handling, as specified in config
-        # for the time being, the values are conservatively ceil'd
+        # For the time being, the values are conservatively ceil'd.
 
     def hasteCheck(self):
+        """Corrects for skill haste, if applicable."""
+
         if config.haste_coefficient != 1:
             for i in range(1, self.rlength - 3):
                 self.sp_gen[i] = ceil(self.sp_gen[i]*config.haste_coefficient)
         # ... for those dragons which generate SP 
 
 class LPinfo(Refine):
-    # a subclass of Refine that constructs the info needed for the LPP
-    # also used to construct the LP relaxation used as a bound in BnB - see BnBinfo/bnb_formulation
+    """Constructs the information needed for the LPP.
+
+    A subclass of Refine which uses the inherited information to
+    construct the objective function, constraint matrix, direction
+    vector, righthand side, and integrality constraints. If
+    'Min Frames' is specified in config, this also handles adjustment
+    of the objective function and addition of a constraint.
+
+    If the solution is determined to need branch and bound, this class
+    also handles the construction of the LP relaxation for computation
+    of upper bounds. It is not strictly accurate, however, it will
+    always overestimate - which is fine.
+
+    This class is intended to be inherited by the appropriate solution
+    classes, or by the branch and bound constructor class.
+
+    Attributes
+    ----------
+    obj : [float(R)]
+        An R vector representing the objective function.
+    constraint : array
+        A numpy array. Automatically converted to an R matrix
+        with numpy2ri.
+    dir : [string(R)]
+        An R vector indicating the 'direction' for each
+        constraint.
+    rhs : [float(R)]
+        An R vector containing the righthand side of the
+        constraints.
+    intreq : [int(R)]
+        An R vector specifying which decision variables are
+        required to be integer.
+    """
+    
     def normInfo(self, bnb=False, skill=1, sub=0, tcancel=0):
+        """Generates the information needed to solve.
+        
+        Parameters
+        ----------
+        bnb : bool(=False)
+            Determines whether or not additional constraints are
+            generated for a branch and bound process.
+        skill : int(=1)
+            Determines the number of skill uses permitted for the
+            problem. Currently not intended to handle values 
+            other than 0 or 1.
+        sub : float(=0)
+            If a second solve is initiated, this contains the
+            optimal value of the previous solve.
+        tcancel : int(=0)
+            Indicates whether or not to cancel transformation
+            with skill. May be 0 or 1. Treated as an int rather
+            than a bool because it is subtracted from one of the
+            rhs values. Bad variable name, should be changed.
+        """
+
         if not sub:
             self.addConstraints(bnb=bnb, skill=skill, tcancel=tcancel)
             self.altObj = robjects.FloatVector(self.damage)
@@ -104,26 +206,52 @@ class LPinfo(Refine):
             elif config.obj_strat == 'Dirty':
                 objective = [i - j for i,j in zip(self.damage, self.frames)]
                 self.obj = robjects.FloatVector(objective)
-            # normal construction of the constraints and objective function
-            # objective function is constructed according to the specification in config
+            # Normal construction of the constraints and objective
+            # function. Objective function is constructed according to
+            # the specification in config.
         else:
-            objective = robjects.FloatVector(self.frames)
+            self.obj = robjects.FloatVector(self.frames) # 'objective' to 'self.obj' not sure why this wasn't broken, check to ensure it doesn't break later
             self.constraint.resize((self.rlength+1, self.rlength))
             self.constraint[-1, :] = np.array(self.damage)
             self.direction += ['==']
             self.rhs.resize(self.rlength+1)
             self.rhs[-1] = sub
-            # sub denotes a second solve to minimize frames
-            # as such, an additional constraint is added and the objective function is changed
-        # self.const = self.constraint
-        # print(self.constraint)
-        # print(self.rhs)
         self.dir = robjects.StrVector(self.direction)
         self.intreq = robjects.IntVector(range(1, len(self.damage)))
-        # as this will eventually be passed to an active R instance, all of the necessary 
-        #   information must be assigned to R objects
+        # As this will eventually be passed to an active R instance,
+        # all of the necessary information must be assigned to R 
+        # objects.
 
     def addConstraints(self, bnb=False, skill=1, tcancel=0):
+        """Constructs the constraint matrix.
+
+        The matrix is constructed to satisfy constraints that are
+        interpretable as follows:
+        -   You must transform exactly once.
+        -   To take any action, you must also take an action that
+            immediately precedes it. (For example, you cannot use C2
+            three times if you have only used C1 once.)
+        -   You must skill up to once, or up to 0 times. (not
+            determined by the LP)
+        -   Each action takes resources (frames), you cannot take
+            actions beyond your resource limit.
+
+        Parameters
+        ----------
+        bnb : bool(=False)
+            Determines whether or not additional constraints are
+            generated for a branch and bound process.
+        skill : int(=1)
+            Determines the number of skill uses permitted for 
+            the problem. Currently not intended to handle values
+            other than 0 or 1.
+        tcancel : int(=0)
+            Indicates whether or not to cancel transformation
+            with skill. May be 0 or 1. Treated as an int rather
+            than a bool because it is subtracted from one of the
+            rhs values. Bad variable name, should be changed.
+        """
+
         if bnb:
             self.constraint = np.zeros((self.rlength*2 - 1, self.rlength))
             self.rhs = [1] + list(np.zeros(self.rlength-4))
@@ -147,31 +275,66 @@ class LPinfo(Refine):
         self.constraint[-2, -1] = 1
         self.constraint[-1, :] = np.array(self.frames)
         self.direction += ['<=', '<=', '<=']
-        # This method handles the construction of constraints for a particular dragon (or problem)
-        # It is a rather messy affair.
-        # To explain as simply as possible:
-        #   Since the constraints will (usually) follow a particular pattern, if we have sufficient
-        #   information (determined during initialization) we can construct them on the fly. This 
-        #   particular construction results in a very long, silly looking vector that we can turn
-        #   into a matrix because we know how many rows the constraint matrix for this problem will
-        #   have.
-        # The essential requirements are:
-        #   You must transform once, and only once.
-        #   To take any action, you must also take an action that immediately precedes it.
-        #       - for example, you cannot use C2 three times if you have only used C1 once.
-        #   You must skill exactly once, or exactly 0 times. (not determined by the LP)
-        #   Each action takes resources (frames), you cannot take actions beyond your resource limit.
-        # 
-        # the rhs and direction vectors are constructed accordingly.
-        # (I'm sorry if this all sounds a little vague, if you have any questions about it feel free
-        #  to ask me directly)
-
 
 
 class SLPinfo(Refine):
-    # similar to LPinfo, except for separable linear programs
-    # due to that resemblence, I'm not going to comment this as thoroughly
+    """Constructs the information needed for the separabe LPP.
+
+    A subclass of Refine which uses the inherited information to
+    construct the objective function, constraint matrix, direction
+    vector, righthand side, and integrality constraints. If
+    'Min Frames' is specified in config, this also handles adjustment
+    of the objective function and addition of a constraint.
+
+    Where LPinfo is used for unbuffered convex cases, this class is
+    used for unbuffered piecewise convex cases. As there is some small
+    interdependence, it may not classify as a 'true' separable linear
+    program. However, even if that is the case, the methodology is
+    remarkably similar.
+
+    This class is intended to be inherited by the appropriate solution
+    classes.
+
+    Attributes
+    ----------
+    obj : [float(R)]
+        An R vector representing the objective function.
+    constraint : array
+        A numpy array. Automatically converted to an R matrix
+        with numpy2ri.
+    dir : [string(R)]
+        An R vector indicating the 'direction' for each
+        constraint.
+    rhs : [float(R)]
+        An R vector containing the righthand side of the
+        constraints.
+    intreq : [int(R)]
+        An R vector specifying which decision variables are
+        required to be integer.
+    objVec : [float]
+        The 'objective vector.' Used to compute the 'real' value
+        of the objective function. Generally would not be needed,
+        but certain methods use different criteria for the
+        objective function.
+    timeVec : [int]
+        The 'time vector.' Used for reasons similar to objVec.
+    """
+
     def sepInfo(self, tcancel=0, sub=0):
+        """Generates the information needed to solve.
+        
+        Parameters
+        ----------
+        tcancel : int(=0)
+            Indicates whether or not to cancel transformation
+            with skill. May be 0 or 1. Treated as an int rather
+            than a bool because it is subtracted from one of the
+            rhs values. Bad variable name, should be changed.
+        sub : float(=0)
+            If a second solve is initiated, this contains the
+            optimal value of the previous solve.
+        """
+
         if not sub:
             self.sepConstraints(tcancel=tcancel)
             self.objVec = [0, 0] + self.damage[:-1] + [self.cond[0]*i for i in self.damage[1:-1]] + [self.damage[-1]] + list(np.zeros(self.rlength - 4))
@@ -183,13 +346,53 @@ class SLPinfo(Refine):
             self.rhs.resize(3*self.rlength - 2)
             self.rhs[-1] = sub
             self.direction += ['==']
-            # sub denotes a second solve to minimize frames
         self.obj = robjects.FloatVector(self.objective)
         self.dir = robjects.StrVector(self.direction)
         self.intreq = robjects.IntVector(range(3, self.rlength*3 - 4))      
-        # information assigned to R objects as necessary
+        # Information assigned to R objects as necessary.
 
     def sepConstraints(self, tcancel=0):
+        """Constructs the constraint matrix.
+
+        The matrix is constructed to satisfy constraints that are
+        interpretable as follows:
+        -   You must transform exactly once.
+        -   To take any action, you must also take an action that
+            immediately precedes it. (For example, you cannot use C2
+            three times if you have only used C1 once.)
+        -   You must skill up to once, or up to 0 times. (not
+            determined by the LP)
+        -   Each action takes resources (frames), you cannot take
+            actions beyond your resource limit.
+        
+        Additionally:
+        -   Actions taken after using a skill are 'boosted.' Each
+            boosted action takes boosted resources in addition to the
+            usual resources. You cannot take boosted actions beyond
+            these limits.
+        -   When exiting the boosted state, you must exit to a valid
+            step in the unboosted combo. To ensure that this is
+            handled correctly, dummy variables are used to represent
+            the step that you exit into.
+        -   Boosted and unboosted segments are represented in the
+            objective function by separate dummy variables.
+
+        Parameters
+        ----------
+        bnb : bool(=False)
+            Determines whether or not additional constraints are
+            generated for a branch and bound process.
+        skill : int(=1)
+            Determines the number of skill uses permitted for the
+            problem. Currently not intended to handle values
+            other than 0 or 1.
+        tcancel : int(=0)
+            Indicates whether or not to cancel transformation 
+            with skill. May be 0 or 1. Treated as an int rather 
+            than a bool because it is subtracted from one of the
+            rhs values. Bad variable name, should be changed.
+        """
+
         self.objective = [1, 1] + list(np.zeros(self.rlength*3 - 6))
         self.constraint = np.zeros((3*self.rlength - 3, 3*self.rlength - 4))
         self.constraint[0, 2] = 1
@@ -222,16 +425,26 @@ class SLPinfo(Refine):
         self.constraint[-1, 1] = 1
         self.constraint[-1, self.rlength + 1:4 - self.rlength] = np.array([-1*self.cond[0]*i for i in self.damage[1:-1]] + [-1*self.damage[-1]])
         self.direction += ['<=', '<=', '==', '<=', '<=', '<=', '<=', '<=']
-        # second verse, same as the first... just a bit more complex this time
-        # as this is separable linear programming (or at least, the principles used in the formulation of
-        # this problem draw heavily from those that direct separable linear programming), I don't believe
-        # that I can offer as simple of an explanation of what they achieve.
-        # -- may add to this later with proper justifications --
+
 
 class BnBinfo(LPinfo):
-    # a subclass of LPinfo used to construct an adjacency matrix for the branch and bound process
-    # naturally permits the generation of constraints and the like that LPinfo does
+    """Generates additional information related to branch and bound.
+
+    This is a subclass of LPinfo, which is itself a subclass of Refine.
+    This class is intended to be inherited by the branch and bound
+    solution class.
+
+    Attributes
+    ----------
+    adjacency : array
+        A numpy array that defines a weighted digraph. Used to 
+        determine which actions will be available from a given
+        node.
+    """
+
     def adjacencyGen(self):
+        """Constructs an adjacency matrix."""
+
         self.adjacency = np.full([self.rlength, self.rlength], -1)
         for i in range(0, self.rlength):
             for j in range(0, self.rlength):

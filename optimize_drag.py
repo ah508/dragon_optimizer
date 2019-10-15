@@ -93,7 +93,9 @@ if args.hull and not psiren_call:
         print('Exiting program.')
         quit()
     elif confirmation in yes:
+        print('Begining Imports.')
         from compute_hull import HullFinder
+        print('Done.')
         if args.add:
             hull = HullFinder(args.dragon, additional_dragons=args.add)
         else:
@@ -104,7 +106,9 @@ if args.hull and not psiren_call:
         quit()
 
 else:
+    print('Beginning Imports.')
     from main_solver import Main_Solver
+    print('Done.')
     if psiren_call:
         config.bnbOverride = True
         config.initial_time = 13

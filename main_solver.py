@@ -9,8 +9,49 @@ from output import MainDisplay
 
 
 class Main_Solver:
-    # Determines solution type, whether or not to solve, and whether or 
-    # not to find the zeros.
+    """The main solver.
+
+    Determines solution types, whether or not to solve, whether or not
+    to find the zeros, and can display the results of the solve.
+
+    Attributes
+    ----------
+    dragon : DataFrame
+        A subset of the framedata csv that is imported with
+        pandas. Contains unrefined information about the
+        dragon we wish to optimize.
+    info : Refine instance
+        Almost unnecessary. However, it is still needed to 
+        infer some features of the data before assigning
+        solution types.
+    bufferable : bool
+        Indicates whether or not the selected dragon is
+        'bufferable.' This is necessary, because this
+        program is not built to handle those cases by LP.
+    bnb : bool
+        Indicates whether or not to solve by branch and bound.
+    skill : class instance
+        The solution class for using skill normally. May be
+        an instance of any of BnBsolution, LPsolution, or
+        SLPsolution. 
+    noskill : class instance
+        The solution class for never using skill. May be
+        an instance of any of BnBsolution, LPsolution, or
+        SLPsolution. 
+    tcancel : class instance
+        The solution class for canceling transformation with
+        skill. May be an instance of any of BnBsolution, 
+        LPsolution, or SLPsolution.
+    zero : [float] or [str]
+        A vector containing the skill coefficient breakpoints
+        bewteen methods. If the zero is not computed for a
+        particular method, that cell reads 'Not Computed.'
+    
+    Parameters
+    ----------
+    None. All input is imported from config.
+    """
+
     def __init__(self):
         complete_dragons = pandas.read_csv('file:discrete_dragon_data.csv', header=0, index_col=0)
         # Reading the data from the csv with pandas.
@@ -21,6 +62,17 @@ class Main_Solver:
         # Data is refined.
 
     def detSolType(self):
+        """Determines solution types.
+        
+        Parameters
+        ----------
+        None. This method uses attributes of the class.
+
+        Returns
+        -------
+        None. This method generates attributes for the class.
+        """
+
         self.bufferable = False
         for element in self.info.cancels:
             if element != 0:
@@ -49,7 +101,17 @@ class Main_Solver:
         # Solution types are assigned.
 
     def solve_problems(self):
-        # Determining which problems to solve, as specified in config.
+        """Determines which problems to solve, and solves them.
+        
+        Parameters
+        ----------
+        None. This method uses attributes of the class.
+
+        Returns
+        -------
+        None. This method mutates attributes of the class.
+        """
+
         if config.disp_compare or config.disp_mode == 'Default':
             mode_list = ['skill', 'noskill', 'tcancel']
         else:
@@ -65,7 +127,17 @@ class Main_Solver:
         # minimize frames after maximizing damage.
 
     def zero_problems(self):
-        # Finds the zero between options, if those options were solved.
+        """Finds the zero between options, if solved.
+        
+        Parameters
+        ----------
+        None. This method uses attributes of the class.
+
+        Returns
+        -------
+        None. This method generates attributes for the class.
+        """
+
         self.zero = ['Not Computed', 'Not Computed', 'Not Computed']
         if self.skill.solved and self.noskill.solved:
             self.zero[0] = rootFind(self.skill, self.noskill)
@@ -75,6 +147,18 @@ class Main_Solver:
             self.zero[2] = rootFind(self.tcancel, self.skill)
 
     def display(self):
-        # Output.
+        """A method to display the results of the solve.
+        
+        See MainDisplay for more details.
+
+        Parameters
+        ----------
+        None. This method uses attributes of the class.
+
+        Returns
+        -------
+        None. The output is printed.
+        """
+
         final = MainDisplay(self.skill, self.noskill, self.tcancel, self.zero)
         final.output()

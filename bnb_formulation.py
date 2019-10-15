@@ -10,10 +10,67 @@ from rpy2.robjects.packages import importr
 lpSolve = importr('lpSolve')
 
 class BnBsolution(BnBinfo):
-    # Handles all information for the purposes of solving the problem by
-    # branch and bound.
-    # Also used for complete enumeration because... I don't want to
-    # write my own method for that yet.
+    """Constructs and solves the branch and bound problem.
+
+    BnBsolution is a subclass of BnBinfo, which is a subclass of
+    LPinfo, which is a subclass of Refine. It is used to generate the
+    information needed for a solution, compute the solution, and
+    generate characteristic information about the solution. It also
+    handles cases where complete enumeration is necessary, because I
+    have yet to write my own methods for that.
+
+    This class is entirely dependent upon pybnb, which you can find at:
+    https://github.com/ghackebeil/pybnb
+
+    Attributes
+    ----------
+    useSkill : int
+        Indicates whether or not the use of skill is permitted
+        for this problem. Duck typing applies here.
+    transformCancel : bool
+        Indicates whether or not to use skill to cancel
+        transformation for this problem.
+    type : 'BnB'
+        A string indicating what 'type' of problem this is.
+    solved : bool
+        Indicates whether or not this problem was actually
+        solved.
+    result : class instance
+        An instance of the SolverResults class, which contains
+        information about the solve.
+    solution : [int]
+        The 'solution' to the problem. Currently unused.
+    objective : float
+        The optimal value of the objective function.
+    string : [str]
+        A vector containing the optimal sequence of actions.
+    duration : float
+        The duration, in seconds, of the computed combo. This
+        is assumed to be fixed, regardless of how many frames
+        the combo takes to complete in theory - you cannot 
+        prematurely end transformation.
+    leniency : int
+        The number of frames of total error permitted under
+        the initial assumptions. Poorly named, as it clashes
+        with the definition used in config.
+    mps : float
+        'Modifier per second.' Effectively a surrogate 
+        measure of DPS - total damage divided by total time.
+
+    Parameters
+    ----------
+    dragon : DataFrame
+        The data for the dragon intended for optimization.
+        Should be a subset of a pandas dataframe.
+    useSkill : int
+        Determines the number of skill uses permitted for the
+        problem. Currently not intended to handle values
+        other than 0 or 1.
+    transformCancel : bool
+        Indicates whether or not to cancel transformation
+        with skill.
+    """
+
     def __init__(self, dragon, useSkill, transformCancel=False):
         super().__init__(dragon)
         self.adjacencyGen()
@@ -24,6 +81,27 @@ class BnBsolution(BnBinfo):
         self.solved = False
 
     def solve(self):
+        """Constructs and solves the problem.
+
+        Information about the solve is generated, and then used to
+        create an instance of Formulation, which is then solved by
+        pybnb.
+        
+        Unfortunately, this is a very messy method. It needs some
+        refinement. The information is copied from the class, and then
+        passed to Formulation. This is a relic of a bygone time when
+        this program passed all of its arguments instead of inheriting
+        them.
+
+        Parameters
+        ----------
+        None. This method uses attributes of the class.
+
+        Returns
+        -------
+        None. This method generates attributes for the class.
+        """
+
         self.solved = True
         self.normInfo(bnb=True, skill=self.useSkill)
         # Generating the LP relaxation.
@@ -40,6 +118,19 @@ class BnBsolution(BnBinfo):
         # Using pybnb to initiate a solve.
 
     def characteristics(self, tCancel=False):
+        """Generates characteristic information about the solution.
+
+        Parameters
+        ----------
+        objective_only : bool(=False)
+            If true, indicates that the only desired
+            characteristic is the value of the objective function.
+
+        Returns
+        -------
+        None. This method generates attributes for the class.
+        """
+
         if self.solved:
             self.objective = round(self.result.best_node.state[0], 3)
             self.string = self.result.best_node.state[3]
@@ -51,30 +142,112 @@ class BnBsolution(BnBinfo):
             self.leniency = self.time - self.result.best_node.state[1]
             self.mps = round(self.objective/self.duration, 3)
             # Determining the characteristics of the information
-            # post-solve.  "objective" is the objective value, and 
-            # "duration" is the total time spent in transformation.
-            # "leniency" is the number of frames you can lose and still
-            # complete the combo.  "mps" is mod per second - total
-            # modifer divided by total time.
+            # post-solve.
             # NOTE: "leniency" is a bad variable name - it contradicts
             # the meaning of leniency that is used in config.
 
 
 @lru_cache(maxsize=2048)
 def lp_sol(combo, useSkill, modifier, solInfo):
+    """Solves the LP relaxation of the IP problem.
+
+    Uses information about which actions have been taken up to the
+    current node to construct an LP relaxation of the IP problem.
+    Solving this provides an upper bound on the node which, if worse
+    than the objective value of the best explored node, allows us to
+    prune the current node and all of its children.
+
+    Parameters
+    ----------
+    combo : [int]
+        A vector indicating how many of each action have been
+        taken up to this point in the process.
+    useSkill : int
+        Indicates whether or not to permit skill for this solve.
+    modifier : float
+        A rough estimate for the increase afforded by
+        the effects of skill. May need future revisions.
+    solInfo : class instance
+        A copy of the BnBsolution class, with all associated
+        attributes.
+
+    Returns
+    -------
+    float
+        The optimal value of the objective function, multiplied
+        by a correcting scalar.
+    """
+
     cc = copy.copy(combo)
     cc = list(cc)
     del cc[0]
     r_rhs = robjects.IntVector([*solInfo.rhs, *cc, *[1, useSkill*solInfo.skillUses, solInfo.time]])
     r_sol = lpSolve.lp("max", solInfo.altObj, solInfo.constraint, solInfo.dir, r_rhs).rx2('objval')
     return modifier*r_sol[0]
-    # This determines the bound on a node for the BnB.
 
 class Formulation(pybnb.Problem):
-    # Construction of the branch and bound problem.
-    # For more details on this, and the package it comes from, check
-    # out the link below:
-    # https://pybnb.readthedocs.io/en/stable/getting_started/index.html#defining-a-problem
+    """Constructs a 'formula' for the branch and bound problem.
+
+    Defines the components of the process needed by pybnb to actually
+    initiate a solve. Includes methods for loading/saving nodes,
+    defining an upper or lower bound, defining the objective function,
+    defining the branching process, and a few output methods.
+    For more information, you can visit the link below:
+    https://pybnb.readthedocs.io/en/stable/getting_started/index.html#defining-a-problem
+
+    This method needs a rehaul/needs to be made obsolete. It is not
+    particularly efficient, nor is it easy to understand. On account
+    of this, most of the mess will remain messy, since it will all
+    get replaced eventually anyways.
+
+    Attributes
+    ----------
+    _info : class instance
+        An instance of BnBsolution, containing all of the
+        'information' needed for the process.
+    _useSkill : int
+        Indicates whether or not to permit the use of skill.
+    _tCancel : bool
+        Indicates whether or not to cancel transformation
+        with skill.
+    _currentNode : int
+        The action associated with the current node. Associated
+        with the indices of the adjacency matrix.
+    _sumDamage : float
+        The sum of damage dealt up to and including the
+        current node.
+    _time : int
+        The total time elapsed since initiating the solve.
+    _optString : [int]
+        The sequence of actions taken to arrive at the
+        current node.
+    _condition : [float, int]
+        The increase afforded after using skill, and the time
+        remaining on that increase.
+    _endTime : int
+        The total allotted time. The process cannot generate
+        nodes exceeding this resource limit.
+    _comboCount : [int]
+        A list of the number of each action taken to arrive
+        at the current node. Needed to compute the bound.
+    _contModif : [float]
+        An estimate for the average increase afforded by the
+        effects of using skill.
+    _skillSP : int
+        The current SP value for dragon skill.
+
+    Parameters
+    ----------
+    info : class instance
+        An instance of BnBsolution, containing all of the
+        'information' needed for the process
+    useSkill : int
+        Indicates whether or not to permit the use of skill.
+    tCancel : bool
+        Indicates whether or not to cancel transformation
+        with skill.
+    """
+
     def __init__(self, info, useSkill, tCancel):
         self._info = info
         self._useSkill = useSkill
@@ -93,7 +266,6 @@ class Formulation(pybnb.Problem):
             quit()
         self._skillSP = 30
     
-    
     def sense(self):
         return pybnb.maximize
 
@@ -101,6 +273,20 @@ class Formulation(pybnb.Problem):
         return self._sumDamage
 
     def bound(self):
+        """Calculates the bound on the current node.
+
+        Parameters
+        ----------
+        None. This method uses attributes of the class.
+
+        Returns
+        -------
+        float or 150000 (int)
+            An upper bound on the node. Or, an arbitrary large
+            number that ensures complete enumeration, for cases
+            where complete enumeration is needed.
+        """
+        
         # if config.bound_method == 'Experimental':
         #     bound = lp_sol(self._comboCount, self._useSkill, self._contModif, self._info)
         #     return round(bound, 3)
@@ -108,7 +294,7 @@ class Formulation(pybnb.Problem):
             bound = lp_sol(self._comboCount, self._useSkill, self._contModif, self._info)
             return round(bound, 3)
         elif config.bound_method == 'None':
-            return 15000
+            return 150000
         # Experimental and Accurate currently do exactly the same job.
         # Experimental is still present as a comment because it is
         # occasionally used for testing purposes.
@@ -138,6 +324,32 @@ class Formulation(pybnb.Problem):
             ) = node.state
 
     def branch(self):
+        """Defines the branching process.
+
+        Uses a weighted digraph (the adjacency matrix) to determine
+        the set of possible children of the current node. Then,
+        assuming that there are sufficient resources, those children
+        are generated.
+
+        Parameters
+        ----------
+        None.
+        
+        Yields
+        ------
+        child : class instance
+            An instance of Node with a state characterized by 
+            these attributes:
+                _sumDamage, 
+                _time, 
+                _currentNode, 
+                _optString, 
+                _condition, 
+                _tCancel,
+                _skillSP,
+                _comboCount
+            which are defined by the current node
+        """
         if(self._time > self._endTime):
             return self.infeasible_objective()
 
@@ -175,8 +387,6 @@ class Formulation(pybnb.Problem):
             child.state = (self._sumDamage + self._info.damage[self._info.rlength-1], time, 
             self._info.rlength-1, self._optString + [self._info.rlength-1], condition, False, 0, comboCount) 
             yield child
-        # The adjacency matrix defines a graph.
-        # This method walks that graph to generate nodes for the bnb.
         
     def notify_solve_begins(self,
                             comm,
@@ -192,4 +402,3 @@ class Formulation(pybnb.Problem):
                             worker_comm,
                             results):
         pass
-    # these let you know that the solve is still goin'
