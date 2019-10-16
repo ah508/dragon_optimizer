@@ -3,7 +3,7 @@ from findZero import root_find
 import rpy2
 import pandas
 from data_refine import Refine
-from bnb_formulation import BnBsolution
+# from bnb_formulation import BnBsolution
 from lp_solver import LPsolution, SLPsolution
 from output import MainDisplay
 
@@ -85,9 +85,11 @@ class MainSolver:
         # bnb.  This may be rectified in the future.
 
         if self.bnb:
-            self.skill = BnBsolution(self.dragon, 1)
-            self.noskill = BnBsolution(self.dragon, 0)
-            self.tcancel = BnBsolution(self.dragon, 1, cancel_transform=True)
+            print('This version of the program cannot perform this action.')
+            quit()
+            # self.skill = BnBsolution(self.dragon, 1)
+            # self.noskill = BnBsolution(self.dragon, 0)
+            # self.tcancel = BnBsolution(self.dragon, 1, cancel_transform=True)
 
         elif self.info.cond != [1, 0]:
             self.skill = SLPsolution(self.dragon, 0)
