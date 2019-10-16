@@ -23,6 +23,9 @@ parser.add_argument('--hull', action='store_true',
                     help='Provides a graph of the optimal damage at each moment up to 600 frames. Omits usual output and overrides other options.')
 parser.add_argument('--add', action='append',
                     help='A list of strings that can be input to compute more than one dragon at once. Not well implemented at the moment. Only works with hull')
+parser.add_argument('--time', action='store_true',
+                    help='Adds process time.')
+
 
 args = parser.parse_args()
 
@@ -65,7 +68,7 @@ if args.compare:
     config.disp_compare = True
 
 if args.bnboverride:
-    config.bnbOverride = True
+    config.bnb_override = True
 
 if isinstance(args.leniency, int):
     config.leniency = args.leniency
@@ -93,6 +96,9 @@ if args.hull and not psiren_call:
         print('Exiting program.')
         quit()
     elif confirmation in yes:
+        if args.time:
+            import time
+            t_time = time.process_time()
         print('Begining Imports.')
         from compute_hull import HullFinder
         print('Done.')
@@ -101,24 +107,31 @@ if args.hull and not psiren_call:
         else:
             hull = HullFinder(args.dragon)
         hull.find_hull()
+        if args.time:
+            print(f'Process Time: {time.process_time() - t_time}')
     else:
         print('Input not recognized. Exiting program.')
         quit()
 
 else:
     print('Beginning Imports.')
-    from main_solver import Main_Solver
+    from main_solver import MainSolver
     print('Done.')
     if psiren_call:
-        config.bnbOverride = True
+        config.bnb_override = True
         config.initial_time = 13
         config.bound_method = 'None'
+    if args.time:
+        import time
+        t_time = time.process_time()
     config.dragon = args.dragon
-    optimal_solution = Main_Solver()
+    optimal_solution = MainSolver()
     optimal_solution.detSolType()
     optimal_solution.solve_problems()
     optimal_solution.zero_problems()
     optimal_solution.display()
+    if args.time:
+        print(f'Process Time: {time.process_time() - t_time}')
 
 
 

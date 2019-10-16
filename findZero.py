@@ -1,7 +1,7 @@
 import config
 import scipy.optimize as spOpt
 
-def fZero(x, string1, string2):
+def find_zero(x, string1, string2):
     """A function used for Newton's rootfinding method
     
     Compares the results of two solution methods to determine which is
@@ -29,7 +29,7 @@ def fZero(x, string1, string2):
 
     comboDPS = []
     for combo in [string1, string2]:
-        if combo.useSkill:
+        if combo.use_skill:
             comboDPS += [(x*combo.damage[-1]/config.skill_coefficient + combo.objective - combo.damage[-1])/(combo.duration)]
         else:
             comboDPS += [combo.objective/combo.duration]
@@ -39,7 +39,7 @@ def fZero(x, string1, string2):
     # in config.  Can (and should) be simplified a bit further, mps is
     # already computed.
 
-def rootFind(string1, string2):
+def root_find(string1, string2):
     """Finds the skill coefficient breakpoint of two solution methods.
 
     Uses Newton's rootfinding method to determine the skill coefficient
@@ -70,7 +70,7 @@ def rootFind(string1, string2):
     """
 
     if string1.damage[-1] != 0:
-        zero = round(spOpt.newton(fZero, 1, args=(string1, string2)), 3)
+        zero = round(spOpt.newton(find_zero, 1, args=(string1, string2)), 3)
     elif string1.objective >= string2.objective: 
         zero = '-Inf'
     elif string1.objective < string2.objective:

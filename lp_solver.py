@@ -20,10 +20,10 @@ class LPsolution(LPinfo):
     solved : bool
         Indicates whether or not this problem was actually
         solved.
-    useSkill : int
+    use_skill : int
         Indicates the number of skill uses permitted for this
         problem.
-    transformCancel : int
+    cancel_transform : int
         Indicates whether or not to use skill to cancel
         transformation for this problem.
     type : 'LP'
@@ -60,21 +60,21 @@ class LPsolution(LPinfo):
     dragon : DataFrame
         The data for the dragon intended for optimization.
         Should be a subset of a pandas dataframe.
-    useSkill : int
+    use_skill : int
         Determines the number of skill uses permitted for the
         problem. Currently not intended to handle values
         other than 0 or 1.
-    transformCancel : int(=0)
+    cancel_transform : int(=0)
         Indicates whether or not to cancel transformation
         with skill. May be 0 or 1. Treated as an int rather
         than a bool because of how it is used in other methods.
     """
 
-    def __init__(self, dragon, useSkill, transformCancel=0):
+    def __init__(self, dragon, use_skill, cancel_transform=0):
         super().__init__(dragon)
         self.solved = False
-        self.useSkill = useSkill
-        self.transformCancel = transformCancel
+        self.use_skill = use_skill
+        self.cancel_transform = cancel_transform
         self.type = 'LP'
     
     def solve(self, **kwargs):
@@ -95,11 +95,11 @@ class LPsolution(LPinfo):
 
         self.solved = True
         if 'add_const' in kwargs:
-            self.normInfo(skill=self.useSkill, tcancel=self.transformCancel, sub=kwargs['add_const'])
+            self.norm_info(skill=self.use_skill, cancel_transform=self.cancel_transform, sub=kwargs['add_const'])
             method = "min"
             # used when initiating a second solve to minimize frames
         else:
-            self.normInfo(skill=self.useSkill, tcancel=self.transformCancel)
+            self.norm_info(skill=self.use_skill, cancel_transform=self.cancel_transform)
             method = "max"
         if config.integrality:
             self.result = lpSolve.lp(method, self.obj, self.constraint, self.dir, self.rhs, int_vec=self.intreq)
@@ -124,8 +124,8 @@ class LPsolution(LPinfo):
 
         if self.solved:
         # only computed if the problem was actually set up and solved
-            if self.transformCancel and not objective_only:
-                cancel_frames = self.tCancel
+            if self.cancel_transform and not objective_only:
+                cancel_frames = self.t_cancel_f
             else:
                 cancel_frames = 0
                 # If you didn't cancel transformation, there is no
@@ -138,9 +138,9 @@ class LPsolution(LPinfo):
                 # objective_only is used when you would do a second
                 # solve to minimize frames.
                 self.objective = round(self.objective, 3)
-                self.duration = round((self.time + self.transformTime + cancel_frames + self.useSkill*self.skillTime)/60, 3)
+                self.duration = round((self.time + self.transform_time + cancel_frames + self.use_skill*self.skill_time)/60, 3)
                 self.leniency = self.time - np.dot(self.solution, self.frames)
-                if self.transformCancel:
+                if self.cancel_transform:
                     self.leniency += config.leniency
                 self.mps = round(self.objective/self.duration, 3)
                 # rounding for display purposes
@@ -163,13 +163,13 @@ class SLPsolution(SLPinfo):
     solved : bool
         Indicates whether or not this problem was actually
         solved.
-    useSkill : int
+    use_skill : int
         Indicates the number of skill uses permitted for this
         problem. Skills are used by default when solving with
         this method - not using skill should always result in
         a standard LPP. This attribute exists because it some
         methods need it to exist.
-    transformCancel : int
+    cancel_transform : int
         Indicates whether or not to use skill to cancel
         transformation for this problem.
     type : 'LP'
@@ -206,17 +206,17 @@ class SLPsolution(SLPinfo):
     dragon : DataFrame
         The data for the dragon intended for optimization.
         Should be a subset of a pandas dataframe.
-    tcancel : int
+    cancel_transform : int
         Indicates whether or not to cancel transformation
         with skill. May be 0 or 1. Treated as an int rather
         than a bool because of how it is used in other methods.
     """
 
-    def __init__(self, dragon, tcancel):
+    def __init__(self, dragon, cancel_transform):
         super().__init__(dragon)
         self.solved = False
-        self.useSkill = True
-        self.transformCancel = tcancel
+        self.use_skill = True
+        self.cancel_transform = cancel_transform
         self.type = 'SLP'
 
     def solve(self, **kwargs):
@@ -237,10 +237,10 @@ class SLPsolution(SLPinfo):
 
         self.solved = True
         if 'add_const' in kwargs:
-            self.sepInfo(tcancel=self.transformCancel, sub=kwargs['add_const'])
+            self.sep_info(cancel_transform=self.cancel_transform, sub=kwargs['add_const'])
             method = "min"
         else:
-            self.sepInfo(tcancel=self.transformCancel)
+            self.sep_info(cancel_transform=self.cancel_transform)
             method = "max"
         if config.integrality:
             self.result = lpSolve.lp(method, self.obj, self.constraint, self.dir, self.rhs, int_vec=self.intreq)
@@ -263,15 +263,15 @@ class SLPsolution(SLPinfo):
         """
 
         if self.solved:
-            if self.transformCancel and not objective_only:
-                cancel_frames = self.tCancel
+            if self.cancel_transform and not objective_only:
+                cancel_frames = self.t_cancel_f
             else:
                 cancel_frames = 0
-            self.objective = np.dot(self.solution, self.objVec)
+            self.objective = np.dot(self.solution, self.obj_vec)
             if not objective_only:
                 self.objective = round(self.objective, 3)
-                self.duration = round((self.time + self.transformTime + cancel_frames + self.skillTime)/60, 3)
-                self.leniency = self.time - np.dot(self.solution, self.timeVec) 
-                if self.transformCancel:
+                self.duration = round((self.time + self.transform_time + cancel_frames + self.skill_time)/60, 3)
+                self.leniency = self.time - np.dot(self.solution, self.time_vec) 
+                if self.cancel_transform:
                     self.leniency += config.leniency
                 self.mps = round(self.objective/self.duration, 3)

@@ -1,5 +1,5 @@
 import config
-from findZero import rootFind
+from findZero import root_find
 import rpy2
 import pandas
 from data_refine import Refine
@@ -8,7 +8,7 @@ from lp_solver import LPsolution, SLPsolution
 from output import MainDisplay
 
 
-class Main_Solver:
+class MainSolver:
     """The main solver.
 
     Determines solution types, whether or not to solve, whether or not
@@ -80,14 +80,14 @@ class Main_Solver:
                 break
         # Ascertaining bufferability.
 
-        self.bnb = (config.bnbOverride or self.bufferable)
+        self.bnb = (config.bnb_override or self.bufferable)
         # As of now, if the unit is bufferable, they must be handled by
         # bnb.  This may be rectified in the future.
 
         if self.bnb:
             self.skill = BnBsolution(self.dragon, 1)
             self.noskill = BnBsolution(self.dragon, 0)
-            self.tcancel = BnBsolution(self.dragon, 1, transformCancel=True)
+            self.tcancel = BnBsolution(self.dragon, 1, cancel_transform=True)
 
         elif self.info.cond != [1, 0]:
             self.skill = SLPsolution(self.dragon, 0)
@@ -97,7 +97,7 @@ class Main_Solver:
         else:
             self.skill = LPsolution(self.dragon, 1)
             self.noskill = LPsolution(self.dragon, 0)
-            self.tcancel = LPsolution(self.dragon, 1, transformCancel=1)
+            self.tcancel = LPsolution(self.dragon, 1, cancel_transform=1)
         # Solution types are assigned.
 
     def solve_problems(self):
@@ -140,11 +140,11 @@ class Main_Solver:
 
         self.zero = ['Not Computed', 'Not Computed', 'Not Computed']
         if self.skill.solved and self.noskill.solved:
-            self.zero[0] = rootFind(self.skill, self.noskill)
+            self.zero[0] = root_find(self.skill, self.noskill)
         if self.noskill.solved and self.tcancel.solved:
-            self.zero[1] = rootFind(self.tcancel, self.noskill)
+            self.zero[1] = root_find(self.tcancel, self.noskill)
         if self.skill.solved and self.tcancel.solved:
-            self.zero[2] = rootFind(self.tcancel, self.skill)
+            self.zero[2] = root_find(self.tcancel, self.skill)
 
     def display(self):
         """A method to display the results of the solve.

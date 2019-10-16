@@ -34,16 +34,16 @@ class Refine:
     frames : [float]
         Stores information on the 'cost' (in time) of
         each action.
-    tCancel : int
+    t_cancel_f : int
         Represents frames lost when canceling transformation
         with skill. A negative value indicates frames saved.
-    skillUses : int
+    skill_num : int
         The maximum number of skill uses allowed. Currently
         useful in only one case.
-    transformTime : int
+    transform_time : int
         Time consumed in the transformation animation without
         skill canceling.
-    skillTime : float
+    skill_time : float
         Time consumed when using skill. Note: this is not the
         'cost' of using skill.
     cond : [float]
@@ -74,10 +74,10 @@ class Refine:
         self.sp_gen = [0] + [data[15 + 5*i] for i in range(0, 10)] + [0, 0, 0]
         lastC = [i for i, e in enumerate(self.cooldown) if e != 0]
         self.frames = [0] + [data[12 + 5*i] for i in range(0, 10)] + [self.cooldown[lastC[-1]]] + [data['Dodge Frames']] + [0]
-        self.tCancel = data['Transform Cancel']
-        self.skillUses = data['Skill Uses']
-        self.transformTime = data['Transformation']
-        self.skillTime = data['Skill Duration']
+        self.t_cancel_f = data['Transform Cancel']
+        self.skill_num = data['Skill Uses']
+        self.transform_time = data['Transformation']
+        self.skill_time = data['Skill Duration']
         if type(data['Skill Effect']) == str:
             sEffect = float(Fraction(data['Skill Effect']))
             # Someone somewhere is going to be rather cross with me for
@@ -86,9 +86,9 @@ class Refine:
             sEffect = data['Skill Effect']
         sETime = data['Effect Time']
         if config.attack_rate != 1:
-            sETime += ceil((data['Effect Timing'] - self.skillTime)/config.attack_rate)
+            sETime += ceil((data['Effect Timing'] - self.skill_time)/config.attack_rate)
         elif data['Effect Time'] != 0:
-            sETime += data['Effect Timing'] - self.skillTime
+            sETime += data['Effect Timing'] - self.skill_time
         # If the effect of skill is a string instead of a number, then
         # it is a fraction (and converted as such).
         # This will need an update if skill handling is changed.
@@ -96,8 +96,8 @@ class Refine:
         self.time = config.initial_time*60*(1 + data['DragonTime'] + config.additional_time)
         self.trimmed()
         self.rlength = len(self.reference)
-        self.hasteCheck()
-        self.speedCheck()
+        self.haste_check()
+        self.speed_check()
         # The data is trimmed and adjusted according to other 
         # properties listed in config. You can go without trimming, but
         # it makes enumerative methods much more intensive.
@@ -119,21 +119,21 @@ class Refine:
         self.frames[-2] += config.leniency
         # Leniency is added as specified in config.
     
-    def speedCheck(self):
+    def speed_check(self):
         """Corrects for attack speed, if applicable."""
 
         if config.attack_rate != 1:
             if config.rate_method == 'ceil':
                 for i in range(1, self.rlength - 3):
                     self.frames[i] = ceil(self.frames[i]/config.attack_rate)
-                self.skillTime = ceil(self.skillTime/config.attack_rate)
+                self.skill_time = ceil(self.skill_time/config.attack_rate)
             elif config.rate_method == 'floor':
                 for i in range(1, self.rlength - 3):
                     self.frames[i] = floor(self.frames[i]/config.attack_rate)
-                self.skillTime = floor(self.skillTime/config.attack_rate)
+                self.skill_time = floor(self.skill_time/config.attack_rate)
         # For the time being, the values are conservatively ceil'd.
 
-    def hasteCheck(self):
+    def haste_check(self):
         """Corrects for skill haste, if applicable."""
 
         if config.haste_coefficient != 1:
@@ -176,7 +176,7 @@ class LPinfo(Refine):
         required to be integer.
     """
     
-    def normInfo(self, bnb=False, skill=1, sub=0, tcancel=0):
+    def norm_info(self, bnb=False, skill=1, sub=0, cancel_transform=0):
         """Generates the information needed to solve.
         
         Parameters
@@ -191,7 +191,7 @@ class LPinfo(Refine):
         sub : float(=0)
             If a second solve is initiated, this contains the
             optimal value of the previous solve.
-        tcancel : int(=0)
+        cancel_transform : int(=0)
             Indicates whether or not to cancel transformation
             with skill. May be 0 or 1. Treated as an int rather
             than a bool because it is subtracted from one of the
@@ -199,7 +199,7 @@ class LPinfo(Refine):
         """
 
         if not sub:
-            self.addConstraints(bnb=bnb, skill=skill, tcancel=tcancel)
+            self.add_constraints(bnb=bnb, skill=skill, cancel_transform=cancel_transform)
             self.altObj = robjects.FloatVector(self.damage)
             if config.obj_strat in ['Default', 'Min Frames']:
                 self.obj = self.altObj
@@ -222,7 +222,7 @@ class LPinfo(Refine):
         # all of the necessary information must be assigned to R 
         # objects.
 
-    def addConstraints(self, bnb=False, skill=1, tcancel=0):
+    def add_constraints(self, bnb=False, skill=1, cancel_transform=0):
         """Constructs the constraint matrix.
 
         The matrix is constructed to satisfy constraints that are
@@ -245,7 +245,7 @@ class LPinfo(Refine):
             Determines the number of skill uses permitted for 
             the problem. Currently not intended to handle values
             other than 0 or 1.
-        tcancel : int(=0)
+        cancel_transform : int(=0)
             Indicates whether or not to cancel transformation
             with skill. May be 0 or 1. Treated as an int rather
             than a bool because it is subtracted from one of the
@@ -259,7 +259,7 @@ class LPinfo(Refine):
             self.constraint = np.zeros((self.rlength, self.rlength))
             self.rhs = np.zeros(self.rlength)
             self.rhs[0] = 1
-            self.rhs[-3:] = np.array([1-tcancel, skill, self.time])
+            self.rhs[-3:] = np.array([1-cancel_transform, skill, self.time])
         self.constraint[0, 0] = 1
         self.direction = ['==']
         for cascade in range(1, self.rlength - 3):
@@ -311,21 +311,21 @@ class SLPinfo(Refine):
     intreq : [int(R)]
         An R vector specifying which decision variables are
         required to be integer.
-    objVec : [float]
+    obj_vec : [float]
         The 'objective vector.' Used to compute the 'real' value
         of the objective function. Generally would not be needed,
         but certain methods use different criteria for the
         objective function.
-    timeVec : [int]
-        The 'time vector.' Used for reasons similar to objVec.
+    time_vec : [int]
+        The 'time vector.' Used for reasons similar to obj_vec.
     """
 
-    def sepInfo(self, tcancel=0, sub=0):
+    def sep_info(self, cancel_transform=0, sub=0):
         """Generates the information needed to solve.
         
         Parameters
         ----------
-        tcancel : int(=0)
+        cancel_transform : int(=0)
             Indicates whether or not to cancel transformation
             with skill. May be 0 or 1. Treated as an int rather
             than a bool because it is subtracted from one of the
@@ -336,9 +336,9 @@ class SLPinfo(Refine):
         """
 
         if not sub:
-            self.sepConstraints(tcancel=tcancel)
-            self.objVec = [0, 0] + self.damage[:-1] + [self.cond[0]*i for i in self.damage[1:-1]] + [self.damage[-1]] + list(np.zeros(self.rlength - 4))
-            self.timeVec = [0, 0] + self.frames[:-1] + self.frames[1:] + list(np.zeros(self.rlength - 4))
+            self.add_sep_constraints(cancel_transform=cancel_transform)
+            self.obj_vec = [0, 0] + self.damage[:-1] + [self.cond[0]*i for i in self.damage[1:-1]] + [self.damage[-1]] + list(np.zeros(self.rlength - 4))
+            self.time_vec = [0, 0] + self.frames[:-1] + self.frames[1:] + list(np.zeros(self.rlength - 4))
         else:
             self.constraint.resize(3*self.rlength - 2, 3*self.rlength - 4)
             self.constraint[-1, :2] = np.ones(2)
@@ -351,7 +351,7 @@ class SLPinfo(Refine):
         self.intreq = robjects.IntVector(range(3, self.rlength*3 - 4))      
         # Information assigned to R objects as necessary.
 
-    def sepConstraints(self, tcancel=0):
+    def add_sep_constraints(self, cancel_transform=0):
         """Constructs the constraint matrix.
 
         The matrix is constructed to satisfy constraints that are
@@ -386,7 +386,7 @@ class SLPinfo(Refine):
             Determines the number of skill uses permitted for the
             problem. Currently not intended to handle values
             other than 0 or 1.
-        tcancel : int(=0)
+        cancel_transform : int(=0)
             Indicates whether or not to cancel transformation 
             with skill. May be 0 or 1. Treated as an int rather 
             than a bool because it is subtracted from one of the
@@ -399,7 +399,7 @@ class SLPinfo(Refine):
         self.direction = ['==']
         self.rhs = np.zeros(3*self.rlength - 3)
         self.rhs[0] = 1
-        self.rhs[-8:-2] = np.array([1-tcancel, 0, 1, 1, self.time, self.cond[1] + config.leniency])
+        self.rhs[-8:-2] = np.array([1-cancel_transform, 0, 1, 1, self.time, self.cond[1] + config.leniency])
         for cascade in range(1, self.rlength - 3):
             self.constraint[cascade, cascade + 2:cascade + 4] = np.array([-1, 1])
             self.constraint[cascade, 3 - self.rlength + cascade] = -1

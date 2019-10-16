@@ -15,7 +15,7 @@ disp_mode : str or [str]
 disp_compare : bool
     Displays the zeros with the other solution methods if the
     default display is overridden.
-bnbOverride : bool
+bnb_override : bool
     Forces the solutions to be branch and bound.
 suppress_status : bool
     Unused.
@@ -59,7 +59,7 @@ include_string : bool
 dragon = 'Cerberus'
 disp_mode = 'Default'
 disp_compare = False
-bnbOverride = False
+bnb_override = False
 suppress_status = False
 leniency = 3
 skill_coefficient = 1
