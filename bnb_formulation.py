@@ -148,7 +148,7 @@ class BnBsolution(BnBinfo):
 
 
 @lru_cache(maxsize=2048)
-def lp_sol(combo, use_skill, modifier, solInfo):
+def lp_sol(combo, use_skill, modifier, sol_info):
     """Solves the LP relaxation of the IP problem.
 
     Uses information about which actions have been taken up to the
@@ -167,7 +167,7 @@ def lp_sol(combo, use_skill, modifier, solInfo):
     modifier : float
         A rough estimate for the increase afforded by
         the effects of skill. May need future revisions.
-    solInfo : class instance
+    sol_info : class instance
         A copy of the BnBsolution class, with all associated
         attributes.
 
@@ -181,8 +181,8 @@ def lp_sol(combo, use_skill, modifier, solInfo):
     cc = copy.copy(combo)
     cc = list(cc)
     del cc[0]
-    r_rhs = robjects.IntVector([*solInfo.rhs, *cc, *[1, use_skill*solInfo.skill_num, solInfo.time]])
-    r_sol = lpSolve.lp("max", solInfo.altObj, solInfo.constraint, solInfo.dir, r_rhs).rx2('objval')
+    r_rhs = robjects.IntVector([*sol_info.rhs, *cc, *[1, use_skill*sol_info.skill_num, sol_info.time]])
+    r_sol = lpSolve.lp("max", sol_info.altObj, sol_info.constraint, sol_info.dir, r_rhs).rx2('objval')
     return modifier*r_sol[0]
 
 class Formulation(pybnb.Problem):
@@ -210,30 +210,30 @@ class Formulation(pybnb.Problem):
     _cancel_transform : bool
         Indicates whether or not to cancel transformation
         with skill.
-    _currentNode : int
+    _current_node : int
         The action associated with the current node. Associated
         with the indices of the adjacency matrix.
-    _sumDamage : float
+    _sum_damage : float
         The sum of damage dealt up to and including the
         current node.
     _time : int
         The total time elapsed since initiating the solve.
-    _optString : [int]
+    _opt_string : [int]
         The sequence of actions taken to arrive at the
         current node.
     _condition : [float, int]
         The increase afforded after using skill, and the time
         remaining on that increase.
-    _endTime : int
+    _end_time : int
         The total allotted time. The process cannot generate
         nodes exceeding this resource limit.
-    _comboCount : [int]
+    _combo_count : [int]
         A list of the number of each action taken to arrive
         at the current node. Needed to compute the bound.
-    _contModif : [float]
+    _adjusted_mod : [float]
         An estimate for the average increase afforded by the
         effects of using skill.
-    _skillSP : int
+    _sp_level : int
         The current SP value for dragon skill.
 
     Parameters
@@ -252,25 +252,25 @@ class Formulation(pybnb.Problem):
         self._info = info
         self._use_skill = use_skill
         self._cancel_transform = cancel_transform
-        self._currentNode = 0
-        self._sumDamage = 150
+        self._current_node = 0
+        self._sum_damage = 150
         self._time = 0
-        self._optString = [0]
+        self._opt_string = [0]
         self._condition = [0, 0]
-        self._endTime = info.time
-        self._comboCount = (1,) + tuple(np.zeros(info.rlength-1))
+        self._end_time = info.time
+        self._combo_count = (1,) + tuple(np.zeros(info.rlength-1))
         if info.skill_num == 1:
-            self._contModif = ((info.cond[0]-1)*info.cond[1]/info.time)+1
+            self._adjusted_mod = ((info.cond[0]-1)*info.cond[1]/info.time)+1
         elif info.skill_num >= 2 and config.bound_method != 'None':
             print("this method isn't designed to handle that")
             quit()
-        self._skillSP = 30
+        self._sp_level = 30
     
     def sense(self):
         return pybnb.maximize
 
     def objective(self):
-        return self._sumDamage
+        return self._sum_damage
 
     def bound(self):
         """Calculates the bound on the current node.
@@ -288,10 +288,10 @@ class Formulation(pybnb.Problem):
         """
         
         # if config.bound_method == 'Experimental':
-        #     bound = lp_sol(self._comboCount, self._use_skill, self._contModif, self._info)
+        #     bound = lp_sol(self._combo_count, self._use_skill, self._adjusted_mod, self._info)
         #     return round(bound, 3)
         if config.bound_method == 'Accurate':
-            bound = lp_sol(self._comboCount, self._use_skill, self._contModif, self._info)
+            bound = lp_sol(self._combo_count, self._use_skill, self._adjusted_mod, self._info)
             return round(bound, 3)
         elif config.bound_method == 'None':
             return 150000
@@ -301,26 +301,26 @@ class Formulation(pybnb.Problem):
 
     def save_state(self, node):
         node.state = (
-            self._sumDamage, 
+            self._sum_damage, 
             self._time, 
-            self._currentNode, 
-            self._optString, 
+            self._current_node, 
+            self._opt_string, 
             self._condition, 
             self._cancel_transform,
-            self._skillSP,
-            self._comboCount
+            self._sp_level,
+            self._combo_count
             )
 
     def load_state(self, node):
         (
-            self._sumDamage, 
+            self._sum_damage, 
             self._time, 
-            self._currentNode, 
-            self._optString, 
+            self._current_node, 
+            self._opt_string, 
             self._condition, 
             self._cancel_transform,
-            self._skillSP,
-            self._comboCount
+            self._sp_level,
+            self._combo_count
             ) = node.state
 
     def branch(self):
@@ -340,52 +340,52 @@ class Formulation(pybnb.Problem):
         child : class instance
             An instance of Node with a state characterized by 
             these attributes:
-                _sumDamage, 
+                _sum_damage, 
                 _time, 
-                _currentNode, 
-                _optString, 
+                _current_node, 
+                _opt_string, 
                 _condition, 
                 _cancel_transform,
-                _skillSP,
-                _comboCount
+                _sp_level,
+                _combo_count
             which are defined by the current node
         """
-        if(self._time > self._endTime):
+        if(self._time > self._end_time):
             return self.infeasible_objective()
 
         for nextNode in range(0, len(self._info.adjacency)-1):
-            if self._info.adjacency[self._currentNode][nextNode] == -1:
+            if self._info.adjacency[self._current_node][nextNode] == -1:
                 continue
             if self._cancel_transform:
                 continue
-            time = self._time + self._info.adjacency[self._currentNode][nextNode]
-            if time > self._endTime:
+            time = self._time + self._info.adjacency[self._current_node][nextNode]
+            if time > self._end_time:
                 continue
-            comboCount = self._comboCount[:nextNode] + (self._comboCount[nextNode] + 1,) + self._comboCount[nextNode+1:]
-            skill_SP = min(30, self._skillSP + self._info.sp_gen[nextNode])
-            condition = [self._condition[0], self._condition[1]-self._info.adjacency[self._currentNode][nextNode]]
+            combo_count = self._combo_count[:nextNode] + (self._combo_count[nextNode] + 1,) + self._combo_count[nextNode+1:]
+            skill_SP = min(30, self._sp_level + self._info.sp_gen[nextNode])
+            condition = [self._condition[0], self._condition[1]-self._info.adjacency[self._current_node][nextNode]]
             if condition[1] < 0:
                 condition = [1, 0]
-            damage = self._sumDamage + self._info.damage[nextNode]*condition[0]
+            damage = self._sum_damage + self._info.damage[nextNode]*condition[0]
             child = pybnb.Node()
             child.state = (damage, time, nextNode, 
-                self._optString + [nextNode], condition, self._cancel_transform, skill_SP, comboCount) 
+                self._opt_string + [nextNode], condition, self._cancel_transform, skill_SP, combo_count) 
             yield child
 
-        if(self._comboCount[-1] < self._info.skill_num and self._time + self._info.frames[-1] <= self._endTime and self._use_skill and self._skillSP == 30):
+        if(self._combo_count[-1] < self._info.skill_num and self._time + self._info.frames[-1] <= self._end_time and self._use_skill and self._sp_level == 30):
             time = self._time + self._info.frames[-1]
-            if self._comboCount[-1] == 0:
+            if self._combo_count[-1] == 0:
                 condition = self._info.cond
             else:
-                condition = [self._info.cond[0]*(1+self._comboCount[-1]) - self._comboCount[-1], self._info.cond[1]]
+                condition = [self._info.cond[0]*(1+self._combo_count[-1]) - self._combo_count[-1], self._info.cond[1]]
             # NOTE: not robust at all^
             # NOTE: actually DANGEROUSLY not robust.  However, as this
             #       is currently only used for a single, highly
             #       specific case, it can stay the time being...
-            comboCount = self._comboCount[:-1] +(self._comboCount[-1] + 1,)
+            combo_count = self._combo_count[:-1] +(self._combo_count[-1] + 1,)
             child = pybnb.Node()
-            child.state = (self._sumDamage + self._info.damage[self._info.rlength-1], time, 
-            self._info.rlength-1, self._optString + [self._info.rlength-1], condition, False, 0, comboCount) 
+            child.state = (self._sum_damage + self._info.damage[self._info.rlength-1], time, 
+            self._info.rlength-1, self._opt_string + [self._info.rlength-1], condition, False, 0, combo_count) 
             yield child
         
     def notify_solve_begins(self,

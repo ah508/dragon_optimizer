@@ -195,7 +195,11 @@ class LPinfo(Refine):
             Indicates whether or not to cancel transformation
             with skill. May be 0 or 1. Treated as an int rather
             than a bool because it is subtracted from one of the
-            rhs values. Bad variable name, should be changed.
+            rhs values.
+
+        Returns
+        -------
+        None. This method generates attributes for the class.
         """
 
         if not sub:
@@ -249,7 +253,11 @@ class LPinfo(Refine):
             Indicates whether or not to cancel transformation
             with skill. May be 0 or 1. Treated as an int rather
             than a bool because it is subtracted from one of the
-            rhs values. Bad variable name, should be changed.
+            rhs values.
+
+        Returns
+        -------
+        None. This method generates attributes for the class.
         """
 
         if bnb:
@@ -329,7 +337,7 @@ class SLPinfo(Refine):
             Indicates whether or not to cancel transformation
             with skill. May be 0 or 1. Treated as an int rather
             than a bool because it is subtracted from one of the
-            rhs values. Bad variable name, should be changed.
+            rhs values.
         sub : float(=0)
             If a second solve is initiated, this contains the
             optimal value of the previous solve.
@@ -390,7 +398,7 @@ class SLPinfo(Refine):
             Indicates whether or not to cancel transformation 
             with skill. May be 0 or 1. Treated as an int rather 
             than a bool because it is subtracted from one of the
-            rhs values. Bad variable name, should be changed.
+            rhs values.
         """
 
         self.objective = [1, 1] + list(np.zeros(self.rlength*3 - 6))

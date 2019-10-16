@@ -22,7 +22,7 @@ parser.add_argument('-s', '--skill', type=float,
 parser.add_argument('--hull', action='store_true',
                     help='Provides a graph of the optimal damage at each moment up to 600 frames. Omits usual output and overrides other options.')
 parser.add_argument('--add', action='append',
-                    help='A list of strings that can be input to compute more than one dragon at once. Not well implemented at the moment. Only works with hull')
+                    help='A list of strings that can be input to compute more than one dragon at once. Not well implemented at the moment. Only works with hull.')
 parser.add_argument('--time', action='store_true',
                     help='Adds process time.')
 

@@ -51,33 +51,33 @@ class MainDisplay:
             max_MPS = max([self.skill.mps, self.noskill.mps, self.tcancel.mps])
             if max_MPS == self.skill.mps: 
                 print('> Skill <')
-                self.printSwitch(self.skill)
+                self.print_switch(self.skill)
             elif max_MPS == self.noskill.mps:
                 print('> No Skill <')
-                self.printSwitch(self.noskill)
+                self.print_switch(self.noskill)
             elif max_MPS == self.tcancel.mps:
                 print('> Transform Cancel <')
-                self.printSwitch(self.tcancel)
+                self.print_switch(self.tcancel)
         
         else:
             if 'skill' in config.disp_mode:
                 print('> Skill <')
-                self.printSwitch(self.skill)
+                self.print_switch(self.skill)
 
             if 'noskill' in config.disp_mode:
                 print('> No Skill <')
-                self.printSwitch(self.noskill)
+                self.print_switch(self.noskill)
 
             if 'tcancel' in config.disp_mode:
                 print('> Transform Cancel <')
-                self.printSwitch(self.tcancel)
+                self.print_switch(self.tcancel)
 
-    def printSwitch(self, sOutput):
+    def print_switch(self, solved_output):
         """Determines which output method is suitible.
 
         Parameters
         ----------
-        sOutput : class instance
+        solved_output : class instance
             A solved instance of either BnBsolution, LPsolution,
             or SLPsolution.
 
@@ -85,19 +85,19 @@ class MainDisplay:
         -------
         None.
         """
-        if sOutput.type == 'LP':
-            self.lpWriter(sOutput)
-        elif sOutput.type == 'BnB':
-            self.bnbWriter(sOutput)
-        elif sOutput.type == 'SLP':
-            self.slpWriter(sOutput)
+        if solved_output.type == 'LP':
+            self.lp_writer(solved_output)
+        elif solved_output.type == 'BnB':
+            self.bnb_writer(solved_output)
+        elif solved_output.type == 'SLP':
+            self.slp_writer(solved_output)
 
-    def bnbWriter(self, bnbOutput):
+    def bnb_writer(self, bnb_output):
         """Prints output for a branch and bound problem.
         
         Parameters
         ----------
-        bnbOutput : class instance
+        bnb_output : class instance
             A solved instance of BnBsolution.
             
         Returns
@@ -106,20 +106,20 @@ class MainDisplay:
         """
 
         print('___')
-        for i in bnbOutput.string:
-            if bnbOutput.reference[i] in ['T  ', 'W  ', 'D  ', 'S  ']:
-                print(f'{bnbOutput.reference[i]}')
+        for i in bnb_output.string:
+            if bnb_output.reference[i] in ['T  ', 'W  ', 'D  ', 'S  ']:
+                print(f'{bnb_output.reference[i]}')
             else:
-                print(f'{bnbOutput.reference[i]} ', end=' ')
+                print(f'{bnb_output.reference[i]} ', end=' ')
         print('\n‾‾‾')
-        self.brickWriter(bnbOutput)
+        self.brick_writer(bnb_output)
 
-    def lpWriter(self, lpOutput):
+    def lp_writer(self, lp_output):
         """Prints output for a linear programming problem.
         
         Parameters
         ----------
-        lpOutput : class instance
+        lp_output : class instance
             A solved instance of LPsolution.
             
         Returns
@@ -128,18 +128,18 @@ class MainDisplay:
         """
 
         print('__________')
-        for i in range(0, len(lpOutput.solution)):
-            if (i < lpOutput.rlength-3 and lpOutput.solution[i] != 0 and lpOutput.damage[i] != 0) or i >= lpOutput.rlength-3:
-                print(f'{lpOutput.reference[i]} :  {lpOutput.solution[i]}')
+        for i in range(0, len(lp_output.solution)):
+            if (i < lp_output.rlength-3 and lp_output.solution[i] != 0 and lp_output.damage[i] != 0) or i >= lp_output.rlength-3:
+                print(f'{lp_output.reference[i]} :  {lp_output.solution[i]}')
         print('‾‾‾‾‾‾‾‾‾‾')
-        self.brickWriter(lpOutput)
+        self.brick_writer(lp_output)
 
-    def slpWriter(self, slpOutput):
+    def slp_writer(self, slp_output):
         """Prints output for a separable linear programming problem.
         
         Parameters
         ----------
-        slpOutput : class instance
+        slp_output : class instance
             A solved instance of SLPsolution.
             
         Returns
@@ -147,22 +147,22 @@ class MainDisplay:
         None. Output is printed
         """
 
-        totals = slpOutput.solution[0:2]
-        unboosted = slpOutput.solution[2:slpOutput.rlength+1]
-        boosted = slpOutput.solution[slpOutput.rlength+1:2*slpOutput.rlength]
-        exitVars = slpOutput.solution[2*slpOutput.rlength:]
+        totals = slp_output.solution[0:2]
+        unboosted = slp_output.solution[2:slp_output.rlength+1]
+        boosted = slp_output.solution[slp_output.rlength+1:2*slp_output.rlength]
+        exit_vars = slp_output.solution[2*slp_output.rlength:]
         print('Unboosted           Boosted')
         print('_____________        _____________')
         print('M   : %6.2f        M   : %6.2f' %(totals[0], totals[1]))
         for i in range(0, len(unboosted)):
-            print(f'{slpOutput.reference[i]} : {unboosted[i]}            {slpOutput.reference[i+1]} : {boosted[i]}')
+            print(f'{slp_output.reference[i]} : {unboosted[i]}            {slp_output.reference[i+1]} : {boosted[i]}')
         print('‾‾‾‾‾‾‾‾‾‾‾‾‾        ‾‾‾‾‾‾‾‾‾‾‾‾‾')
-        for i in range(0, len(exitVars)):
-            if exitVars[i] != 0:
-                print(f'Exit Variable: {slpOutput.reference[i+2]}')
-        self.brickWriter(slpOutput)
+        for i in range(0, len(exit_vars)):
+            if exit_vars[i] != 0:
+                print(f'Exit Variable: {slp_output.reference[i+2]}')
+        self.brick_writer(slp_output)
 
-    def brickWriter(self, result):
+    def brick_writer(self, result):
         """Prints general output for a chosen solution.
         
         Parameters
