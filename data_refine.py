@@ -68,12 +68,12 @@ class Refine:
 
     def __init__(self, data):
         self.reference = ['T  ', 'C1a', 'C1b', 'C2a', 'C2b', 'C3a', 'C3b', 'C4a', 'C4b', 'C5a', 'C5b', 'W  ', 'D  ', 'S  ']
-        self.damage = [150] + [data[11 + 5*i] for i in range(0, 10)] + [0, 0] + [data['Skill Damage']*config.skill_coefficient]
-        self.cancels = [0] + [data[13 + 5*i] for i in range(0, 10)] + [0, 0, 0]
-        self.cooldown = [0] + [data[14 + 5*i] for i in range(0, 10)] + [0, 0, 0]
-        self.sp_gen = [0] + [data[15 + 5*i] for i in range(0, 10)] + [0, 0, 0]
+        self.damage = [data['Transformation Damage']] + [data[12 + 5*i] for i in range(0, 10)] + [0, 0] + [data['Skill Damage']*config.skill_coefficient]
+        self.cancels = [0] + [data[14 + 5*i] for i in range(0, 10)] + [0, 0, 0]
+        self.cooldown = [0] + [data[15 + 5*i] for i in range(0, 10)] + [0, 0, 0]
+        self.sp_gen = [0] + [data[16 + 5*i] for i in range(0, 10)] + [0, 0, 0]
         lastC = [i for i, e in enumerate(self.cooldown) if e != 0]
-        self.frames = [0] + [data[12 + 5*i] for i in range(0, 10)] + [self.cooldown[lastC[-1]]] + [data['Dodge Frames']] + [0]
+        self.frames = [0] + [data[13 + 5*i] for i in range(0, 10)] + [self.cooldown[lastC[-1]]] + [data['Dodge Frames']] + [0]
         self.t_cancel_f = data['Transform Cancel']
         self.skill_num = data['Skill Uses']
         self.transform_time = data['Transformation']
