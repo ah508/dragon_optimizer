@@ -143,6 +143,7 @@ class HullFinder:
         
         for keys in self.warehouse:
             plt.fill(self.warehouse[keys].hullf, self.warehouse[keys].hulld, label=keys, alpha=0.3)
+            # plt.plot(self.warehouse[keys].hullf, self.warehouse[keys].hulld, label=keys)
         plt.xlabel('Time (frames)')
         plt.ylabel('Optimal Damage (%)')
         plt.legend(loc='upper left')

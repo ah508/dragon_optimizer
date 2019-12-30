@@ -45,16 +45,24 @@ A. Originally, it was all written in R. The project was moved to python because 
     Additionally, if I ever move to dedicated optimization software (like CPLEX) it
     will be easier to jump between python and [software] than R and [software].
 
-Q. "Alright, then why are you passing to R in the first place? Doesn't python have
-    libraries to handle LPs?"
-A. Comfort, mostly. I also wanted to learn how to use rpy2. If this ever gets rewritten
-    (again) that dependency may be removed in favor of something more accessible.
+Q. "Alright, then why are you passing to R in the first place? Can't you use lpSolve
+    from python directly? And doesn't python have its own libraries for solving LPs?"
+A. There are a few reasons for that. If I wanted to call lpSolve directly from python,
+    I would need to build it myself - and to be honest that's not really something I
+    want to figure out how to do right now... maybe at some point in the future. Python
+    does have libraries that will solve LPs, but I'm not personally very familiar with
+    them. Originally this whole thing was written in R with lpSolve in mind, so it's
+    sort of a matter of comfort right now.
 
-Q. "Why are you using branch and bound? Can't you do it all by LP?"
+Q. "Why are you using a separate branch and bound process? Can't you do it all by LP?
+    And moreover, doesn't lpSolve use branch and bound to solve IPPs to begin with?"
 A. Yes, it is possible to solve all (or at least almost all) of the current problems
     with linear programming. Unfortunately, doing so would also constitute a great
     deal of work. Someday, maybe, that work will get done, but for now I don't really
-    have the time. As a result, the bnb won't be going anywhere for a while.
+    have the time. lpSolve does, in fact, use bnb for IPPs. However, the problem still
+    needs to be formulated as an LPP. Using pybnb we can formulate the problem more
+    literally, which is significantly easier to implement considering the unbounded
+    potential complexity of these problems.
 
 Q. "Is it possible to do all of this by dynamic programming?"
 A. Yep. In certain cases, (those that use enumerative methods) DP would be far superior.
@@ -70,8 +78,9 @@ A. You may not have an up-to-date version of the csv. You can grab one from the 
     DL subreddit discord.
 
 Q. "Are there plans to make this program more comprehensive?"
-A. Yeah, but I really only work on this in my spare time, so don't expect frequent 
-    updates or anything.
+A. At this point... I'm not sure. There are a number of things that could be implemented
+    to improve both performance and analytic capabilities... but it does its job well
+    enough right now, and I don't really want to commit to yet another drastic overhaul.
 
 Q. "I see that in the sheet, some attacks that are two hits are listed as just one 
     single hit. What's up with that?"
