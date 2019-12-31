@@ -31,6 +31,7 @@ args = parser.parse_args()
 
 forbidden = ['DyJeanne']
 psiren_call = False
+daiko_call = False
 
 if args.dragon in forbidden:
     print('This dragon is lacking data, and cannot be run.')
@@ -40,6 +41,9 @@ if args.dragon in forbidden:
 if args.dragon == 'Psiren':
     psiren_call = True
 
+if args.dragon == 'Daikokuten':
+    daiko_call = True
+
 if args.add:
     for dragon in args.add:
         if dragon in forbidden:
@@ -48,6 +52,8 @@ if args.add:
             quit()
         if dragon == 'Psiren':
             psiren_call = True
+        if dragon == 'Daikokuten':
+            daiko_call = True
 
 yes = ['Y', 'y', 'yes', 'Yes', 'YES']
 no = ['n', 'N', 'no', 'No', 'NO']
@@ -76,8 +82,8 @@ if isinstance(args.leniency, int):
 if isinstance(args.skill, float):
     config.skill_coefficient = args.skill
 
-if args.hull and psiren_call:
-    print('Hull is not currently compatable with Psiren.')
+if args.hull and (psiren_call or daiko_call):
+    print('Hull is not currently compatable with Psiren/Daikokuten.')
     confirmation = input('Proceed with a normal solve? [Y/N] : ')
     if confirmation in yes:
         pass
@@ -120,6 +126,9 @@ else:
     if psiren_call:
         config.bnb_override = True
         config.initial_time = 13
+        config.bound_method = 'None'
+    if daiko_call:
+        config.bnb_override = True
         config.bound_method = 'None'
     if args.time:
         import time
