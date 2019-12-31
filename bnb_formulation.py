@@ -1,6 +1,7 @@
 import config
 from functools import lru_cache
 import numpy as np
+from math import ceil
 from data_refine import BnBinfo
 import pybnb
 import copy
@@ -253,7 +254,7 @@ class Formulation(pybnb.Problem):
         self._use_skill = use_skill
         self._cancel_transform = cancel_transform
         self._current_node = 0
-        self._sum_damage = 150
+        self._sum_damage = self._info.damage[0]
         self._time = 0
         self._opt_string = [0]
         self._condition = [0, 0]
@@ -358,7 +359,13 @@ class Formulation(pybnb.Problem):
                 continue
             if self._cancel_transform:
                 continue
-            time = self._time + self._info.adjacency[self._current_node][nextNode]
+            if config.dragon == 'Daikokuten':
+                if self._condition[0] == 1:
+                    time = self._time + self._info.adjacency[self._current_node][nextNode]
+                else:
+                    time = self._time + ceil(self._info.adjacency[self._current_node][nextNode]/(1+self._condition[0]))
+            else:
+                time = self._time + self._info.adjacency[self._current_node][nextNode]
             if time > self._end_time:
                 continue
             combo_count = self._combo_count[:nextNode] + (self._combo_count[nextNode] + 1,) + self._combo_count[nextNode+1:]
@@ -366,7 +373,10 @@ class Formulation(pybnb.Problem):
             condition = [self._condition[0], self._condition[1]-self._info.adjacency[self._current_node][nextNode]]
             if condition[1] < 0:
                 condition = [1, 0]
-            damage = self._sum_damage + self._info.damage[nextNode]*condition[0]
+            if config.dragon == 'Daikokuten':
+                damage = self._sum_damage + self._info.damage[nextNode]
+            else:
+                damage = self._sum_damage + self._info.damage[nextNode]*condition[0]
             child = pybnb.Node()
             child.state = (damage, time, nextNode, 
                 self._opt_string + [nextNode], condition, self._cancel_transform, skill_SP, combo_count) 
