@@ -70,7 +70,11 @@ def root_find(string1, string2):
     """
 
     if string1.damage[-1] != 0:
-        zero = round(spOpt.newton(find_zero, 1, args=(string1, string2)), 3)
+        try:
+            zero = round(spOpt.newton(find_zero, 1, args=(string1, string2)), 3)
+        except RuntimeError:
+            print('Failed to converge, forgoing zero computation.')
+            zero = 'Not Computed'
     elif string1.objective >= string2.objective: 
         zero = '-Inf'
     elif string1.objective < string2.objective:
