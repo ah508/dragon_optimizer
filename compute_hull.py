@@ -130,20 +130,20 @@ class HullFinder:
             for point in entity.leafs:
                 entity.hulld.append(point[0])
                 entity.hullf.append(point[1])
-            entity.hullf.append(600)
-            entity.hullf.append(600)
-            entity.hullf.append(0)
-            entity.hulld.append(max(entity.hulld))
-            entity.hulld.append(0)
-            entity.hulld.append(0)
+            # entity.hullf.append(600)
+            # entity.hullf.append(600)
+            # entity.hullf.append(0)
+            # entity.hulld.append(max(entity.hulld))
+            # entity.hulld.append(0)
+            # entity.hulld.append(0)
             # determining the vertices - this is what lets us display the polygon below
 
         print('Done!')
         print(time.process_time() - self.start_time)
         
         for keys in self.warehouse:
-            plt.fill(self.warehouse[keys].hullf, self.warehouse[keys].hulld, label=keys, alpha=0.3)
-            # plt.plot(self.warehouse[keys].hullf, self.warehouse[keys].hulld, label=keys)
+            # plt.fill(self.warehouse[keys].hullf, self.warehouse[keys].hulld, label=keys, alpha=0.3)
+            plt.plot(self.warehouse[keys].hullf, self.warehouse[keys].hulld, label=keys)
         plt.xlabel('Time (frames)')
         plt.ylabel('Optimal Damage (%)')
         plt.legend(loc='upper left')
