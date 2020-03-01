@@ -85,7 +85,7 @@ class Refine:
         else:
             sEffect = data['Skill Effect']
         sETime = data['Effect Time']
-        if config.attack_rate != 1:
+        if config.attack_rate != 1 and sETime != 0:
             sETime += ceil((data['Effect Timing'] - self.skill_time)/config.attack_rate)
         elif data['Effect Time'] != 0:
             sETime += data['Effect Timing'] - self.skill_time
