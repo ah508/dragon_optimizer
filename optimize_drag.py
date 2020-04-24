@@ -31,6 +31,7 @@ args = parser.parse_args()
 
 forbidden = ['DyJeanne']
 psiren_call = False
+mars_call = False
 daiko_call = False
 
 if args.dragon in forbidden:
@@ -40,6 +41,9 @@ if args.dragon in forbidden:
 
 if args.dragon == 'Psiren':
     psiren_call = True
+
+if args.dragon == 'Mars':
+    mars_call = True
 
 if args.dragon == 'Daikokuten':
     daiko_call = True
@@ -52,6 +56,8 @@ if args.add:
             quit()
         if dragon == 'Psiren':
             psiren_call = True
+        if dragon == 'Mars':
+            mars_call = True
         if dragon == 'Daikokuten':
             daiko_call = True
 
@@ -82,7 +88,7 @@ if isinstance(args.leniency, int):
 if isinstance(args.skill, float):
     config.skill_coefficient = args.skill
 
-if args.hull and (psiren_call or daiko_call):
+if args.hull and (psiren_call or daiko_call or mars_call):
     print('Hull is not currently compatable with Psiren/Daikokuten.')
     confirmation = input('Proceed with a normal solve? [Y/N] : ')
     if confirmation in yes:
@@ -94,7 +100,7 @@ if args.hull and (psiren_call or daiko_call):
         print('Input not recognized. Exiting program.')
         quit()
 
-if args.hull and not psiren_call:
+if args.hull and not psiren_call and not mars_call:
     print('This feature is currently not very well developed.')
     print('Depending on your choice of dragon(s), computation may be *very* inefficient and time consuming.')
     confirmation = input('Are you sure you want to continue? [Y/N] : ')
@@ -127,7 +133,7 @@ else:
         config.bnb_override = True
         config.initial_time = 13
         config.bound_method = 'None'
-    if daiko_call:
+    if daiko_call or mars_call:
         config.bnb_override = True
         config.bound_method = 'None'
     if args.time:
