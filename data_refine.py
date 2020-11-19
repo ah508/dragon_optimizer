@@ -9,6 +9,11 @@ def set_constraint(constraint, index, row, value):
 def haste_sp(move, modifier):
     return math.ceil(move['sp']*(1 + modifier))
 
+def find_speed(move, base, modifier):
+    if move in ['T', 'D', 'BD']:
+        return base
+    return math.ceil(move/(1 + modifier))
+
 def fetch_dragon(dname):
     dragon = json.load(os.getcwd() + '/dragons/' + dname + '.json')
     return dragon
@@ -174,9 +179,9 @@ def format_constraints(template, dragon, infoset, getIndex):
                 continue
             index = getIndex(instruction['state'], move)
             damage = dformula(stats, dragon[move])
-            frames = math.ceil(dragon[move]['dtime']/(1 + stats['aspd']))
+            frames = find_speed(move, dragon[move]['dtime'], stats['aspd'])
 
-            real_time[index] = math.ceil(dragon[move]['rtime']/(1 + stats['aspd']))
+            real_time[index] = find_speed(move, dragon[move]['rtime'], stats['aspd'])
             real_damage[index] = damage
             if instruction['input type'] == 'frames':
                 constr_val = frames
