@@ -7,40 +7,24 @@ def make_getIndex(tree):
         return tree[state][varname]
     return getIndex
 
-def map_dict(old_dict, mapping):
-    '''Provides re-keying for specific nested keys in a dict.
+def normal_staircase(ClassInstance, upto):
+    for i in range(1, upto):
+        ClassInstance.add_const(['Normal', 'Normal'], [i, i+1], [-1, 1], '<=', 0)
+    ClassInstance.add_const(['Normal', 'Normal'], [upto, 'W'], [-1, 1], '<=', 0)
 
-    Maps a dictionary to a different dictionary with identical values,
-    but differing keys. If a mapping is not provided, defaults to the
-    original key-value pair. Right now this is exclusively for the
-    second set of keys in a nested dictionary with a known format, but
-    may be generalized at a later date.
+def one_dummy_staircase(ClassInstance, upto, d1state, d1):
+    for i in range(1, upto):
+        ClassInstance.add_const(['Normal', 'Normal', d1state], [i, i+1, i], [-1, 1, d1], '<=', 0)
+    ClassInstance.add_const(['Normal', 'Normal', d1state], [upto, 'W', upto], [-1, 1, d1], '<=', 0)
 
-    Parameters
-    ----------
-    old_dict : { }
-        The dictionary to be re-keyed.
-    mapping: { }
-        A dictionary mapping from old to new keys.
-    
-    Returns
-    -------
-    new_dict: { }
-        A dictionary identical to old_dict, but with different key names.
-    '''
+def two_dummy_staircase(ClassInstance, upto, d1state, d1, d2state, d2):
+    for i in range(1, upto):
+        ClassInstance.add_const(['Normal', 'Normal', d1state, d2state], [i, i+1, i, i], [-1, 1, d1, d2], '<=', 0)
+    ClassInstance.add_const(['Normal', 'Normal', d1state, d2state], [upto, 'W', upto, upto], [-1, 1, d1, d2], '<=', 0)
 
-    new_dict = {}
-    for k, v in old_dict.items():
-        if k == 'size':
-            new_dict[k] = v
-            continue
-        new_dict[k] = {}
-        for k2, v2 in v.items():
-            try:
-                new_dict[k][mapping[k2]] = v2
-            except KeyError:
-                new_dict[k][k2] = v2
-    return new_dict
+def double_staircase(ClassInstance, upto, state1, val1, state2, val2):
+    for i in range(1, upto+1):
+        ClassInstance.add_const([state1, state2], [i, i], [val1, val2], '<=', 0)
 
 def build_tree(states, include_all=[]):
     '''Maps strings to the indices of decision variables.
@@ -83,7 +67,7 @@ def build_tree(states, include_all=[]):
             for move in include_all:
                 tree[state][move] = index
                 index += 1
-    tree['size'] = index - 1
+    tree['size'] = index
     return tree
 
 class NumpyEncoder(json.JSONEncoder):
