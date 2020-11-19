@@ -1,10 +1,23 @@
 import numpy as np
+import math
 import os
 import json
+
+def set_constraint(constraint, index, row, value):
+    constraint[row, index] = value
+
+def haste_sp(move, modifier):
+    return math.ceil(move['sp']*(1 + modifier))
 
 def fetch_dragon(dname):
     dragon = json.load(os.getcwd() + '/dragons/' + dname + '.json')
     return dragon
+
+def apply_rhs(input_type, row, rhs, infoset):
+    if input_type == 'skill':
+        rhs[row] = 1 if infoset['skill'] else 0
+    else:
+        rhs[row] = infoset[input_type]
 
 def get_map(dragon):
     mapping = {}
@@ -14,6 +27,13 @@ def get_map(dragon):
         if v['mapnum']:
             mapping[v['mapnum']] = k
     return mapping
+
+def apply_boost(stats, effect):
+    if effect['type']:
+        if effect['type'] == 'bog':
+            stats[effect['type']] = True
+        else:
+            stats[effect['type']] += effect['value']
 
 def map_dict(old_dict, mapping):
     '''Provides re-keying for specific nested keys in a dict.
@@ -71,17 +91,23 @@ def fetch_template(dragclass, boost):
 
 def make_dformula(mode):
     if mode == 'puremod':
-        def dformula(stats, base_mod, atype):
+        def dformula(stats, base_mod):
             return base_mod
     else:
-        def dformula(stats, base_mod, atype):
+        def dformula(stats, move):
+            base_mod = move['damage']
+            atype = move['type']
             if stats['inspired'] and atype == 's':
                 critc = 1
             else:
                 critc = min(stats['critchance'], 1)
             if atype == 's':
                 pskd = (stats['passiveskd'] + 0.5) if stats['energized'] else stats['passiveskd']
-                skdcoeff = (1 + pskd)*(1 + stats['buffskd'])*(1 + stats['coabskd'])
+                skdcoeff = (
+                    (1 + pskd)
+                    *(1 + stats['buffskd'])
+                    *(1 + stats['coabskd'])
+                )
             else:
                 skdcoeff = 1
             if stats['broken']:
@@ -91,10 +117,29 @@ def make_dformula(mode):
                 breakcoeff = 1
                 bpun = 1
             critcoeff = critc*(1.7 + stats['critmod'])
-            strcoeff = stats['basestr']*(1 + stats['passivestr'])*(1 + stats['activestr'])*(1 + stats['coabstr'])
-            defcoeff = stats['basedef']*max((1-stats['defmod']), 0.5)*breakcoeff
             puncoeff = stats['afflicpun']*bpun
-            damage = (5*strcoeff*base_mod*critcoeff*puncoeff*skdcoeff*stats['eleadv']*stats['dboost'])/(3*defcoeff)
+            strcoeff = (
+                stats['basestr']
+                *(1 + stats['passivestr'])
+                *(1 + stats['activestr'])
+                *(1 + stats['coabstr'])
+            )
+            defcoeff = (
+                stats['basedef']
+                *max((1-stats['defmod']), 0.5)
+                *breakcoeff
+            )
+            damage = (
+                (5/3)
+                *strcoeff
+                *base_mod
+                *critcoeff
+                *puncoeff
+                *skdcoeff
+                *stats['eleadv']
+                *stats['dboost']
+                /defcoeff
+            )
             if stats['bog']:
                 damage *= 1.5
             return round(damage, 2)
@@ -107,30 +152,43 @@ def dragon_template(dragon, mode):
     template['state tree'] = map_dict(template['state tree'], get_map(cur_dragon))
     return template, cur_dragon
 
-def format_lp(template, dragon, infoset, getIndex):
+def format_constraints(template, dragon, infoset, getIndex):
     dformula = make_dformula(infoset['mode'])
+    real_time = np.zeros(template['state tree']['size'])
+    real_damage = np.zeros(template['state tree']['size'])
+    stats = infoset['stats']
+
     if infoset['mode'] == 'effmod':
-        infoset['stats']['basestr'] = 1
-    # basically, go on in and edit (as necessary):
-    # presence of skill       [-1]
-    # total frames            [-2]
-    # buff frames             [-3]
-    # buff frames 2           [-4]
-    # buff frames 3 (overlap) [-5]
-    # buff frames 4           [-6]
-    # sp 1                    [-7]
-    # sp 2                    [-8]
-    # overlap 1               [-9]
-    # overlap 2               [-10]
-    # second skill selection  [-11]
-    # usually it's just gonna be indices -1 through -3
-    # make a way to figure out what doesn't exist
-    # make the vector for the final damage constraint here too, 
-    #   so you can just pass it to the actual solution method
+        stats['basestr'] = 1
+    for instruction in template['instructions']:
+        if instruction['state'] == 'rhs':
+            apply_rhs(
+                instruction['input type'], 
+                instruction['row'], 
+                template['rhs'], 
+                infoset
+            )
+            continue
+        for move in template['state tree'][instruction['state']]:
+            if move in instruction['omit']:
+                continue
+            index = getIndex(instruction['state'], move)
+            damage = dformula(stats, dragon[move])
+            frames = math.ceil(dragon[move]['dtime']/(1 + stats['aspd']))
 
-    
-
-
-    
-
-
+            real_time[index] = math.ceil(dragon[move]['rtime']/(1 + stats['aspd']))
+            real_damage[index] = damage
+            if instruction['input type'] == 'frames':
+                constr_val = frames
+            elif instruction['input type'] == 'sp':
+                constr_val = -1*haste_sp(dragon[move], stats['ahst'])
+            elif instruction['input type'] == 'realframes':
+                constr_val = real_time[index]
+            
+            set_constraint(
+                template['constraints'], 
+                index, instruction['row'], 
+                constr_val
+            )     
+        apply_boost(stats, dragon[template['boost on']]['effect'])
+    return real_time, real_damage

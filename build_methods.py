@@ -85,6 +85,11 @@ class Make_Constraints:
         self.constraints[self.getIndex('Normal', 'T')] = 1
         self.direction = ['==']
         self.rhs = [1]
+        self.instructions = []
+        self.booston = 'S'
+
+    def set_booston(self, val):
+        self.booston = val
 
     def add_const(self, states, moves, values, direct, rhside):
         constr = np.zeros(self.objlen)
@@ -93,6 +98,28 @@ class Make_Constraints:
         for i in range(0, len(states)):
             constr[self.getIndex(states[i], moves[i])] = values[i]
         self.constraints = np.vstack(self.constraints, constr)
+    
+    def add_instruct(self, state, row, value, omit, boostnum):
+        # NOTE: instructions are to be strictly ordered
+        self.instructions.append({
+            'state' : state,      # any valid state or 'rhs'
+            'row' : row,
+            'input type' : value, # 'frames', 'sp', 'realframes' | 'transform time', 'buff time', 'skill'
+            'omissions' : omit,   # a list indicating moves to skip, ie: ['W', 'D', 'S']
+            'boosts' : boostnum,  # the number of boosts present for this state
+        })
+        # presence of skill       [-1]
+        # total frames            [-2]
+        # buff frames             [-3]
+        # buff frames 2           [-4]
+        # buff frames 3 (overlap) [-5]
+        # buff frames 4           [-6]
+        # sp 1                    [-7]
+        # sp 2                    [-8]
+        # overlap 1               [-9]
+        # overlap 2               [-10]
+        # second skill selection  [-11]
+    
 
     def to_file(self, tag):
         outbound = {
@@ -100,7 +127,9 @@ class Make_Constraints:
             'state tree' : self.obj,
             'constraints' : self.constraints,
             'direction' : self.direction,
-            'rhs' : self.rhs
+            'rhs' : self.rhs,
+            'instructions' : self.instructions,
+            'boost on' : self.booston
         }
 
         filepath = os.getcwd() + '/lptemplates/' + tag
