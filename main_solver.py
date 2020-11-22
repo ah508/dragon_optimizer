@@ -72,12 +72,33 @@ faux_infoset = {
     }
 }
 
+def get_transform_frames(minframe, dragon, statetree, time, getIndex):
+    tframe = minframe
+    for state in statetree:
+        if state == 'size':
+            continue
+        for move in statetree[state]:
+            i = getIndex(state, move)
+            if dragon[move]['rtime'] != dragon[move]['dtime']:
+                tframe -= time[i]
+    return tframe
+
 def solve(infoset):
     template, dragon = dragon_template(infoset['dragon'], infoset['mode'])
     # print(template['state tree'])
     getIndex = make_getIndex(template['state tree'])
     real_time, real_damage = format_constraints(template, dragon, infoset, getIndex)
     max_damage, min_frames, solution = get_lp_solution(template, real_time, real_damage)
-    return max_damage, min_frames, solution
+    tframes = get_transform_frames(min_frames, dragon, template['state tree'], real_time, getIndex)
 
-ma, mi, so = solve(faux_infoset)
+    print('SOLUTION:')
+    print(f'max damage: {max_damage}')
+    print(f'min frames: {min_frames}')
+    print(f'transform frames: {tframes}')
+    print(' ')
+    print('SEQUENCE')
+    print('--------')
+    for k, v in solution.items():
+        print(f'{k}       {v}')
+
+solve(faux_infoset)

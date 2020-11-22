@@ -186,6 +186,7 @@ def format_constraints(template, dragon, infoset, getIndex):
     real_time = np.zeros(template['state tree']['size'])
     real_damage = np.zeros(template['state tree']['size'])
     stats = infoset['stats']
+    real_damage[0] = dformula(stats, dragon['T']['ndamage'], dragon['T']['type'])
     if template['boost on']:
         infoset['buff duration'] = get_duration(dragon, 
                                                 template['boost on'], 
