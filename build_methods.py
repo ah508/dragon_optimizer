@@ -82,11 +82,11 @@ class Make_Constraints:
         self.getIndex = make_getIndex(obj)
         self.objlen = obj['size']
         self.constraints = np.zeros(self.objlen)
-        self.constraints[self.getIndex('Normal', 'T')] = 1
+        self.constraints[self.getIndex('Transform', 'T')] = 1
         self.direction = ['==']
         self.rhs = [1]
         self.instructions = []
-        self.booston = 'S'
+        self.booston = None
 
     def set_booston(self, val):
         self.booston = val
@@ -95,16 +95,17 @@ class Make_Constraints:
         constr = np.zeros(self.objlen)
         self.direction.append(direct)
         self.rhs.append(rhside)
-        for i in range(0, len(states)):
-            constr[self.getIndex(states[i], moves[i])] = values[i]
-        self.constraints = np.vstack(self.constraints, constr)
+        if states:
+            for i in range(0, len(states)):
+                constr[self.getIndex(states[i], moves[i])] = values[i]
+        self.constraints = np.vstack((self.constraints, constr))
     
     def add_instruct(self, state, row, value, omit, boostnum):
         # NOTE: instructions are to be strictly ordered
         self.instructions.append({
             'state' : state,      # any valid state or 'rhs'
             'row' : row,
-            'input type' : value, # 'frames', 'sp', 'realframes' | 'transform time', 'buff time', 'skill'
+            'input type' : value, # 'frames', 'sp', 'realframes' | 'transform time', 'buff duration', 'skill'
             'omissions' : omit,   # a list indicating moves to skip, ie: ['W', 'D', 'S']
             'boosts' : boostnum,  # the number of boosts present for this state
         })
@@ -132,6 +133,6 @@ class Make_Constraints:
             'boost on' : self.booston
         }
 
-        filepath = os.getcwd() + '/lptemplates/' + tag
+        filepath = os.getcwd() + '/lptemplates/' + tag +'.json'
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(outbound, f, cls=NumpyEncoder)
