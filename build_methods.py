@@ -1,4 +1,5 @@
 import numpy as np
+import mip
 import json
 import os
 
@@ -70,15 +71,16 @@ def build_tree(states, include_all=[]):
     tree['size'] = index
     return tree
 
-class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return json.JSONEncoder.default(self, obj)
+# class NumpyEncoder(json.JSONEncoder):
+#     def default(self, obj):
+#         if isinstance(obj, np.ndarray):
+#             return obj.tolist()
+#         return json.JSONEncoder.default(self, obj)
 
 class Make_Constraints:
     def __init__(self, obj):
         self.obj = obj
+        self.model = mip.Model()
         self.getIndex = make_getIndex(obj)
         self.objlen = obj['size']
         self.constraints = np.zeros(self.objlen)
@@ -86,10 +88,13 @@ class Make_Constraints:
         self.direction = ['==']
         self.rhs = [1]
         self.instructions = []
-        self.booston = None
+        self.state_order = ['Transform', 'Normal']
+        self.boost_on = None
+        self.boost_num = 0
 
-    def set_booston(self, val):
-        self.booston = val
+    def set_boost(self, boost_on, max_boosts):
+        self.boost_on = boost_on
+        self.boost_num = max_boosts
 
     def add_const(self, states, moves, values, direct, rhside):
         constr = np.zeros(self.objlen)
@@ -99,15 +104,85 @@ class Make_Constraints:
             for i in range(0, len(states)):
                 constr[self.getIndex(states[i], moves[i])] = values[i]
         self.constraints = np.vstack((self.constraints, constr))
+        # some will argue that with mip this is redundant and uneccessary
+        # while that may be true, I already have the code, and since this
+        # is just for the setup scripts, performance isn't my biggest concern
+
+    def remap_dict(self, mapping):
+        '''Provides re-keying for specific nested keys in a dict.
+
+        Maps a dictionary to a different dictionary with identical values,
+        but differing keys. If a mapping is not provided, defaults to the
+        original key-value pair. Right now this is exclusively for the
+        second set of keys in a nested dictionary with a known format, but
+        may be generalized at a later date.
+
+        Parameters
+        ----------
+        old_dict : { }
+            The dictionary to be re-keyed.
+        mapping: { }
+            A dictionary mapping from old to new keys.
+        
+        Returns
+        -------
+        new_dict: { }
+            A dictionary identical to old_dict, but with different key names.
+        '''
+
+        new_dict = {}
+        for k, v in self.obj.items():
+            if k == 'size':
+                new_dict[k] = v
+                continue
+            new_dict[k] = {}
+            for k2, v2 in v.items():
+                try:
+                    new_dict[k][mapping[k2]] = v2
+                except KeyError:
+                    new_dict[k][k2] = v2
+        self.obj = new_dict
+
+    def make_vars(self):
+        self.varrange = [0]*self.objlen
+        for state in self.obj:
+            if state == 'size':
+                continue
+            for move in self.obj[state]:
+                i = self.obj[state][move]
+                self.varrange[i] = self.model.add_var(name=state+move, var_type=mip.INTEGER)
+
+    def constr_to_mip(self):
+        for i in range(len(self.constraints)):
+            if self.direction[i] == '<=':
+                self.model += (
+                    mip.xsum(self.constraints[i, j]*self.varrange[j] for j in range(self.objlen)) 
+                    <= self.rhs[i]
+                )
+            elif self.direction[i] == '==':
+                self.model += (
+                    mip.xsum(self.constraints[i, j]*self.varrange[j] for j in range(self.objlen)) 
+                    <= self.rhs[i]
+                )
+            elif self.direction[i] == '>=':
+                self.model += (
+                    mip.xsum(self.constraints[i, j]*self.varrange[j] for j in range(self.objlen)) 
+                    <= self.rhs[i]
+                )
     
-    def add_instruct(self, state, row, value, omit, boostnum):
-        # NOTE: instructions are to be strictly ordered
+    def new_state_order(self, states):
+        self.state_order = states
+
+    def add_instruct(self, states, moves, cvalue, direction, rhsvalue, preset=[]):#, omit, boostnum):
+        # NOTE: states must be strictly ordered
+        # NOTE: first instruction must *always* list states in order of
         self.instructions.append({
-            'state' : state,      # any valid state or 'rhs'
-            'row' : row,
-            'input type' : value, # 'frames', 'sp', 'realframes' | 'transform time', 'buff duration', 'skill'
-            'omissions' : omit,   # a list indicating moves to skip, ie: ['W', 'D', 'S']
-            'boosts' : boostnum,  # the number of boosts present for this state
+            'states' : states,       # a vector of states where these apply
+            'moves' : moves,         # the moves in each state that are affected
+            'input type' : cvalue,   # 'frames', 'sp', 'realframes' 
+            'direction' : direction, # '<=', '==', '>='
+            'rhs' : rhsvalue,        # 'transform time', 'buff duration', 'skill', 0
+            'preset' : preset        # a list of dictionaries {state, move, value}
         })
         # presence of skill       [-1]
         # total frames            [-2]
@@ -126,13 +201,13 @@ class Make_Constraints:
         outbound = {
             'name' : tag,
             'state tree' : self.obj,
-            'constraints' : self.constraints,
-            'direction' : self.direction,
-            'rhs' : self.rhs,
+            'state order' : self.state_order,
             'instructions' : self.instructions,
-            'boost on' : self.booston
+            'boost on' : self.boost_on,
+            'boost num' : self.boost_num
         }
 
-        filepath = os.getcwd() + '/lptemplates/' + tag +'.json'
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(outbound, f, cls=NumpyEncoder)
+        filepath = os.getcwd() + '/lptemplates/'
+        self.model.write(filepath + 'lpfiles/' + tag + '.lp')
+        with open(filepath + tag + '.json', 'w', encoding='utf-8') as f:
+            json.dump(outbound, f)#, cls=NumpyEncoder)

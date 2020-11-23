@@ -1,10 +1,6 @@
-import numpy as np
 import math
 import os
 import json
-
-def set_constraint(constraint, index, row, value):
-    constraint[row, index] = value
 
 def haste_sp(move, modifier):
     return math.ceil(move['sp']*(1 + modifier))
@@ -14,98 +10,35 @@ def find_speed(move, base, modifier):
         return base
     return math.ceil(base/(1 + modifier))
 
-def get_duration(dragon, move, speed):
+def get_duration(dragon, move, speed, bufftime):
     bstart = find_speed(move, dragon[move]['effect']['timing'], speed)
     skend = find_speed(move, dragon[move]['rtime'], speed)
-    return dragon[move]['effect']['duration'] - skend + bstart
+    buff_dur = dragon[move]['effect']['duration']*(1 + bufftime)
+    return buff_dur - skend + bstart
 
-def fetch_dragon(dname):
-    with open(os.getcwd() + '/dragons/' + dname + '.json') as f:
-        dragon = json.loads(f.read())
-    return dragon
-
-def apply_rhs(input_type, row, rhs, infoset):
-    if input_type == 'skill':
-        rhs[row] = 1 if infoset['skill'] else 0
-    else:
-        rhs[row] = infoset[input_type]
-
-def get_map(dragon):
-    mapping = {}
-    for k, v in dragon.items():
-        if k == 'class':
+#NOTE: may get replaced depending on behavior of model.vars
+def get_model_variables(model, state_tree, getIndex):
+    ref_vec = [0] * state_tree['size']
+    for state in state_tree:
+        if state == 'size':
             continue
-        if v['mapnum']:
-            mapping[v['mapnum']] = k
-    return mapping
+        for move in state_tree[state]:
+            index = getIndex(state, move)
+            ref_vec[index] = model.var_by_name(state+move)
+    return ref_vec
 
 def apply_boost(stats, effect):
     if isinstance(effect['type'], list):
         for i in range(len(effect['type'])):
-            if effect['type'][i] == 'bog':
+            if effect['type'][i] in ['bog', 'energized', 'inspired']:
                 stats[effect['type']] = True
             else:
                 stats[effect['type']] += effect['value'][i]
     elif effect['type']:
-        if effect['type'] == 'bog':
+        if effect['type'] in ['bog', 'energized', 'inspired']:
             stats[effect['type']] = True
         else:
             stats[effect['type']] += effect['value']
-
-def map_dict(old_dict, mapping):
-    '''Provides re-keying for specific nested keys in a dict.
-
-    Maps a dictionary to a different dictionary with identical values,
-    but differing keys. If a mapping is not provided, defaults to the
-    original key-value pair. Right now this is exclusively for the
-    second set of keys in a nested dictionary with a known format, but
-    may be generalized at a later date.
-
-    Parameters
-    ----------
-    old_dict : { }
-        The dictionary to be re-keyed.
-    mapping: { }
-        A dictionary mapping from old to new keys.
-    
-    Returns
-    -------
-    new_dict: { }
-        A dictionary identical to old_dict, but with different key names.
-    '''
-
-    new_dict = {}
-    for k, v in old_dict.items():
-        if k == 'size':
-            new_dict[k] = v
-            continue
-        new_dict[k] = {}
-        for k2, v2 in v.items():
-            try:
-                new_dict[k][mapping[k2]] = v2
-            except KeyError:
-                new_dict[k][k2] = v2
-    return new_dict
-
-def fetch_template(dragclass, boost):
-    if dragclass['forbidden']:
-        raise NotImplementedError('Dragon not implemented')
-    if dragclass['special']:
-        tempname = dragclass['special']
-    else:
-        tempname = dragclass['hit'] + 'hit' + dragclass['skill']
-        if dragclass['buff'] and boost:
-            tempname = tempname + 'boost'
-        if dragclass['dash']:
-            tempname = tempname + dragclass['dash']
-    try:
-        with open(os.getcwd() + '/lptemplates/' + tempname + '.json') as f:
-            template = json.loads(f.read())
-    except FileNotFoundError:
-        raise NotImplementedError(f'Template {tempname} not implemented')
-    template['constraints'] = np.asarray(template['constraints'])
-    template['rhs'] = np.asarray(template['rhs'])
-    return template
 
 def make_dformula(mode):
     if mode == 'puremod':
@@ -173,52 +106,28 @@ def make_dformula(mode):
             return round(damage, 2)
     return dformula
 
-def dragon_template(dragon, mode):
-    cur_dragon = fetch_dragon(dragon)
-    boost = False if mode == 'puremod' else True
-    template = fetch_template(cur_dragon['class'], boost)
-    template['state tree'] = map_dict(template['state tree'], 
-                                      get_map(cur_dragon))
-    return template, cur_dragon
-
-def format_constraints(template, dragon, infoset, getIndex):
-    dformula = make_dformula(infoset['mode'])
-    real_time = np.zeros(template['state tree']['size'])
-    real_damage = np.zeros(template['state tree']['size'])
-    stats = infoset['stats']
-    real_damage[0] = dformula(stats, dragon['T']['ndamage'], dragon['T']['type'])
-    if template['boost on']:
-        infoset['buff duration'] = get_duration(dragon, 
-                                                template['boost on'], 
-                                                stats['aspd'])
-    # NOTE: if the buff is attack speed, this results in inaccurate handling
-    # this can be fixed with relative easy, for whoever next works on this
-    
-    if infoset['mode'] == 'effmod':
-        stats['basestr'] = 1
-    for instruction in template['instructions']:
-        if instruction['state'] == 'rhs':
-            apply_rhs(
-                instruction['input type'], 
-                instruction['row'], 
-                template['rhs'], 
-                infoset)
-            continue
-
+def get_state_values(state_order, template, dragon, stats, getIndex, dformula):
+    state_tree = template['state tree']
+    obj_len = state_tree['size']
+    real_time = [0] * obj_len
+    drag_time = [0] * obj_len
+    real_damage = [0] * obj_len
+    sp_gen = [0] * obj_len
+    for state in state_order:
         hold = []
-        for move in template['state tree'][instruction['state']]:
-            if move in instruction['omissions']:
-                continue
-            index = getIndex(instruction['state'], move)
-            frames = find_speed(
-                move, 
-                dragon[move]['dtime'], 
-                stats['aspd'])
+        for move in state_tree[state]:
+            index = getIndex(state, move)
+            drag_time[index] = find_speed(move, 
+                                          dragon[move]['dtime'], 
+                                          stats['aspd'])
+            real_time[index] = find_speed(stats,
+                                          dragon[move]['rtime'],
+                                          stats['aspd'])
+            real_damage[index] = dformula(stats, 
+                                          dragon[move]['ndamage'], 
+                                          dragon[move]['type'])
+            sp_gen[index] = haste_sp(dragon[move], stats['ahst'])
 
-            real_damage[index] = dformula(
-                stats, 
-                dragon[move]['ndamage'], 
-                dragon[move]['type'])
             if dragon[move]['bdamage'] and move != template['boost on']:
                 real_damage[index] += dformula(stats, 
                                                dragon[move]['bdamage'], 
@@ -228,22 +137,39 @@ def format_constraints(template, dragon, infoset, getIndex):
                 hold.append(dragon[move]['bdamage'])
                 hold.append(dragon[move]['type'])
 
-            real_time[index] = find_speed(move, 
-                                          dragon[move]['rtime'], 
-                                          stats['aspd'])
-            if instruction['input type'] == 'frames':
-                constr_val = frames
-            elif instruction['input type'] == 'sp':
-                constr_val = -1*haste_sp(dragon[move], stats['ahst'])
-            elif instruction['input type'] == 'realframes':
-                constr_val = real_time[index]
-            
-            set_constraint(
-                template['constraints'], 
-                index, instruction['row'], 
-                constr_val)
         if template['boost on']:
             apply_boost(stats, dragon[template['boost on']]['effect'])
             if hold:
                 real_damage[hold[0]] += dformula(stats, hold[1], hold[2])
-    return real_time, real_damage
+
+    return {
+        'frames' : drag_time,
+        'realframes': real_time,
+        'damage' : real_damage,
+        'sp' : sp_gen
+    }
+
+def generate_state_stats(template, dragon, infoset, getIndex):
+    dformula = make_dformula(infoset['mode'])
+    stats = infoset['stats']
+    if infoset['mode'] == 'effmod':
+        stats['basestr'] = 1
+    
+    state_values = get_state_values(template['state order'], 
+                                    template, 
+                                    dragon, 
+                                    stats, 
+                                    getIndex,
+                                    dformula)
+    if template['boost on']:
+        # NOTE: if the buff is attack speed, this results in inaccurate handling
+        # this can be fixed with relative ease, for whoever next works on this
+        state_values['buff duration'] = get_duration(dragon, 
+                                                     template['boost on'], 
+                                                     stats['aspd'],
+                                                     stats['bufftime'])
+    state_values['transform time'] = infoset['transform time']
+    state_values['skill'] = min(dragon['class']['skill'], infoset['skill'])
+                            
+    return state_values
+
