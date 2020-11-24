@@ -8,22 +8,22 @@ def make_getIndex(tree):
         return tree[state][varname]
     return getIndex
 
-def normal_staircase(ClassInstance, upto):
+def n_stair(ClassInstance, upto):
     for i in range(1, upto):
         ClassInstance.add_const(['Normal', 'Normal'], [i, i+1], [-1, 1], '<=', 0)
     ClassInstance.add_const(['Normal', 'Normal'], [upto, 'W'], [-1, 1], '<=', 0)
 
-def one_dummy_staircase(ClassInstance, upto, d1state, d1):
+def one_d_stair(ClassInstance, upto, state1, d1state, d1):
     for i in range(1, upto):
-        ClassInstance.add_const(['Normal', 'Normal', d1state], [i, i+1, i], [-1, 1, d1], '<=', 0)
-    ClassInstance.add_const(['Normal', 'Normal', d1state], [upto, 'W', upto], [-1, 1, d1], '<=', 0)
+        ClassInstance.add_const([state1, state1, d1state], [i, i+1, i], [-1, 1, d1], '<=', 0)
+    ClassInstance.add_const([state1, state1, d1state], [upto, 'W', upto], [-1, 1, d1], '<=', 0)
 
-def two_dummy_staircase(ClassInstance, upto, d1state, d1, d2state, d2):
+def two_d_stair(ClassInstance, upto, state1, d1state, d1, d2state, d2):
     for i in range(1, upto):
-        ClassInstance.add_const(['Normal', 'Normal', d1state, d2state], [i, i+1, i, i], [-1, 1, d1, d2], '<=', 0)
-    ClassInstance.add_const(['Normal', 'Normal', d1state, d2state], [upto, 'W', upto, upto], [-1, 1, d1, d2], '<=', 0)
+        ClassInstance.add_const([state1, state1, d1state, d2state], [i, i+1, i, i], [-1, 1, d1, d2], '<=', 0)
+    ClassInstance.add_const([state1, state1, d1state, d2state], [upto, 'W', upto, upto], [-1, 1, d1, d2], '<=', 0)
 
-def double_staircase(ClassInstance, upto, state1, val1, state2, val2):
+def sep_stair(ClassInstance, upto, state1, val1, state2, val2):
     for i in range(1, upto+1):
         ClassInstance.add_const([state1, state2], [i, i], [val1, val2], '<=', 0)
 
@@ -151,6 +151,7 @@ class Make_Constraints:
             for move in self.obj[state]:
                 i = self.obj[state][move]
                 self.varrange[i] = self.model.add_var(name=state+move, var_type=mip.INTEGER)
+        self.model.objective = mip.xsum(1*self.varrange[i] for i in range(self.objlen))
 
     def constr_to_mip(self):
         for i in range(len(self.constraints)):

@@ -3,13 +3,11 @@ import mip
 def get_constraint(instruction, state_tree, state_values, getIndex):
     constraint = [0] * state_tree['size']
     input_type = instruction['input type']
-    print(input_type)
     switch_c = -1 if input_type == 'sp' else 1
     if instruction['states']:
         for state in instruction['states']:
             for move in instruction['moves']:
                 index = getIndex(state, move)
-                print(index)
                 if move == 'S':
                     constraint[index] = 1
                 else:
@@ -23,7 +21,10 @@ def get_constraint(instruction, state_tree, state_values, getIndex):
 def set_model_constraints(model, varrange, template, state_values, getIndex):
     obj_len = template['state tree']['size']
     for instruction in template['instructions']:
-        rhs = state_values[instruction['rhs']]
+        if isinstance(instruction['rhs'], str):
+            rhs = state_values[instruction['rhs']]
+        else:
+            rhs = instruction['rhs']
         constraint = get_constraint(instruction, 
                                     template['state tree'], 
                                     state_values, 
@@ -63,4 +64,8 @@ def solve_model(model, varrange, state_values, min_frames=True):
     for v in model.vars:
        if abs(v.x) > 1e-6: # only printing non-zeros
           print('{} : {}'.format(v.name, v.x))
+    print(solution['max damage'])
+    print(solution['min r_frames'])
+    print(solution['min d_frames'])
+    print(solution['dps'])
     return solution

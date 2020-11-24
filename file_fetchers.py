@@ -11,7 +11,7 @@ def fetch_key(dragclass, boost):
         raise NotImplementedError('Dragon not implemented')
     tempname = dragclass['key']
     if boost:
-        tempname = tempname + 'B' + dragclass['buff']
+        tempname = tempname + 'B' + str(dragclass['buff'])
     else:
         tempname = tempname + 'B0'
     return tempname

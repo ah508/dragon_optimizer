@@ -44,7 +44,7 @@ def make_dformula(mode):
     if mode == 'puremod':
         def dformula(stats, base_mod, atype):
             return base_mod
-    else:
+    elif mode == 'effmod':
         def dformula(stats, base_mod, atype, energized=True, inspired=True):
             if stats['inspired'] and atype == 's' and inspired:
                 critc = 1
@@ -57,7 +57,7 @@ def make_dformula(mode):
                     pskd = stats['passiveskd']
                 skdcoeff = (
                     (1 + pskd)
-                    *(1 + stats['buffskd'])
+                    *(1 + stats['activeskd'])
                     *(1 + stats['coabskd'])
                 )
             else:
@@ -76,8 +76,71 @@ def make_dformula(mode):
             else:
                 breakcoeff = 1
                 bpun = 1
-            critcoeff = critc*(1.7 + stats['critmod'])
-            puncoeff = stats['afflicpun']*bpun
+            elerescoeff = 1 - stats['eleres']
+            critcoeff = 1 + critc*(0.7 + stats['critmod'])
+            print(critcoeff)
+            puncoeff = (1 + stats['afflicpun'])*bpun
+            strcoeff = (
+                stats['basestr']
+                *(1 + stats['passivestr'])
+                *(1 + stats['activestr'])
+                *(1 + stats['coabstr'])
+            )
+            defcoeff = (
+                max((1-stats['defmod']), 0.5)
+                *breakcoeff
+            )
+            damage = (
+                elerescoeff
+                *strcoeff
+                *base_mod
+                *critcoeff
+                *puncoeff
+                *skdcoeff
+                # *fscoeff
+                *stats['eleadv']
+                *stats['dboost']
+                /defcoeff
+            )
+            if stats['bog']:
+                damage *= 1.5
+            return round(damage, 2)
+    else:
+        def dformula(stats, base_mod, atype, energized=True, inspired=True):
+            if stats['inspired'] and atype == 's' and inspired:
+                critc = 1
+            else:
+                critc = min(stats['critchance'], 1)
+            if atype == 's':
+                if stats['energized'] and energized:
+                    pskd = stats['passiveskd'] + 0.5
+                else:
+                    pskd = stats['passiveskd']
+                skdcoeff = (
+                    (1 + pskd)
+                    *(1 + stats['activeskd'])
+                    *(1 + stats['coabskd'])
+                )
+            else:
+                skdcoeff = 1
+            # if atype == 'f':
+            #     fscoeff = (
+            #         (1 + stats['passivefs'])
+            #         *(1 + stats['activefs'])
+            #         *(1 + stats['coabfs'])
+            #     )
+            # else:
+            #     fscoeff = 1
+            if stats['broken']:
+                breakcoeff = stats['breakmod']
+                bpun = stats['brokepun']
+            else:
+                breakcoeff = 1
+                bpun = 1
+            elerescoeff = 1 - stats['eleres']
+            critcoeff = 1 + critc*(0.7 + stats['critmod'])
+            print(critcoeff)
+            puncoeff = (1 + stats['afflicpun'])*bpun
             strcoeff = (
                 stats['basestr']
                 *(1 + stats['passivestr'])
@@ -91,6 +154,7 @@ def make_dformula(mode):
             )
             damage = (
                 (5/3)
+                *elerescoeff
                 *strcoeff
                 *base_mod
                 *critcoeff
@@ -152,8 +216,8 @@ def get_state_values(state_order, template, dragon, stats, getIndex, dformula):
 def generate_state_stats(template, dragon, infoset, getIndex):
     dformula = make_dformula(infoset['mode'])
     stats = infoset['stats']
-    if infoset['mode'] == 'effmod':
-        stats['basestr'] = 1
+    # if infoset['mode'] == 'effmod':
+    #     stats['basestr'] = 1
     
     state_values = get_state_values(template['state order'], 
                                     template, 
