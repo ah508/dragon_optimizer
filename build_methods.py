@@ -23,9 +23,9 @@ def two_d_stair(ClassInstance, upto, state1, d1state, d1, d2state, d2):
         ClassInstance.add_const([state1, state1, d1state, d2state], [i, i+1, i, i], [-1, 1, d1, d2], '<=', 0)
     ClassInstance.add_const([state1, state1, d1state, d2state], [upto, 'W', upto, upto], [-1, 1, d1, d2], '<=', 0)
 
-def sep_stair(ClassInstance, upto, state1, val1, state2, val2):
-    for i in range(1, upto+1):
-        ClassInstance.add_const([state1, state2], [i, i], [val1, val2], '<=', 0)
+# def sep_stair(ClassInstance, upto, state1, val1, state2, val2):
+#     for i in range(1, upto+1):
+#         ClassInstance.add_const([state1, state2], [i, i], [val1, val2], '<=', 0)
 
 def build_tree(states, include_all=[]):
     '''Maps strings to the indices of decision variables.
@@ -88,7 +88,7 @@ class Make_Constraints:
         self.direction = ['==']
         self.rhs = [1]
         self.instructions = []
-        self.state_order = ['Transform', 'Normal']
+        self.state_order = [['Transform', 'Normal']]
         self.boost_on = None
         self.boost_num = 0
 

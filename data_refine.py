@@ -45,6 +45,7 @@ def make_dformula(mode):
         def dformula(stats, base_mod, atype):
             return base_mod
     elif mode == 'effmod':
+        # this expansion is messy, but I don't want to need to do the comparison in function
         def dformula(stats, base_mod, atype, energized=True, inspired=True):
             if stats['inspired'] and atype == 's' and inspired:
                 critc = 1
@@ -78,7 +79,6 @@ def make_dformula(mode):
                 bpun = 1
             elerescoeff = 1 - stats['eleres']
             critcoeff = 1 + critc*(0.7 + stats['critmod'])
-            print(critcoeff)
             puncoeff = (1 + stats['afflicpun'])*bpun
             strcoeff = (
                 stats['basestr']
@@ -177,34 +177,38 @@ def get_state_values(state_order, template, dragon, stats, getIndex, dformula):
     drag_time = [0] * obj_len
     real_damage = [0] * obj_len
     sp_gen = [0] * obj_len
-    for state in state_order:
+    for group in state_order:
         hold = []
-        for move in state_tree[state]:
-            index = getIndex(state, move)
-            drag_time[index] = find_speed(move, 
-                                          dragon[move]['dtime'], 
-                                          stats['aspd'])
-            real_time[index] = find_speed(stats,
-                                          dragon[move]['rtime'],
-                                          stats['aspd'])
-            real_damage[index] = dformula(stats, 
-                                          dragon[move]['ndamage'], 
-                                          dragon[move]['type'])
-            sp_gen[index] = haste_sp(dragon[move], stats['ahst'])
+        for state in group:
+            temp = {}
+            for move in state_tree[state]:
+                index = getIndex(state, move)
+                drag_time[index] = find_speed(move, 
+                                            dragon[move]['dtime'], 
+                                            stats['aspd'])
+                real_time[index] = find_speed(stats,
+                                            dragon[move]['rtime'],
+                                            stats['aspd'])
+                real_damage[index] = dformula(stats, 
+                                            dragon[move]['ndamage'], 
+                                            dragon[move]['type'])
+                sp_gen[index] = haste_sp(dragon[move], stats['ahst'])
 
-            if dragon[move]['bdamage'] and move != template['boost on']:
-                real_damage[index] += dformula(stats, 
-                                               dragon[move]['bdamage'], 
-                                               dragon[move]['type'])
-            elif dragon[move]['bdamage'] and move == template['boost on']:
-                hold.append(index)
-                hold.append(dragon[move]['bdamage'])
-                hold.append(dragon[move]['type'])
+                if dragon[move]['bdamage'] and move != template['boost on']:
+                    real_damage[index] += dformula(stats, 
+                                                dragon[move]['bdamage'], 
+                                                dragon[move]['type'])
+                elif dragon[move]['bdamage'] and move == template['boost on']:
+                    temp['index'] = index
+                    temp['bdamage'] = dragon[move]['bdamage']
+                    temp['type'] = dragon[move]['type']
+                    hold.append(temp)
 
         if template['boost on']:
             apply_boost(stats, dragon[template['boost on']]['effect'])
             if hold:
-                real_damage[hold[0]] += dformula(stats, hold[1], hold[2])
+                for held in hold:
+                    real_damage[held['index']] += dformula(stats, held['bdamage'], held['type'])
 
     return {
         'frames' : drag_time,

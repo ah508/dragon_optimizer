@@ -1,4 +1,5 @@
 import mip
+# import os
 
 def get_constraint(instruction, state_tree, state_values, getIndex):
     constraint = [0] * state_tree['size']
@@ -8,7 +9,7 @@ def get_constraint(instruction, state_tree, state_values, getIndex):
         for state in instruction['states']:
             for move in instruction['moves']:
                 index = getIndex(state, move)
-                if move == 'S':
+                if move == 'S' and input_type == 'skill':
                     constraint[index] = 1
                 else:
                     constraint[index] = (switch_c*state_values[input_type][index])
@@ -46,9 +47,9 @@ def solve_model(model, varrange, state_values, min_frames=True):
         'decision variables' : {} 
     }
 
-    model.max_mip_gap = 0.01
+    # testpath = os.getcwd() + '/lptemplates/lpfiles/TESTING.lp'
     model.objective = mip.maximize(mip.xsum(state_values['damage'][i]*varrange[i] for i in range(size)))
-    model.optimize()
+    model.optimize() # right here is where you'd change model properties for speed
     solution['max damage'] = model.objective_value
     if min_frames:
         model += mip.xsum(state_values['damage'][i]*varrange[i] for i in range(size)) == solution['max damage']
@@ -64,6 +65,7 @@ def solve_model(model, varrange, state_values, min_frames=True):
     for v in model.vars:
        if abs(v.x) > 1e-6: # only printing non-zeros
           print('{} : {}'.format(v.name, v.x))
+    print(model.status)
     print(solution['max damage'])
     print(solution['min r_frames'])
     print(solution['min d_frames'])
