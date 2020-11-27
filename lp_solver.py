@@ -23,6 +23,8 @@ def set_model_constraints(model, varrange, template, state_values, getIndex):
     obj_len = template['state tree']['size']
     for instruction in template['instructions']:
         if isinstance(instruction['rhs'], str):
+            if state_values[instruction['rhs']] == 'inf':
+                continue
             rhs = state_values[instruction['rhs']]
         else:
             rhs = instruction['rhs']
@@ -49,6 +51,7 @@ def solve_model(model, varrange, state_values, min_frames=True):
 
     # testpath = os.getcwd() + '/lptemplates/lpfiles/TESTING.lp'
     model.objective = mip.maximize(mip.xsum(state_values['damage'][i]*varrange[i] for i in range(size)))
+    # model.write(testpath) # a test file for debugging
     model.optimize() # right here is where you'd change model properties for speed
     solution['max damage'] = model.objective_value
     if min_frames:
@@ -66,8 +69,8 @@ def solve_model(model, varrange, state_values, min_frames=True):
        if abs(v.x) > 1e-6: # only printing non-zeros
           print('{} : {}'.format(v.name, v.x))
     print(model.status)
-    print(solution['max damage'])
-    print(solution['min r_frames'])
-    print(solution['min d_frames'])
-    print(solution['dps'])
+    print('damage: {}'.format(solution['max damage']))
+    print('realtime: {}'.format(solution['min r_frames']))
+    print('dragtime: {}'.format(solution['min d_frames']))
+    print('dps: {}'.format(solution['dps']))
     return solution
