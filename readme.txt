@@ -23,6 +23,10 @@ To run this program, you'll need some additional software installed. Namely,
 ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 
 To use the program:
+Before anything else, run template_setup.py to generate templates for the solver to use.
+Without these you actually can't do anything. Hope that they're all named correctly
+because I won't be double checking that for a few days.
+
 Run main_solver.py from the command line. To change the chosen dragon or
 selected settings, you'll need to modify the testing dictionary (also found
 in main_solver). This is jankier than the previous version. It will get better,
