@@ -11,6 +11,8 @@ def find_speed(move, base, modifier):
     return math.ceil(base/(1 + modifier))
 
 def get_duration(dragon, move, speed, bufftime):
+    if dragon[move]['effect']['duration'] == 'inf':
+        return 'inf'
     bstart = find_speed(move, dragon[move]['effect']['timing'], speed)
     skend = find_speed(move, dragon[move]['rtime'], speed)
     buff_dur = dragon[move]['effect']['duration']*(1 + bufftime)
@@ -220,9 +222,6 @@ def get_state_values(state_order, template, dragon, stats, getIndex, dformula):
 def generate_state_stats(template, dragon, infoset, getIndex):
     dformula = make_dformula(infoset['mode'])
     stats = infoset['stats']
-    # if infoset['mode'] == 'effmod':
-    #     stats['basestr'] = 1
-    
     state_values = get_state_values(template['state order'], 
                                     template, 
                                     dragon, 
