@@ -79,7 +79,7 @@ def make_dformula(mode):
             else:
                 breakcoeff = 1
                 bpun = 1
-            elerescoeff = 1 - stats['eleres']
+            elerescoeff = 1 + stats['eleres']
             critcoeff = 1 + critc*(0.7 + stats['critmod'])
             puncoeff = (1 + stats['afflicpun'])*bpun
             strcoeff = (
@@ -139,7 +139,7 @@ def make_dformula(mode):
             else:
                 breakcoeff = 1
                 bpun = 1
-            elerescoeff = 1 - stats['eleres']
+            elerescoeff = 1 + stats['eleres']
             critcoeff = 1 + critc*(0.7 + stats['critmod'])
             print(critcoeff)
             puncoeff = (1 + stats['afflicpun'])*bpun
