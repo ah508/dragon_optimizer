@@ -6,14 +6,10 @@ def fetch_dragon(dname):
         dragon = json.loads(f.read())
     return dragon
 
-def fetch_key(dragclass, boost):
+def fetch_key(dragclass):
     if dragclass['forbidden']:
         raise NotImplementedError('Dragon not implemented')
     tempname = dragclass['key']
-    if boost:
-        tempname = tempname + 'B' + str(dragclass['buff'])
-    else:
-        tempname = tempname + 'B0'
     return tempname
 
 def load_data(key, model):
