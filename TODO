@@ -1,0 +1,146 @@
+flask
+containerization
+front-end
+
+C1 C2 C3 %%            X
+    Mini Zodi          X
+    Summer Sakuya      X
+    Horus              X
+    Mini Hildy         X
+    Mym                ✓
+    Prometheus         ✓
+    Sakuya             ✓
+    Kagutsuchi         ✓
+    Rathalos           ✓
+    Dreadking Rathalos ✓
+    Ifrit              ✓
+    Phoenix            ✓
+    Erasmus            ✓
+    CS Phoenix         ✓
+    Gilgamesh          ✓
+    Epimetheus         ✓
+    HSilke             ✓
+    Lindworm           ✓
+    Unicorn            ✓
+    Jeanne             ✓
+    Liger              ✓
+    Shishimai (ban)    X
+    Takemikazuchi      ✓
+    All drakes (5)     ✓✓✓✓✓
+    All named (5)      ✓✓✓✓✓
+    Fatalis            ✓
+    Nidhogg            ✓
+    Shinobi            ✓
+    Juggernaut         ✓
+    Parallel Zodiark   ✓
+    Zodiark            ✓
+    Phantom            ✓
+    Silver Faf         ✓
+    Gold Faf           ✓
+    Poseidon           ✓
+    DYJeanne           ✓
+    Siren              ✓
+    Vody               ✓
+    Poli               ✓
+    Mercury            ✓
+    Kamuy              ✓
+    Hastur             ✓
+    Garland            ✓
+    Ariel              ✓
+    Mini Mids          ✓
+    HMS                ✓
+    Garuda             ✓
+    Stribog            ✓
+    Roc                ✓
+    Midgard            ✓
+    Yulong             ✓
+    Syvia              ✓
+    Tie Shan Gongzhu   X
+    Cat Sith           ✓
+    Andromeda          ✓
+
+C1 C2 C3 buff %%       X
+    Peng Lai           ✓
+    Azazel             X
+    Ramiel             ✓
+    Pazuzu             ✓
+    HMC                ✓
+    Bronze Faf         ✓
+    HZD                ✓
+    Silke              ✓
+    Cupid              ✓
+    Daikokuten         ✓
+    Apollo             ✓
+    Midgard0           ✓
+
+C1 C2 C3 2buff %%      ✓
+    Psiren             ✓
+
+C1 C2 C3 buffered      X
+    Pele               X
+    HJP                X
+
+Styx                   X
+    Styx               X
+
+Super Mym              X
+    Super Mym          X (boost on transform to maintain buff consistency)   
+
+Reborn Poseidon        X
+    Reborn Poseidon    X
+
+C1ab C2 C3 %%          ✓
+    Agni               ✓
+    Vayu               ✓
+
+C1 C2ab C3 %%          ✓
+    Simurgh            ✓
+    Freyja             ✓
+    Zephyr             ✓
+
+C1 C2ab C3 buffered-b  X
+    Leviathan          X
+
+C1 C2 C3ab %%          X
+    Arctos             ✓
+    HMym               ✓
+    Brunhilda          ✓
+    Jank Phoenix       ✓
+    Jupiter            ✓
+    imps (3)           ✓✓✓
+    Chthonius          ✓
+    Nyarlathotep       ✓
+    Lathna             ✓
+    Lathna(MS)         ✓
+    Maritimus          ✓
+    Ebisu              ✓
+    Hmaritimus         ✓
+    Gaibhne & Creidhne ✓
+    Barbatos           X
+
+C1 C2 C3ab buff        ✓
+    Cerb               ✓
+    Zephyr imp         ✓
+    Astral imp         ✓
+
+C1 C2 C3ab buffered    X
+    HBH                X
+
+C1 C2 C3abc 2buff      ✓
+    Mars               ✓
+
+C1 C2 C3 C4 C5 %%      ✓
+    Rush               ✓
+
+C1ab C2ab C3ab %%      ✓
+    Nimis              ✓
+
+C1 C2 C3 C4ab C5 %%    ✓
+    Long Long          ✓
+
+C1 C2 C3ab C4 C5ab %%  ✓
+    Marishiten         ✓
+
+No.
+    Thor (everything hurts)
+    Giovanni (everything hurts worse)

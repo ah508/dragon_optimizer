@@ -44,29 +44,30 @@ expected template name format:
 '''
 
 faux_infoset = {
-    'dragon' : 'Agni',
+    'dragon' : 'Midgardsormr Zero',
     'mode' : 'puremod',
     'transform time' : 600,
     'skill' : 1,
     'stats' : {
         'basestr' : 100,
-        'passivestr' : .4,
-        'activestr' : .4,
-        'coabstr' :  .1,
-        'passiveskd' : .4,
-        'activeskd' : .1,
-        'coabskd' : .15,
-        'critchance' : .2,
+        'passivestr' : 0,
+        'activestr' : 0,
+        'coabstr' :  0,
+        'passiveskd' : 0,
+        'activeskd' : 0,
+        'coabskd' : 0,
+        'critchance' : 0,
         'critmod' : 0,
         'afflicpun' : 0,
         'breakmod' : 0,
         'breakpun' : 0,
         'basedef' : 10,
         'defmod' : 0,
+        'eleres' : 0,
         'aspd' : 0, 
         'ahst' : 0,
-        'eleadv' : 1.5,
-        'dboost' : 1.4,
+        'eleadv' : 1,
+        'dboost' : 1,
         'energized' : False,
         'inspired' : False,
         'broken' : False,
@@ -78,10 +79,15 @@ faux_infoset = {
 def solve(infoset):
     # startttime = time.time()
     model = mip.Model()
+    drg = list(infoset['dragon'])
+    for i in range(len(drg)):
+        if drg[i] == ' ':
+            drg[i] = '_'
+    drg = ''.join(drg)
+    print(drg)
     # mtime = time.time() - startttime
-    dragon = fetch_dragon(infoset['dragon'])
-    boost = False if infoset['mode'] == 'puremod' else True
-    temp_key = fetch_key(dragon['class'], boost)
+    dragon = fetch_dragon(drg)
+    temp_key = fetch_key(dragon['class'])
     template = load_data(temp_key, model)
     # fetchtime = time.time() - startttime
     getIndex = make_getIndex(template['state tree'])
@@ -95,15 +101,5 @@ def solve(infoset):
     # print(fetchtime)
     # print(settime)
     # print(solvetime)
-
-    # print('SOLUTION:')
-    # print(f'max damage: {max_damage}')
-    # print(f'min frames: {min_frames}')
-    # print(f'transform frames: {tframes}')
-    # print(' ')
-    # print('SEQUENCE')
-    # print('--------')
-    # for k, v in solution.items():
-    #     print(f'{k}       {v}')
 
 solve(faux_infoset)
