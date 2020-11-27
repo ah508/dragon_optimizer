@@ -63,6 +63,7 @@ TWO_S_BOOST = {
 # giovanni (this guy is worse)
 # bufferables
 # styx
+# super mym
 
 C_3MAP = {
     1 : 'C1',
@@ -109,11 +110,11 @@ C_5MAP = {
     4 : 'C4',
     5 : 'C5'
 }
-C1AB2AB3AB_3MAP = {
+C2ABC3AB_3MAP = {
     1 : 'C1a',
-    2 : 'C1b',
-    3 : 'C2a',
-    4 : 'C2b',
+    2 : 'C2a',
+    3 : 'C2b',
+    4 : 'C2c',
     5 : 'C3a',
     6 : 'C3b'
 }
