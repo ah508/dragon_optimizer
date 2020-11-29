@@ -44,8 +44,8 @@ expected template name format:
 '''
 
 faux_infoset = {
-    'dragon' : 'Midgardsormr Zero',
-    'mode' : 'puremod',
+    'dragon' : 'Daikokuten',
+    'mode' : 'effmod',
     'transform time' : 600,
     'skill' : 1,
     'stats' : {

@@ -10,7 +10,6 @@ unfinished = [
     'Shishimai',
     'Tie_Shan_Gongzhu',
     'Summer_Konohana_Sakuya',
-    'Super_Mym',
     'Styx',
     'Reborn_Poseidon',
     'Pele',
@@ -160,7 +159,7 @@ for f in os.listdir(dpath):
         print(f'{name}  -- DODGE MISMATCH')
     if  d != 40:
         if (name, d) not in d_time_expected:
-            print(f'{name} -- UNEXPECTED {d}')
+            print('{:<22} -- UNEXPECTED {}'.format(name, d))
         elif (name, d) in d_time_expected:
             d_time_expected -= set([(name, d)])
 if d_time_expected == set():

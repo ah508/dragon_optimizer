@@ -43,6 +43,7 @@ def generate_two_boosts(constraint_class, n_attacks, d_map, file_name):
     moves = [0] * n_attacks
     for i in range(n_attacks):
         moves[i] = d_map[i+1]
+
     constraint_class.set_boost('S', 2)
     two_d_stair(constraint_class, n_attacks, 'Normal', 'Exit1_2', -1, 'Exit1_3', -1)
     one_d_stair(constraint_class, n_attacks, 'Boost1_1', 'Exit1_1', 1)
@@ -147,4 +148,38 @@ def generate_two_boosts(constraint_class, n_attacks, d_map, file_name):
         }]
     )
 
+    constraint_class.to_file(file_name)
+
+def generate_styx(constraint_class, n_attacks, d_map, file_name):
+    moves = [0] * n_attacks
+    for i in range(n_attacks):
+        moves[i] = d_map[i+1]
+
+    n_stair(constraint_class, n_attacks)
+    constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [1, 'W', 'D', 'S0', 'S1', 'S2', 'S3'], [1, -1, -1, -1, -1, -1, -1], '<=', 1)
+    constraint_class.add_const(['Normal', 'Normal'], [3, 'S1'], [-1, 1], '<=', 0)
+    constraint_class.add_const(['Normal', 'Normal'], [3, 'S2'], [-1, 2], '<=', 0)
+    constraint_class.add_const(['Normal', 'Normal'], [3, 'S3'], [-1, 3], '<=', 0)
+    constraint_class.remap_dict(d_map)
+    constraint_class.make_vars()
+    constraint_class.constr_to_mip()
+    constraint_class.new_state_order([['Transform', 'Normal']])
+    constraint_class.add_instruct(['Normal'], moves + ['W', 'D'], 'frames', '<=', 'transform time')
+    constraint_class.add_instruct(['Normal'], ['S0', 'S1', 'S2', 'S3'], 'skill', '<=', 'skill')
+    constraint_class.to_file(file_name)
+
+def generate_supmym(constraint_class, n_attacks, d_map, file_name):
+    moves = [0] * n_attacks
+    for i in range(n_attacks):
+        moves[i] = d_map[i+1]
+
+    constraint_class.set_boost('T', 1)
+    n_stair(constraint_class, n_attacks)
+    constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [1, 'W', 'D', 'S'], [1, -1, -1, -1], '<=', 1)
+    constraint_class.remap_dict(d_map)
+    constraint_class.make_vars()
+    constraint_class.constr_to_mip()
+    constraint_class.new_state_order([['Transform'], ['Normal']])
+    constraint_class.add_instruct(['Normal'], moves + ['W', 'D'], 'frames', '<=', 'transform time')
+    constraint_class.add_instruct(['Normal'], ['S0', 'S1', 'S2', 'S3'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
