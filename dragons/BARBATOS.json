@@ -1,6 +1,6 @@
 {
     "class": {
-        "forbidden": false,
+        "forbidden": true,
         "key": "TC3abC3DS1",
         "buff": 0,
         "skill": 1

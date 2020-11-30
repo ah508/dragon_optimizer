@@ -1,8 +1,8 @@
 {
     "class": {
         "forbidden": false,
-        "key": "TC3DS1B1",
-        "buff": 1,
+        "key": "C3DELAY",
+        "buff": 0,
         "skill": 1
     },
     "T": {
@@ -21,9 +21,9 @@
         "mapnum": null
     },
     "C1": {
-        "rtime": 102,
-        "dtime": 0,
-        "ndamage": 3.1,
+        "rtime": 23,
+        "dtime": 23,
+        "ndamage": 3.52,
         "bdamage": 0.0,
         "sp": 5,
         "type": "a",
@@ -36,9 +36,9 @@
         "mapnum": "1"
     },
     "C2": {
-        "rtime": 102,
-        "dtime": 0,
-        "ndamage": 3.42,
+        "rtime": 49,
+        "dtime": 49,
+        "ndamage": 3.88,
         "bdamage": 0.0,
         "sp": 5,
         "type": "a",
@@ -51,9 +51,9 @@
         "mapnum": "2"
     },
     "C3": {
-        "rtime": 102,
-        "dtime": 0,
-        "ndamage": 5.58,
+        "rtime": 78,
+        "dtime": 78,
+        "ndamage": 4.92,
         "bdamage": 0.0,
         "sp": 5,
         "type": "a",
@@ -65,9 +65,39 @@
         },
         "mapnum": "3"
     },
+    "DUMMY_S": {
+        "rtime": -24,
+        "dtime": -24,
+        "ndamage": 0.0,
+        "bdamage": 0.0,
+        "sp": 0,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": null
+    },
+    "DUMMY_E": {
+        "rtime": -24,
+        "dtime": -24,
+        "ndamage": 0.0,
+        "bdamage": 0.0,
+        "sp": 0,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": null
+    },
     "W": {
-        "rtime": 0,
-        "dtime": 0,
+        "rtime": 45,
+        "dtime": 45,
         "ndamage": 0.0,
         "bdamage": 0.0,
         "sp": 0,
@@ -96,17 +126,17 @@
         "mapnum": null
     },
     "S": {
-        "rtime": 126,
+        "rtime": 128,
         "dtime": 0,
-        "ndamage": 12.91,
+        "ndamage": 20.51,
         "bdamage": 0.0,
         "sp": 0,
         "type": "s",
         "effect": {
-            "value": 0.15,
-            "type": "afflicpun",
+            "value": null,
+            "type": null,
             "timing": null,
-            "duration": 2400
+            "duration": null
         },
         "mapnum": null
     }

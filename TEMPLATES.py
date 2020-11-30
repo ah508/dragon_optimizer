@@ -57,6 +57,17 @@ TWO_S_BOOST = {
     }
 }
 
+REBORN_POS = {
+    'Transform' : {
+        'omit' : [],
+        'include_only' : ['T']
+    },
+    'Normal' : {},
+    'End' : {
+        'omit' : [],
+        'include_only' : ['S']
+    },
+}
 # missing:
 # gala pos
 # thor (screw this guy)

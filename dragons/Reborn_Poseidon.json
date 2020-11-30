@@ -1,7 +1,7 @@
 {
     "class": {
-        "forbidden": true,
-        "key": "TC3DS1",
+        "forbidden": false,
+        "key": "reborn_pos",
         "buff": 0,
         "skill": 1
     },
@@ -20,10 +20,54 @@
         },
         "mapnum": null
     },
-
+    "C1": {
+        "rtime": 23,
+        "dtime": 23,
+        "ndamage": 5.4,
+        "bdamage": 0.00,
+        "sp": 5,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": "1"
+    },
+    "C2": {
+        "rtime": 44,
+        "dtime": 44,
+        "ndamage": 5.94,
+        "bdamage": 0.00,
+        "sp": 5,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": "2"
+    },
+    "C3": {
+        "rtime": 63,
+        "dtime": 63,
+        "ndamage": 9.72,
+        "bdamage": 0.00,
+        "sp": 5,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": "3"
+    },
     "W": {
-        "rtime": null,
-        "dtime": null,
+        "rtime": 53,
+        "dtime": 53,
         "ndamage": 0.0,
         "bdamage": 0.0,
         "sp": 0,
@@ -52,9 +96,9 @@
         "mapnum": null
     },
     "S": {
-        "rtime": null,
+        "rtime": 100,
         "dtime": 0,
-        "ndamage": null,
+        "ndamage": 17.8,
         "bdamage": 0.0,
         "sp": 0,
         "type": "s",

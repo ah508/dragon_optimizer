@@ -7,6 +7,7 @@ C1 C2 C3 %%            X
     Summer Sakuya      X
     Horus              X
     Mini Hildy         X
+    Tie Shan Gongzhu   X
     Mym                ✓
     Prometheus         ✓
     Sakuya             ✓
@@ -24,7 +25,6 @@ C1 C2 C3 %%            X
     Unicorn            ✓
     Jeanne             ✓
     Liger              ✓
-    Shishimai (ban)    X
     Takemikazuchi      ✓
     All drakes (5)     ✓✓✓✓✓
     All named (5)      ✓✓✓✓✓
@@ -55,13 +55,12 @@ C1 C2 C3 %%            X
     Midgard            ✓
     Yulong             ✓
     Syvia              ✓
-    Tie Shan Gongzhu   X
     Cat Sith           ✓
     Andromeda          ✓
 
-C1 C2 C3 buff %%       X
+C1 C2 C3 buff %%       ✓
     Peng Lai           ✓
-    Azazel             X
+    Azazel             ✓
     Ramiel             ✓
     Pazuzu             ✓
     HMC                ✓
@@ -76,9 +75,9 @@ C1 C2 C3 buff %%       X
 C1 C2 C3 2buff %%      ✓
     Psiren             ✓
 
-C1 C2 C3 buffered      X
-    Pele               X
-    HJP                X
+C1 C2 C3 buffered      ✓
+    Pele               ✓
+    HJP                ✓
 
 Styx                   X
     Styx               X
@@ -86,8 +85,8 @@ Styx                   X
 Super Mym              ✓
     Super Mym          ✓  
 
-Reborn Poseidon        X
-    Reborn Poseidon    X
+Reborn Poseidon        ✓
+    Reborn Poseidon    ✓
 
 C1ab C2 C3 %%          ✓
     Agni               ✓
@@ -98,10 +97,11 @@ C1 C2ab C3 %%          ✓
     Freyja             ✓
     Zephyr             ✓
 
-C1 C2ab C3 buffered-b  X
-    Leviathan          X
+C1 C2ab C3 buffered-b  ✓
+    Leviathan          ✓
 
 C1 C2 C3ab %%          X
+    Barbatos           X
     Arctos             ✓
     HMym               ✓
     Brunhilda          ✓
@@ -116,15 +116,14 @@ C1 C2 C3ab %%          X
     Ebisu              ✓
     Hmaritimus         ✓
     Gaibhne & Creidhne ✓
-    Barbatos           X
 
 C1 C2 C3ab buff        ✓
     Cerb               ✓
     Zephyr imp         ✓
     Astral imp         ✓
 
-C1 C2 C3ab buffered    X
-    HBH                X
+C1 C2 C3ab buffered    ✓
+    HBH                ✓
 
 C1 C2 C3abc 2buff      ✓
     Mars               ✓
@@ -132,7 +131,7 @@ C1 C2 C3abc 2buff      ✓
 C1 C2 C3 C4 C5 %%      ✓
     Rush               ✓
 
-C1ab C2ab C3ab %%      ✓
+C1 C2abc C3ab %%      ✓
     Nimis              ✓
 
 C1 C2 C3 C4ab C5 %%    ✓
@@ -144,3 +143,4 @@ C1 C2 C3ab C4 C5ab %%  ✓
 No.
     Thor (everything hurts)
     Giovanni (everything hurts worse)
+    Shishimai (actually doable but kind of a pain)

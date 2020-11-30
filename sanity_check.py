@@ -12,14 +12,9 @@ unfinished = [
     'Summer_Konohana_Sakuya',
     'Styx',
     'Reborn_Poseidon',
-    'Pele',
-    'Leviathan',
-    'High_Jupiter',
-    'High_Brunhilda',
     'Mini_Zodi',
     'Mini_Hildy',
     'Horus',
-    'Azazel',
     'Barbatos'
 ]
 forbid_expected = set(['Thor', 'Giovanni', 'Shishimai'])

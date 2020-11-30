@@ -44,7 +44,7 @@ expected template name format:
 '''
 
 faux_infoset = {
-    'dragon' : 'Daikokuten',
+    'dragon' : 'Reborn Poseidon',
     'mode' : 'effmod',
     'transform time' : 600,
     'skill' : 1,
@@ -84,7 +84,7 @@ def solve(infoset):
         if drg[i] == ' ':
             drg[i] = '_'
     drg = ''.join(drg)
-    print(drg)
+    # print(drg)
     # mtime = time.time() - startttime
     dragon = fetch_dragon(drg)
     temp_key = fetch_key(dragon['class'])
