@@ -157,7 +157,7 @@ def generate_styx(constraint_class, n_attacks, d_map, file_name):
         moves[i] = d_map[i+1]
 
     n_stair(constraint_class, n_attacks)
-    constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [1, 'W', 'D', 'S0', 'S1', 'S2', 'S3'], [1, -1, -1, -1, -1, -1, -1], '<=', 1)
+    constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal', 'Normal', 'Normal', 'Normal'], [1, 'W', 'D', 'S0', 'S1', 'S2', 'S3'], [1, -1, -1, -1, -1, -1, -1], '<=', 1)
     constraint_class.add_const(['Normal', 'Normal'], [3, 'S1'], [-1, 1], '<=', 0)
     constraint_class.add_const(['Normal', 'Normal'], [3, 'S2'], [-1, 2], '<=', 0)
     constraint_class.add_const(['Normal', 'Normal'], [3, 'S3'], [-1, 3], '<=', 0)

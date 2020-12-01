@@ -44,7 +44,7 @@ expected template name format:
 '''
 
 faux_infoset = {
-    'dragon' : 'Reborn Poseidon',
+    'dragon' : 'Styx',
     'mode' : 'effmod',
     'transform time' : 600,
     'skill' : 1,

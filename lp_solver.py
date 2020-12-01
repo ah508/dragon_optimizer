@@ -9,7 +9,7 @@ def get_constraint(instruction, state_tree, state_values, getIndex):
         for state in instruction['states']:
             for move in instruction['moves']:
                 index = getIndex(state, move)
-                if move == 'S' and input_type == 'skill':
+                if move.startswith('S') and input_type == 'skill':
                     constraint[index] = 1
                 else:
                     constraint[index] = (switch_c*state_values[input_type][index])
