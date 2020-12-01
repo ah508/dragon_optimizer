@@ -39,7 +39,7 @@ def set_model_constraints(model, varrange, template, state_values, getIndex):
         elif instruction['direction'] == '>=':
             model += mip.xsum(constraint[i]*varrange[i] for i in range(obj_len)) >= rhs
 
-def solve_model(model, varrange, state_values, min_frames=True):
+def solve_model(model, varrange, state_values, min_frames=True, output=True):
     size = len(varrange)
     solution = {
         'max damage' : 0,
@@ -52,6 +52,8 @@ def solve_model(model, varrange, state_values, min_frames=True):
     # testpath = os.getcwd() + '/lptemplates/lpfiles/TESTING.lp'
     model.objective = mip.maximize(mip.xsum(state_values['damage'][i]*varrange[i] for i in range(size)))
     # model.write(testpath) # a test file for debugging
+    if not output:
+        model.verbose = 0
     model.optimize() # right here is where you'd change model properties for speed
     solution['max damage'] = model.objective_value
     if min_frames:
@@ -64,13 +66,14 @@ def solve_model(model, varrange, state_values, min_frames=True):
           solution['min r_frames'] += varrange[i].x*state_values['realframes'][i]
           solution['min d_frames'] += varrange[i].x*state_values['frames'][i]
     solution['dps'] = round((60*solution['max damage']/solution['min r_frames']), 2)
-    print('solution:')
-    for v in model.vars:
-       if abs(v.x) > 1e-6: # only printing non-zeros
-          print('{} : {}'.format(v.name, v.x))
-    print(model.status)
-    print('damage: {}'.format(solution['max damage']))
-    print('realtime: {}'.format(solution['min r_frames']))
-    print('dragtime: {}'.format(solution['min d_frames']))
-    print('dps: {}'.format(solution['dps']))
+    if output:
+        print('solution:')
+        for v in model.vars:
+            if abs(v.x) > 1e-6: # only printing non-zeros
+                print('{} : {}'.format(v.name, v.x))
+        print(model.status)
+        print('damage: {}'.format(solution['max damage']))
+        print('realtime: {}'.format(solution['min r_frames']))
+        print('dragtime: {}'.format(solution['min d_frames']))
+        print('dps: {}'.format(solution['dps']))
     return solution

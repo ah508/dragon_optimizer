@@ -44,7 +44,7 @@ expected template name format:
 '''
 
 faux_infoset = {
-    'dragon' : 'Styx',
+    'dragon' : 'Corsaint Phoenix',
     'mode' : 'effmod',
     'transform time' : 600,
     'skill' : 1,
@@ -76,7 +76,7 @@ faux_infoset = {
     }
 }
 
-def solve(infoset):
+def solve(infoset, output=True):
     # startttime = time.time()
     model = mip.Model()
     drg = list(infoset['dragon'])
@@ -95,7 +95,8 @@ def solve(infoset):
     state_values = generate_state_stats(template, dragon, infoset, getIndex)
     # settime = time.time() - startttime
     set_model_constraints(model, ref_vec, template, state_values, getIndex)
-    solution = solve_model(model, ref_vec, state_values)
+    solution = solve_model(model, ref_vec, state_values, output=output)
+    return solution
     # solvetime = time.time() - startttime
     # print(mtime)
     # print(fetchtime)
