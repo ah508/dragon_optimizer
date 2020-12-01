@@ -33,9 +33,9 @@ def apply_boost(stats, effect):
     if isinstance(effect['type'], list):
         for i in range(len(effect['type'])):
             if effect['type'][i] in ['bog', 'energized', 'inspired']:
-                stats[effect['type']] = True
+                stats[effect['type'][i]] = True
             else:
-                stats[effect['type']] += effect['value'][i]
+                stats[effect['type'][i]] += effect['value'][i]
     elif effect['type']:
         if effect['type'] in ['bog', 'energized', 'inspired']:
             stats[effect['type']] = True
