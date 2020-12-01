@@ -1,6 +1,6 @@
 {
     "class": {
-        "forbidden": true,
+        "forbidden": false,
         "key": "styx",
         "buff": 0,
         "skill": 1
@@ -21,8 +21,8 @@
         "mapnum": null
     },
     "C1": {
-        "rtime": 1,
-        "dtime": 0,
+        "rtime": 16,
+        "dtime": 16,
         "ndamage": 3.6,
         "bdamage": 0.00,
         "sp": 5,
@@ -36,8 +36,8 @@
         "mapnum": "1"
     },
     "C2": {
-        "rtime": 1,
-        "dtime": 0,
+        "rtime": 46,
+        "dtime": 46,
         "ndamage": 3.9,
         "bdamage": 0.00,
         "sp": 5,
@@ -51,8 +51,8 @@
         "mapnum": "2"
     },
     "C3": {
-        "rtime": 1,
-        "dtime": 0,
+        "rtime": 46,
+        "dtime": 46,
         "ndamage": 1.68,
         "bdamage": 0.00,
         "sp": 5,
@@ -66,8 +66,8 @@
         "mapnum": "3"
     },
     "W": {
-        "rtime": 0,
-        "dtime": 1,
+        "rtime": 60,
+        "dtime": 60,
         "ndamage": 0.0,
         "bdamage": 0.0,
         "sp": 0,
