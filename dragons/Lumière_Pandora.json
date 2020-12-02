@@ -1,7 +1,7 @@
 {
     "class": {
-        "forbidden": true,
-        "key": null,
+        "forbidden": false,
+        "key": "TC3DS1B1",
         "buff": 1,
         "skill": 1
     },
@@ -21,9 +21,9 @@
         "mapnum": null
     },
     "C1": {
-        "rtime": 0,
-        "dtime": 1,
-        "ndamage": 4.2,
+        "rtime": 25,
+        "dtime": 25,
+        "ndamage": 5.12,
         "bdamage": 0.0,
         "sp": 5,
         "type": "a",
@@ -36,9 +36,9 @@
         "mapnum": "1"
     },
     "C2": {
-        "rtime": 0,
-        "dtime": 1,
-        "ndamage": 6.6,
+        "rtime": 40,
+        "dtime": 40,
+        "ndamage": 5.74,
         "bdamage": 0.0,
         "sp": 5,
         "type": "a",
@@ -51,9 +51,9 @@
         "mapnum": "2"
     },
     "C3": {
-        "rtime": 0,
-        "dtime": 1,
-        "ndamage": 9.0,
+        "rtime": 65,
+        "dtime": 65,
+        "ndamage": 10.53,
         "bdamage": 0.0,
         "sp": 5,
         "type": "a",
@@ -66,8 +66,8 @@
         "mapnum": "3"
     },
     "W": {
-        "rtime": 0,
-        "dtime": 1,
+        "rtime": 44,
+        "dtime": 44,
         "ndamage": 0.0,
         "bdamage": 0.0,
         "sp": 0,
@@ -96,7 +96,7 @@
         "mapnum": null
     },
     "S": {
-        "rtime": null,
+        "rtime": 130,
         "dtime": 0,
         "ndamage": 0.0,
         "bdamage": 0.0,
@@ -105,8 +105,8 @@
         "effect": {
             "value": [0.25, 0.15],
             "type": ["activestr", "critchance"],
-            "timing": null,
-            "duration": null
+            "timing": 90,
+            "duration": 900
         },
         "mapnum": null
     }

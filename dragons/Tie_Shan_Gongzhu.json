@@ -1,7 +1,7 @@
 {
     "class": {
-        "forbidden": true,
-        "key": "TC3DS1",
+        "forbidden": false,
+        "key": "TC3DS1B0",
         "buff": 0,
         "skill": 1
     },
@@ -21,9 +21,9 @@
         "mapnum": null
     },
     "C1": {
-        "rtime": null,
-        "dtime": null,
-        "ndamage": null,
+        "rtime": 28,
+        "dtime": 28,
+        "ndamage": 4.6,
         "bdamage": 0.00,
         "sp": 0,
         "type": "a",
@@ -36,9 +36,9 @@
         "mapnum": "1"
     },
     "C2": {
-        "rtime": null,
-        "dtime": null,
-        "ndamage": null,
+        "rtime": 40,
+        "dtime": 40,
+        "ndamage": 5.04,
         "bdamage": 0.00,
         "sp": 0,
         "type": "a",
@@ -51,9 +51,9 @@
         "mapnum": "2"
     },
     "C3": {
-        "rtime": null,
-        "dtime": null,
-        "ndamage": null,
+        "rtime": 42,
+        "dtime": 42,
+        "ndamage": 6.9,
         "bdamage": 0.00,
         "sp": 0,
         "type": "a",
@@ -66,8 +66,8 @@
         "mapnum": "3"
     },
     "W": {
-        "rtime": null,
-        "dtime": null,
+        "rtime": 53,
+        "dtime": 53,
         "ndamage": 0.00,
         "bdamage": 0.00,
         "sp": 0,
@@ -81,8 +81,8 @@
         "mapnum": null
     },
     "D": {
-        "rtime": null,
-        "dtime": null,
+        "rtime": 40,
+        "dtime": 40,
         "ndamage": 0.00,
         "bdamage": 0.00,
         "sp": 0,
@@ -96,9 +96,9 @@
         "mapnum": null
     },
     "S": {
-        "rtime": null,
+        "rtime": 110,
         "dtime": 0,
-        "ndamage": 0.00,
+        "ndamage": 14.0,
         "bdamage": 0.00,
         "sp": 0,
         "type": "s",
