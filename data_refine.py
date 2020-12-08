@@ -13,6 +13,11 @@ def find_speed(move, base, modifier):
 def get_duration(dragon, move, speed, bufftime):
     if dragon[move]['effect']['duration'] == 'inf':
         return 'inf'
+    if dragon[move]['effect']['type'] in ['bog', 'defmod', 'eleres']:
+        return dragon[move]['effect']['duration']
+        # this is a hacked way of doing it. 
+        # would be best to have a "extendable" parameter in dragon definition.
+        # that has the added benefit of curtailing buffzones
     bstart = find_speed(move, dragon[move]['effect']['timing'], speed)
     skend = find_speed(move, dragon[move]['rtime'], speed)
     buff_dur = dragon[move]['effect']['duration']*(1 + bufftime)
@@ -101,7 +106,7 @@ def make_dformula(mode):
                 *skdcoeff
                 # *fscoeff
                 *stats['eleadv']
-                *stats['dboost']
+                *(1 + stats['dboost'])
                 /defcoeff
             )
             if stats['bog']:
@@ -164,7 +169,7 @@ def make_dformula(mode):
                 *skdcoeff
                 # *fscoeff
                 *stats['eleadv']
-                *stats['dboost']
+                *(1 + stats['dboost'])
                 /defcoeff
             )
             if stats['bog']:
@@ -186,14 +191,14 @@ def get_state_values(state_order, template, dragon, stats, getIndex, dformula):
             for move in state_tree[state]:
                 index = getIndex(state, move)
                 drag_time[index] = find_speed(move, 
-                                            dragon[move]['dtime'], 
-                                            stats['aspd'])
+                                              dragon[move]['dtime'], 
+                                              stats['aspd'])
                 real_time[index] = find_speed(stats,
-                                            dragon[move]['rtime'],
-                                            stats['aspd'])
+                                              dragon[move]['rtime'],
+                                              stats['aspd'])
                 real_damage[index] = dformula(stats, 
-                                            dragon[move]['ndamage'], 
-                                            dragon[move]['type'])
+                                              dragon[move]['ndamage'], 
+                                              dragon[move]['type'])
                 sp_gen[index] = haste_sp(dragon[move], stats['ahst'])
 
                 if dragon[move]['bdamage'] and move != template['boost on']:
