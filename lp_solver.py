@@ -39,7 +39,7 @@ def set_model_constraints(model, varrange, template, state_values, getIndex):
         elif instruction['direction'] == '>=':
             model += mip.xsum(constraint[i]*varrange[i] for i in range(obj_len)) >= rhs
 
-def solve_model(model, varrange, state_values, min_frames=True, output=True):
+def solve_model(model, varrange, state_values, min_frames=True, output=True, relaxation=False):
     size = len(varrange)
     solution = {
         'max damage' : 0,
@@ -54,12 +54,12 @@ def solve_model(model, varrange, state_values, min_frames=True, output=True):
     # model.write(testpath) # a test file for debugging
     if not output:
         model.verbose = 0
-    model.optimize() # right here is where you'd change model properties for speed
+    model.optimize(relax=relaxation) # right here is where you'd change model properties for speed
     solution['max damage'] = model.objective_value
     if min_frames:
         model += mip.xsum(state_values['damage'][i]*varrange[i] for i in range(size)) == solution['max damage']
         model.objective = mip.minimize(mip.xsum(state_values['realframes'][i]*varrange[i] for i in range(size)))
-        model.optimize()
+        model.optimize(relax=relaxation)
     for i in range(size):
        if abs(varrange[i].x) > 1e-6: # only non-zeros
           solution['decision variables'][varrange[i].name] = varrange[i].x
