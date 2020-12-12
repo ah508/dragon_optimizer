@@ -41,39 +41,41 @@ def set_model_constraints(model, varrange, template, state_values, getIndex):
 
 def solve_model(model, varrange, state_values, min_frames=True, output=True, relaxation=False):
     size = len(varrange)
+    max_damage = 0
+    min_r_frames = 0
+    min_d_frames = 0
+    dps = 0
     solution = {
-        'max damage' : 0,
-        'min r_frames' : 0,
-        'min d_frames' : 0,
-        'dps' : 0,
-        'decision variables' : {} 
+        'dataTable' : [],
+        'decisionVariables' : []
     }
-
     # testpath = os.getcwd() + '/lptemplates/lpfiles/TESTING.lp'
     model.objective = mip.maximize(mip.xsum(state_values['damage'][i]*varrange[i] for i in range(size)))
     # model.write(testpath) # a test file for debugging
     if not output:
         model.verbose = 0
     model.optimize(relax=relaxation) # right here is where you'd change model properties for speed
-    solution['max damage'] = model.objective_value
+    max_damage = model.objective_value
     if min_frames:
-        model += mip.xsum(state_values['damage'][i]*varrange[i] for i in range(size)) == solution['max damage']
+        model += mip.xsum(state_values['damage'][i]*varrange[i] for i in range(size)) == max_damage
         model.objective = mip.minimize(mip.xsum(state_values['realframes'][i]*varrange[i] for i in range(size)))
         model.optimize(relax=relaxation)
     for i in range(size):
        if abs(varrange[i].x) > 1e-6: # only non-zeros
-          solution['decision variables'][varrange[i].name] = varrange[i].x
-          solution['min r_frames'] += varrange[i].x*state_values['realframes'][i]
-          solution['min d_frames'] += varrange[i].x*state_values['frames'][i]
-    solution['dps'] = round((60*solution['max damage']/solution['min r_frames']), 2)
+          solution['decisionVariables'].append({'id' : [varrange[i].name], 'value' : varrange[i].x})
+          min_r_frames += varrange[i].x*state_values['realframes'][i]
+          min_d_frames += varrange[i].x*state_values['frames'][i]
+    dps = round((60*max_damage/min_r_frames), 2)
+    solution['dataTable'].append({'id' : 'max damage', 'value' : max_damage})
+    solution['dataTable'].append({'id' : 'real time', 'value' : min_r_frames})
+    solution['dataTable'].append({'id' : 'dragon time', 'value' : min_d_frames})
+    solution['dataTable'].append({'id' : 'dps', 'value' : dps})
     if output:
         print('solution:')
         for v in model.vars:
             if abs(v.x) > 1e-6: # only printing non-zeros
                 print('{} : {}'.format(v.name, v.x))
         print(model.status)
-        print('damage: {}'.format(solution['max damage']))
-        print('realtime: {}'.format(solution['min r_frames']))
-        print('dragtime: {}'.format(solution['min d_frames']))
-        print('dps: {}'.format(solution['dps']))
+        for statistic in solution['dataTable']:
+            print('{:11} : {:10}'.format(statistic['id'], statistic['value']))
     return solution
