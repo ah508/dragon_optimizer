@@ -48,6 +48,9 @@ def check_input(input_dict):
                 'passiveskd',
                 'activeskd',
                 'coabskd',
+                'passivefs',
+                'activefs',
+                'coabfs',
                 'critchance',
                 'critmod',
                 'afflicpun',
@@ -77,6 +80,8 @@ def check_input(input_dict):
                 input_dict['stats'][stat] = 0
     if 'relax' not in input_dict:
         input_dict['relax'] = False
+    if 'leniency' not in input_dict:
+        input_dict['leniency'] = 0
     return False
 
 
@@ -85,6 +90,7 @@ if __name__ == "__main__":
         'dragon' : 'Corsaint Phoenix',
         'mode' : 'effmod',
         'relax' : False,
+        'leniency' : 0,
         'transform time' : 600,
         'skill' : 1,
         'stats' : {

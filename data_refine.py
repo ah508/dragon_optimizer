@@ -203,8 +203,8 @@ def get_state_values(state_order, template, dragon, stats, getIndex, dformula):
 
                 if dragon[move]['bdamage'] and move != template['boost on']:
                     real_damage[index] += dformula(stats, 
-                                                dragon[move]['bdamage'], 
-                                                dragon[move]['type'])
+                                                   dragon[move]['bdamage'], 
+                                                   dragon[move]['type'])
                 elif dragon[move]['bdamage'] and move == template['boost on']:
                     temp['index'] = index
                     temp['bdamage'] = dragon[move]['bdamage']
@@ -240,7 +240,7 @@ def generate_state_stats(template, dragon, infoset, getIndex):
                                                      template['boost on'], 
                                                      stats['aspd'],
                                                      stats['bufftime'])
-    state_values['transform time'] = infoset['transform time']
+    state_values['transform time'] = infoset['transform time'] - infoset['leniency']
     state_values['skill'] = min(dragon['class']['skill'], infoset['skill'])
                             
     return state_values
