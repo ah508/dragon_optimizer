@@ -1,9 +1,10 @@
 __pycache__/
 *.pyc
-assorted_testing.py
-assorted_testing2.py
+assorted_testing.*
+assorted_testing2.*
 moretesting.py
 .vscode
 lptemplates/*
-requirements.txt
 api.py
+requirements.txt
+testscript.py
