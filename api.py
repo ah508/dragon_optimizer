@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_restful import abort, Api, Resource
 from main_solver import solve, check_input
-from flask_jwt import JWT
 
 app = Flask(__name__)
 api = Api(app)
