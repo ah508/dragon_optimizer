@@ -5,6 +5,7 @@ assorted_testing2.*
 moretesting.py
 .vscode
 lptemplates/*
-api.py
-requirements.txt
 testscript.py
+.dockerignore
+Dockerfile
+app.py
