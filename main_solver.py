@@ -8,12 +8,13 @@ from lp_solver import set_model_constraints, solve_model
 def solve(infoset, output=True):
     startttime = time.time()
     model = mip.Model()
-    drg = list(infoset['dragon'])
+    drg = infoset['dragon']
+    try:
+        drg = drg.encode('latin1').decode('unicode_escape')
+    except UnicodeEncodeError:
+        pass
+    drg = list(drg)
     for i in range(len(drg)):
-        try:
-            drg[i] = drg[i].encode('latin1').decode('unicode_escape')
-        except UnicodeEncodeError:
-            pass
         if drg[i] == ' ':
             drg[i] = '_'
     drg = ''.join(drg)
