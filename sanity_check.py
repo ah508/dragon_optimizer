@@ -1,7 +1,8 @@
 import os
 import json
+from pathlib import Path
 
-dpath = os.getcwd() + '/dragons'
+dpath = str(Path(__file__).parent) + '/dragons'
 
 
 unfinished = [

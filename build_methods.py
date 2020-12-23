@@ -2,6 +2,7 @@ import numpy as np
 import mip
 import json
 import os
+from pathlib import Path
 
 def make_getIndex(tree):
     def getIndex(state, varname):
@@ -208,7 +209,8 @@ class Make_Constraints:
             'boost num' : self.boost_num
         }
 
-        filepath = os.getcwd() + '/lptemplates/'
+        # filepath = os.getcwd() + '/lptemplates/'
+        filepath = str(Path(__file__).parent) + '/lptemplates/'
         self.model.write(filepath + 'lpfiles/' + tag + '.lp')
         with open(filepath + tag + '.json', 'w', encoding='utf-8') as f:
             json.dump(outbound, f)#, cls=NumpyEncoder)
