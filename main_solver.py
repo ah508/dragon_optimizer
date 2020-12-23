@@ -10,6 +10,10 @@ def solve(infoset, output=True):
     model = mip.Model()
     drg = list(infoset['dragon'])
     for i in range(len(drg)):
+        try:
+            drg[i] = drg[i].encode('latin1').decode('unicode_escape')
+        except UnicodeEncodeError:
+            pass
         if drg[i] == ' ':
             drg[i] = '_'
     drg = ''.join(drg)
@@ -87,7 +91,7 @@ def check_input(input_dict):
 
 if __name__ == "__main__":
     faux_infoset = {
-        'dragon' : 'Corsaint Phoenix',
+        'dragon' : 'Poliʻahu',
         'mode' : 'effmod',
         'relax' : False,
         'leniency' : 0,
