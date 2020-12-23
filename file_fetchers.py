@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 
 def fetch_dragon(dname):
-    path = Path(__file__).parent / 'dragons' / (dname + '.json')
+    path = str(Path(__file__).parent) + '/dragons/' + dname + '.json'
     with open(path) as f:
         dragon = json.loads(f.read())
     return dragon
