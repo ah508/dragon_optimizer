@@ -66,33 +66,33 @@ def check_input(input_dict):
         if input_dict['dragon'] in banned:
             errlist.append('{} is not implemented'.format(input_dict['dragon']))
     reqstats = [
-        {'id' : 'basestr', 'default' : 1000, 't' : float},
-        {'id' : 'passivestr', 'default' : 0, 't' : float},
-        {'id' : 'activestr', 'default' : 0, 't' : float},
-        {'id' : 'coabstr', 'default' : 0, 't' : float},
-        {'id' : 'passiveskd', 'default' : 0, 't' : float},
-        {'id' : 'activeskd', 'default' : 0, 't' : float},
-        {'id' : 'coabskd', 'default' : 0, 't' : float},
-        {'id' : 'passivefs', 'default' : 0, 't' : float},
-        {'id' : 'activefs', 'default' : 0, 't' : float},
-        {'id' : 'coabfs', 'default' : 0, 't' : float},
-        {'id' : 'critchance', 'default' : 0, 't' : float},
-        {'id' : 'critmod', 'default' : 0, 't' : float},
-        {'id' : 'afflicpun', 'default' : 0, 't' : float},
-        {'id' : 'breakmod', 'default' : 0, 't' : float},
-        {'id' : 'breakpun', 'default' : 0, 't' : float},
-        {'id' : 'basedef', 'default' : 0, 't' : float},
-        {'id' : 'defmod','default' : 0, 't' : float},
-        {'id' : 'eleres', 'default' : 0, 't' : float},
-        {'id' : 'aspd', 'default' : 0, 't' : float},
-        {'id' : 'ahst', 'default' : 0, 't' : float},
-        {'id' : 'eleadv', 'default' : 1, 't' : float},
-        {'id' : 'dboost', 'default' : 0, 't' : float},
-        {'id' : 'energized', 'default' : False, 't' : bool},
-        {'id' : 'inspired', 'default' : False, 't' : bool},
-        {'id' : 'broken', 'default' : False, 't' : bool},
-        {'id' : 'bog', 'default' : False, 't' : bool},
-        {'id' : 'bufftime', 'default' : 0, 't' : float}
+        {'id' : 'basestr', 'default' : 1000, 't' : float, 'min' : 0},
+        {'id' : 'passivestr', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'activestr', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'coabstr', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'passiveskd', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'activeskd', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'coabskd', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'passivefs', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'activefs', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'coabfs', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'critchance', 'default' : 0, 't' : float, 'min' : 0},
+        {'id' : 'critmod', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'afflicpun', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'breakmod', 'default' : 0.6, 't' : float, 'min' : 1e-4},
+        {'id' : 'breakpun', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'basedef', 'default' : 10, 't' : float, 'min' : 1e-4},
+        {'id' : 'defmod','default' : 0, 't' : float, 'min' : None},
+        {'id' : 'eleres', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'aspd', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'ahst', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'eleadv', 'default' : 1, 't' : float, 'min' : None},
+        {'id' : 'dboost', 'default' : 0, 't' : float, 'min' : None},
+        {'id' : 'energized', 'default' : False, 't' : bool, 'min' : None},
+        {'id' : 'inspired', 'default' : False, 't' : bool, 'min' : None},
+        {'id' : 'broken', 'default' : False, 't' : bool, 'min' : None},
+        {'id' : 'bog', 'default' : False, 't' : bool, 'min' : None},
+        {'id' : 'bufftime', 'default' : 0, 't' : float, 'min' : None}
     ]
     s = 'stats' # this is harder to read, but it's for the sake of brevity
     for stat in reqstats:
@@ -104,6 +104,9 @@ def check_input(input_dict):
                     input_dict[s][stat['id']] = stat['t'](input_dict[s][stat['id']])
                 except ValueError:
                     errlist.append('stat {} is not of a valid type.'.format(stat['id']))
+                    continue
+            if stat['min'] and input_dict[s][stat['id']] < stat['min']:
+                errlist.append('stat {} is below the minimum permitted value of {}'.format(stat['id'], stat['min']))
     if errlist:
         return errlist
     else:
