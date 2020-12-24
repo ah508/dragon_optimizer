@@ -80,7 +80,7 @@ def make_dformula(mode):
             #     fscoeff = 1
             if stats['broken']:
                 breakcoeff = stats['breakmod']
-                bpun = stats['brokepun']
+                bpun = stats['breakpun']
             else:
                 breakcoeff = 1
                 bpun = 1
