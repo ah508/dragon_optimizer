@@ -1,9 +1,11 @@
 import sys
 from flask import Flask, jsonify, request
 from flask_restful import abort, Api, Resource
+from flask_cors import CORS
 from main_solver import solve, check_input
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 
 class Optimize(Resource):
@@ -17,9 +19,12 @@ class Optimize(Resource):
             #print('bonked', file=sys.stderr)
             return proceed, 400
         #print('no bonk', file=sys.stderr)
-        solution = solve(json_data, output=False)
-        print(solution)
-        return solution, 200
+        try:
+            solution = solve(json_data, output=False)
+            print(solution)
+            return solution, 200
+        except UnicodeEncodeError:
+            return "Congratulations, It's the Unicode Bug!", 400
 
 api.add_resource(Optimize, '/api/optimize')
 
