@@ -6,7 +6,7 @@ dpath = str(Path(__file__).parent) + '/dragons'
 
 
 unfinished = [
-    'Thor',
+    'Gala_Thor',
     'Giovanni',
     'Shishimai',
     'Mini_Zodi',
@@ -134,6 +134,23 @@ else:
     for uc in tdamage_expected_300:
         print('{:<22}  --  NOT FOUND  3.00'.format(uc))
 print('--------------')
+print(' ')
+input('press any key to continue')
+print(' ')
+
+print('DAMAGE CHECK')
+print('------------')
+for f in os.listdir(dpath):
+    fpath = dpath + '/' + f
+    name = name = f[:-5]
+    with open(fpath, 'r') as thefile:
+        yobj = json.loads(thefile.read())
+    for move in yobj:
+        if move not in ['class', 'T', 'W', 'D']:
+            d = yobj[move]['ndamage']
+            if d == 0:
+                print('{:<22} -- ZERO DAMAGE {}'.format(name, move))
+print('------------')
 print(' ')
 input('press any key to continue')
 print(' ')

@@ -182,7 +182,7 @@ def generate_supmym(constraint_class, n_attacks, d_map, file_name):
     constraint_class.constr_to_mip()
     constraint_class.new_state_order([['Transform'], ['Normal']])
     constraint_class.add_instruct(['Normal'], moves + ['W', 'D', 'S'], 'frames', '<=', 'transform time')
-    constraint_class.add_instruct(['Normal'], ['S0', 'S1', 'S2', 'S3'], 'skill', '<=', 'skill')
+    constraint_class.add_instruct(['Normal'], ['S'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
 
 def generate_c3_delay(constraint_class, n_attacks, d_map, file_name):

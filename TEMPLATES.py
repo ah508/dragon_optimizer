@@ -69,12 +69,8 @@ REBORN_POS = {
     },
 }
 # missing:
-# gala pos
 # thor (screw this guy)
 # giovanni (this guy is worse)
-# bufferables
-# styx
-# super mym
 
 C_3MAP = {
     1 : 'C1',
