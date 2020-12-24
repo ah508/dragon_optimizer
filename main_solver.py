@@ -32,18 +32,39 @@ def solve(infoset, output=True):
 
 def check_input(input_dict):
     errlist = []
-    if 'dragon' not in input_dict:
-        errlist.append('"dragon" is a mandatory field')
-    elif input_dict['dragon'] in ['Thor', 'Giovanni', 'Shishimai']:
-        errlist.append('requested dragon is not implemented')
-    if 'mode' not in input_dict:
-        errlist.append('"mode" is a mandatory field')
-    if 'transform time' not in input_dict:
-        errlist.append('"transform time" is a mandatory field')
-    if 'skill' not in input_dict:
-        errlist.append('"skill" is a mandatory field')
-    if 'stats' not in input_dict:
-        errlist.append('"stats" is a mandatory field')
+    reqinput = [
+        {'id' : 'dragon', 'default' : None, 't' : str},
+        {'id' : 'mode', 'default' : None, 't' : str},
+        {'id' : 'transform time', 'default' : None, 't' : int},
+        {'id' : 'skill', 'default' : 1, 't' : int},
+        {'id' : 'stats', 'default' : None, 't' : dict},
+        {'id' : 'relax', 'default' : False, 't' : bool},
+        {'id' : 'leniency', 'default' : 0, 't' : int}
+    ]
+    for req in reqinput:
+        if req['id'] not in input_dict:
+            if req['default'] == None:
+                errlist.append('{} is a mandatory input field'.format(req['id']))
+            else:
+                input_dict[req['id']] = req['default']
+        else:
+            if not isinstance(input_dict[req['id']], req['t']):
+                try:
+                    input_dict[req['id']] = req['t'](input_dict[req['id']])
+                except ValueError:
+                    errlist.append('input {} is not of a valid type.'.format(req['id']))  
+    banned = [
+        'Gala Thor',
+        'Giovanni',
+        'Shishimai',
+        'Horus',
+        'Mini Hildy',
+        'Mini Zodi',
+        'Barbatos'
+    ]
+    if 'dragon' in input_dict:
+        if input_dict['dragon'] in banned:
+            errlist.append('{} is not implemented'.format(input_dict['dragon']))
     reqstats = [
         {'id' : 'basestr', 'default' : 1000, 't' : float},
         {'id' : 'passivestr', 'default' : 0, 't' : float},
@@ -83,10 +104,6 @@ def check_input(input_dict):
                     input_dict[s][stat['id']] = stat['t'](input_dict[s][stat['id']])
                 except ValueError:
                     errlist.append('stat {} is not of a valid type.'.format(stat['id']))
-    if 'relax' not in input_dict:
-        input_dict['relax'] = False
-    if 'leniency' not in input_dict:
-        input_dict['leniency'] = 0
     if errlist:
         return errlist
     else:
