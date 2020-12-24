@@ -44,50 +44,53 @@ def check_input(input_dict):
         errlist.append('"skill" is a mandatory field')
     if 'stats' not in input_dict:
         errlist.append('"stats" is a mandatory field')
-    if errlist:
-        return errlist
-    reqstats = ['basestr', 
-                'passivestr', 
-                'activestr',
-                'coabstr',
-                'passiveskd',
-                'activeskd',
-                'coabskd',
-                'passivefs',
-                'activefs',
-                'coabfs',
-                'critchance',
-                'critmod',
-                'afflicpun',
-                'breakmod',
-                'breakpun',
-                'basedef',
-                'defmod',
-                'eleres',
-                'aspd', 
-                'ahst',
-                'eleadv',
-                'dboost',
-                'energized',
-                'inspired',
-                'broken',
-                'bog',
-                'bufftime']
+    reqstats = [
+        {'id' : 'basestr', 'default' : 1000, 't' : float},
+        {'id' : 'passivestr', 'default' : 0, 't' : float},
+        {'id' : 'activestr', 'default' : 0, 't' : float},
+        {'id' : 'coabstr', 'default' : 0, 't' : float},
+        {'id' : 'passiveskd', 'default' : 0, 't' : float},
+        {'id' : 'activeskd', 'default' : 0, 't' : float},
+        {'id' : 'coabskd', 'default' : 0, 't' : float},
+        {'id' : 'passivefs', 'default' : 0, 't' : float},
+        {'id' : 'activefs', 'default' : 0, 't' : float},
+        {'id' : 'coabfs', 'default' : 0, 't' : float},
+        {'id' : 'critchance', 'default' : 0, 't' : float},
+        {'id' : 'critmod', 'default' : 0, 't' : float},
+        {'id' : 'afflicpun', 'default' : 0, 't' : float},
+        {'id' : 'breakmod', 'default' : 0, 't' : float},
+        {'id' : 'breakpun', 'default' : 0, 't' : float},
+        {'id' : 'basedef', 'default' : 0, 't' : float},
+        {'id' : 'defmod','default' : 0, 't' : float},
+        {'id' : 'eleres', 'default' : 0, 't' : float},
+        {'id' : 'aspd', 'default' : 0, 't' : float},
+        {'id' : 'ahst', 'default' : 0, 't' : float},
+        {'id' : 'eleadv', 'default' : 1, 't' : float},
+        {'id' : 'dboost', 'default' : 0, 't' : float},
+        {'id' : 'energized', 'default' : False, 't' : bool},
+        {'id' : 'inspired', 'default' : False, 't' : bool},
+        {'id' : 'broken', 'default' : False, 't' : bool},
+        {'id' : 'bog', 'default' : False, 't' : bool},
+        {'id' : 'bufftime', 'default' : 0, 't' : float}
+    ]
+    s = 'stats' # this is harder to read, but it's for the sake of brevity
     for stat in reqstats:
-        if stat not in input_dict['stats']:
-            if stat in ['energized', 'inspired', 'broken', 'bog']:
-                input_dict['stats'][stat] = False
-            elif stat in ['eleadv', 'dboost']:
-                input_dict['stats'][stat] = 1
-            elif stat == 'basestr':
-                input_dict['stats'][stat] = 1000
-            else:
-                input_dict['stats'][stat] = 0
+        if stat['id'] not in input_dict[s]:
+            input_dict[s][stat['id']] = stat['default']
+        else:
+            if not isinstance(input_dict[s][stat['id']], stat['t']):
+                try:
+                    input_dict[s][stat['id']] = stat['t'](input_dict[s][stat['id']])
+                except ValueError:
+                    errlist.append('stat {} is not of a valid type.'.format(stat['id']))
     if 'relax' not in input_dict:
         input_dict['relax'] = False
     if 'leniency' not in input_dict:
         input_dict['leniency'] = 0
-    return False
+    if errlist:
+        return errlist
+    else:
+        return False
 
 
 if __name__ == "__main__":
