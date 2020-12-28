@@ -23,6 +23,7 @@ def solve(infoset, output=True):
     solution = solve_model(model, ref_vec, state_values, output=output, relaxation=infoset['relax'])
     solvetime = time.time() - startttime
     solution['solvetime'] = solvetime
+    print(solution)
     return solution
 
 def check_input(input_dict):
@@ -47,7 +48,7 @@ def check_input(input_dict):
                 try:
                     input_dict[req['id']] = req['t'](input_dict[req['id']])
                 except ValueError:
-                    errlist.append('input {} is not of a valid type.'.format(req['id']))  
+                    errlist.append('input {} is not of a valid type.'.format(req['id']))
     banned = [
         'Gala Thor',
         'Giovanni',
@@ -81,7 +82,7 @@ def check_input(input_dict):
         {'id' : 'eleres', 'default' : 0, 't' : float, 'min' : None},
         {'id' : 'aspd', 'default' : 0, 't' : float, 'min' : None},
         {'id' : 'ahst', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'eleadv', 'default' : 1, 't' : float, 'min' : None},
+        {'id' : 'eleadv', 'default' : 1, 't' : float, 'min' : 0},
         {'id' : 'dboost', 'default' : 0, 't' : float, 'min' : None},
         {'id' : 'energized', 'default' : False, 't' : bool, 'min' : None},
         {'id' : 'inspired', 'default' : False, 't' : bool, 'min' : None},
@@ -110,7 +111,7 @@ def check_input(input_dict):
 
 if __name__ == "__main__":
     faux_infoset = {
-        'dragon' : 'Poliʻahu',
+        'dragon' : 'Marishiten',
         'mode' : 'effmod',
         'relax' : False,
         'leniency' : 0,
@@ -135,7 +136,7 @@ if __name__ == "__main__":
             'aspd' : 0, 
             'ahst' : 0,
             'eleadv' : 1,
-            'dboost' : 1,
+            'dboost' : 0,
             'energized' : False,
             'inspired' : False,
             'broken' : False,

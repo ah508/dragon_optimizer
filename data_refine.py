@@ -70,14 +70,14 @@ def make_dformula(mode):
                 )
             else:
                 skdcoeff = 1
-            # if atype == 'f':
-            #     fscoeff = (
-            #         (1 + stats['passivefs'])
-            #         *(1 + stats['activefs'])
-            #         *(1 + stats['coabfs'])
-            #     )
-            # else:
-            #     fscoeff = 1
+            if atype == 'f':
+                fscoeff = (
+                    (1 + stats['passivefs'])
+                    *(1 + stats['activefs'])
+                    *(1 + stats['coabfs'])
+                )
+            else:
+                fscoeff = 1
             if stats['broken']:
                 breakcoeff = stats['breakmod']
                 bpun = 1 + stats['breakpun']
@@ -88,8 +88,7 @@ def make_dformula(mode):
             critcoeff = 1 + critc*(0.7 + stats['critmod'])
             puncoeff = (1 + stats['afflicpun'])*bpun
             strcoeff = (
-                stats['basestr']
-                *(1 + stats['passivestr'])
+                (1 + stats['passivestr'])
                 *(1 + stats['activestr'])
                 *(1 + stats['coabstr'])
             )
@@ -104,7 +103,7 @@ def make_dformula(mode):
                 *critcoeff
                 *puncoeff
                 *skdcoeff
-                # *fscoeff
+                *fscoeff
                 *stats['eleadv']
                 *(1 + stats['dboost'])
                 /defcoeff
@@ -130,14 +129,14 @@ def make_dformula(mode):
                 )
             else:
                 skdcoeff = 1
-            # if atype == 'f':
-            #     fscoeff = (
-            #         (1 + stats['passivefs'])
-            #         *(1 + stats['activefs'])
-            #         *(1 + stats['coabfs'])
-            #     )
-            # else:
-            #     fscoeff = 1
+            if atype == 'f':
+                fscoeff = (
+                    (1 + stats['passivefs'])
+                    *(1 + stats['activefs'])
+                    *(1 + stats['coabfs'])
+                )
+            else:
+                fscoeff = 1
             if stats['broken']:
                 breakcoeff = stats['breakmod']
                 bpun = 1 + stats['breakpun']
@@ -167,7 +166,7 @@ def make_dformula(mode):
                 *critcoeff
                 *puncoeff
                 *skdcoeff
-                # *fscoeff
+                *fscoeff
                 *stats['eleadv']
                 *(1 + stats['dboost'])
                 /defcoeff

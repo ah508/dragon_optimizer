@@ -55,6 +55,10 @@ def solve_model(model, varrange, state_values, min_frames=True, output=True, rel
     if not output:
         model.verbose = 0
     model.optimize(relax=relaxation) # right here is where you'd change model properties for speed
+    if model.status not in [mip.OptimizationStatus.OPTIMAL]:
+        solution['dataTable'].append({'id' : 'status', 'value' : 'INFEASIBLE'})
+        solution['decisionVariables'].append({'id' : 'N/A', 'value' : 'N/A'})
+        return solution
     max_damage = model.objective_value
     if min_frames:
         model += mip.xsum(state_values['damage'][i]*varrange[i] for i in range(size)) == max_damage
@@ -65,7 +69,11 @@ def solve_model(model, varrange, state_values, min_frames=True, output=True, rel
           solution['decisionVariables'].append({'id' : [varrange[i].name], 'value' : varrange[i].x})
           min_r_frames += varrange[i].x*state_values['realframes'][i]
           min_d_frames += varrange[i].x*state_values['frames'][i]
-    dps = round((60*max_damage/min_r_frames), 2)
+    if min_r_frames <= 0:
+        dps = 0
+    else:
+        dps = round((60*max_damage/min_r_frames), 2)
+
     solution['dataTable'].append({'id' : 'max damage', 'value' : max_damage})
     solution['dataTable'].append({'id' : 'real time', 'value' : min_r_frames})
     solution['dataTable'].append({'id' : 'dragon time', 'value' : min_d_frames})
