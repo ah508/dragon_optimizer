@@ -1,5 +1,6 @@
 import time
 import mip
+from marshmallow import Schema, fields, ValidationError
 from file_fetchers import fetch_dragon, fetch_key, load_data
 from data_refine import generate_state_stats, get_model_variables
 from build_methods import make_getIndex
@@ -8,11 +9,7 @@ from lp_solver import set_model_constraints, solve_model
 def solve(infoset, output=True):
     startttime = time.time()
     model = mip.Model()
-    drg = list(infoset['dragon'])
-    for i in range(len(drg)):
-        if drg[i] == ' ':
-            drg[i] = '_'
-    drg = ''.join(drg)
+    drg = infoset['dragon']
     dragon = fetch_dragon(drg)
     temp_key = fetch_key(dragon['class'])
     template = load_data(temp_key, model)
@@ -23,8 +20,19 @@ def solve(infoset, output=True):
     solution = solve_model(model, ref_vec, state_values, output=output, relaxation=infoset['relax'])
     solvetime = time.time() - startttime
     solution['solvetime'] = solvetime
-    print(solution)
     return solution
+
+# def validate_min(value, minimum='zero'):
+#     if minimum == 'zero':
+#         if value < 0:
+#             raise ValidationError('Value must be non-negative')
+#     elif minimum == 'small':
+#         if value < 1e-5:
+#             raise ValidationError('Value must be greater than zero')
+
+# class InputValidator(Schema):
+#     dragon = fields.String(required=True, error_messages={"dragon is required"})
+
 
 def check_input(input_dict):
     errlist = []
@@ -111,7 +119,7 @@ def check_input(input_dict):
 
 if __name__ == "__main__":
     faux_infoset = {
-        'dragon' : 'Marishiten',
+        'dragon' : 'High Brunhilda',
         'mode' : 'effmod',
         'relax' : False,
         'leniency' : 0,
