@@ -88,7 +88,7 @@ class InputSchema(Schema):
 
 if __name__ == "__main__":
     faux_infoset = {
-        'dragon' : 'High Brunhilda',
+        'dragon' : 'Gala Reborn Poseidon',
         'mode' : 'effmod',
         'relax' : False,
         'leniency' : 0,
@@ -125,4 +125,4 @@ if __name__ == "__main__":
     testschema = InputSchema()
     out = testschema.load(faux_infoset)
     print(out)
-    # solve(faux_infoset)
+    solve(out)

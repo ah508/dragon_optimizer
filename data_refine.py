@@ -239,7 +239,7 @@ def generate_state_stats(template, dragon, infoset, getIndex):
                                                      template['boost on'], 
                                                      stats['aspd'],
                                                      stats['bufftime'])
-    state_values['transform time'] = infoset['transform time'] - infoset['leniency']
+    state_values['transform_time'] = infoset['transform_time'] - infoset['leniency']
     state_values['skill'] = min(dragon['class']['skill'], infoset['skill'])
                             
     return state_values

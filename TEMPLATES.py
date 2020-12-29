@@ -57,7 +57,7 @@ TWO_S_BOOST = {
     }
 }
 
-REBORN_POS = {
+REBORN_PZ = {
     'Transform' : {
         'omit' : [],
         'include_only' : ['T']

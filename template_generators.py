@@ -15,7 +15,7 @@ def generate_no_boosts(constraint_class, n_attacks, d_map, file_name):
     constraint_class.make_vars()
     constraint_class.constr_to_mip()
     constraint_class.new_state_order([['Transform', 'Normal']])
-    constraint_class.add_instruct(['Normal'], moves + ['W', 'D', 'S'], 'frames', '<=', 'transform time')
+    constraint_class.add_instruct(['Normal'], moves + ['W', 'D', 'S'], 'frames', '<=', 'transform_time')
     constraint_class.add_instruct(['Normal'], ['S'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
 
@@ -35,7 +35,7 @@ def generate_single_boosts(constraint_class, n_attacks, d_map, file_name):
     constraint_class.make_vars()
     constraint_class.constr_to_mip()
     constraint_class.new_state_order([['Transform', 'Normal'], ['Boost1_1']])
-    constraint_class.add_instruct(['Normal', 'Boost1_1'], moves + ['W', 'D'], 'frames', '<=', 'transform time')
+    constraint_class.add_instruct(['Normal', 'Boost1_1'], moves + ['W', 'D'], 'frames', '<=', 'transform_time')
     constraint_class.add_instruct(['Boost1_1'], moves + ['W', 'D'], 'frames', '<=', 'buff duration')
     constraint_class.add_instruct(['Normal'], ['S'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
@@ -86,7 +86,7 @@ def generate_two_boosts(constraint_class, n_attacks, d_map, file_name):
         moves + ['W', 'D'],
         'frames',
         '<=',
-        'transform time'
+        'transform_time'
     )
     constraint_class.add_instruct(
         ['Boost1_1'], 
@@ -165,7 +165,7 @@ def generate_styx(constraint_class, n_attacks, d_map, file_name):
     constraint_class.make_vars()
     constraint_class.constr_to_mip()
     constraint_class.new_state_order([['Transform', 'Normal']])
-    constraint_class.add_instruct(['Normal'], moves + ['W', 'D', 'S0', 'S1', 'S2', 'S3'], 'frames', '<=', 'transform time')
+    constraint_class.add_instruct(['Normal'], moves + ['W', 'D', 'S0', 'S1', 'S2', 'S3'], 'frames', '<=', 'transform_time')
     constraint_class.add_instruct(['Normal'], ['S0', 'S1', 'S2', 'S3'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
 
@@ -181,7 +181,7 @@ def generate_supmym(constraint_class, n_attacks, d_map, file_name):
     constraint_class.make_vars()
     constraint_class.constr_to_mip()
     constraint_class.new_state_order([['Transform'], ['Normal']])
-    constraint_class.add_instruct(['Normal'], moves + ['W', 'D', 'S'], 'frames', '<=', 'transform time')
+    constraint_class.add_instruct(['Normal'], moves + ['W', 'D', 'S'], 'frames', '<=', 'transform_time')
     constraint_class.add_instruct(['Normal'], ['S'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
 
@@ -202,7 +202,7 @@ def generate_c3_delay(constraint_class, n_attacks, d_map, file_name):
     constraint_class.make_vars()
     constraint_class.constr_to_mip()
     constraint_class.new_state_order([['Transform', 'Normal']])
-    constraint_class.add_instruct(['Normal'], moves + ['DUMMY_S', 'DUMMY_E', 'W', 'D', 'S'], 'frames', '<=', 'transform time')
+    constraint_class.add_instruct(['Normal'], moves + ['DUMMY_S', 'DUMMY_E', 'W', 'D', 'S'], 'frames', '<=', 'transform_time')
     constraint_class.add_instruct(['Normal'], ['S'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
 
@@ -224,7 +224,7 @@ def generate_hbh(constraint_class, n_attacks, d_map, file_name):
     constraint_class.make_vars()
     constraint_class.constr_to_mip()
     constraint_class.new_state_order([['Transform', 'Normal']])
-    constraint_class.add_instruct(['Normal'], moves + ['D_Sa', 'D_Ea', 'D_Sb', 'D_Eb', 'W', 'D', 'S'], 'frames', '<=', 'transform time')
+    constraint_class.add_instruct(['Normal'], moves + ['D_Sa', 'D_Ea', 'D_Sb', 'D_Eb', 'W', 'D', 'S'], 'frames', '<=', 'transform_time')
     constraint_class.add_instruct(['Normal'], ['S'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
 
@@ -253,12 +253,12 @@ def generate_leviathan(constraint_class, n_attacks, d_map, file_name):
     constraint_class.make_vars()
     constraint_class.constr_to_mip()
     constraint_class.new_state_order([['Transform', 'Normal'], ['Boost1_1']])
-    constraint_class.add_instruct(['Normal', 'Boost1_1'], moves + ['DUMMY_S', 'DUMMY_E', 'W', 'D'], 'frames', '<=', 'transform time')
+    constraint_class.add_instruct(['Normal', 'Boost1_1'], moves + ['DUMMY_S', 'DUMMY_E', 'W', 'D'], 'frames', '<=', 'transform_time')
     constraint_class.add_instruct(['Boost1_1'], moves + ['W', 'D'], 'frames', '<=', 'buff duration')
     constraint_class.add_instruct(['Normal'], ['S'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
 
-def generate_reborn_pos(constraint_class, n_attacks, d_map, file_name):
+def generate_reborn_pz(constraint_class, n_attacks, d_map, file_name):
     moves = [0] * n_attacks
     for i in range(n_attacks):
         moves[i] = d_map[i+1]
@@ -270,6 +270,6 @@ def generate_reborn_pos(constraint_class, n_attacks, d_map, file_name):
     constraint_class.make_vars()
     constraint_class.constr_to_mip()
     constraint_class.new_state_order([['Transform', 'Normal', 'End']])
-    constraint_class.add_instruct(['Normal'], moves + ['W', 'D', 'S'], 'frames', '<=', 'transform time')
+    constraint_class.add_instruct(['Normal'], moves + ['W', 'D', 'S'], 'frames', '<=', 'transform_time')
     constraint_class.add_instruct(['Normal'], ['S'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
