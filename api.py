@@ -15,7 +15,7 @@ class Optimize(Resource):
         # this is horrible but I can't get reqparse to cooperate
         validator = InputSchema()
         try:
-            parsed = validator(json_data)
+            parsed = validator.load(json_data)
         except ValidationError as e:
             return e, 400
         solution = solve(parsed, output=False)
