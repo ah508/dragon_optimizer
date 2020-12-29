@@ -1,4 +1,5 @@
 import os
+from marshmallow import Schema, fields, validate, ValidationError
 import json
 from pathlib import Path
 
@@ -6,38 +7,38 @@ dpath = str(Path(__file__).parent) + '/dragons'
 
 
 unfinished = [
-    'Gala_Thor',
+    'Gala Thor',
     'Giovanni',
     'Shishimai',
-    'Mini_Zodi',
-    'Mini_Hildy',
+    'Mini Zodi',
+    'Mini Hildy',
     'Horus',
     'Barbatos'
 ]
-forbid_expected = set(['Thor', 'Giovanni', 'Shishimai'])
+forbid_expected = set(['Gala Thor', 'Giovanni', 'Shishimai'])
 d_time_expected = set([
     ('Shinobi', 34), 
     ('Andromeda', 34), 
-    ('Long_Long', 34), 
-    ('Gold_Fafnir', 34),
+    ('Long Long', 34), 
+    ('Gold Fafnir', 34),
     ('Gilgamesh', 34)
 ])
 tdamage_expected_100 = set([
-    'Kindling_Imp',
-    'Wellspring_Imp',
-    'Astral_Imp',
-    'Zephyr_Imp',
-    'Pallid_Imp',
+    'Kindling Imp',
+    'Wellspring Imp',
+    'Astral Imp',
+    'Zephyr Imp',
+    'Pallid Imp',
     'Fubuki',
     'Tsumuji',
     'Hinata',
     'Hikage',
     'Homura',
-    'Moon_Drake',
-    'Cinder_Drake',
-    'Snow_Drake',
-    'Gust_Drake',
-    'Gloom_Drake'
+    'Moon Drake',
+    'Cinder Drake',
+    'Snow Drake',
+    'Gust Drake',
+    'Gloom Drake'
 ])
 tdamage_expected_150 = set([
     'Stribog',
@@ -55,17 +56,17 @@ tdamage_expected_150 = set([
     'Jupiter',
     'Stribog',
     'Roc',
-    'Halloween_Silke',
-    'Silver_Fafnir',
-    'Gold_Fafnir',
-    'Bronze_Fafnir',
+    'Halloween Silke',
+    'Silver Fafnir',
+    'Gold Fafnir',
+    'Bronze Fafnir',
     'Silke',
     'Juggernaut',
-    'Midgardsormr_Zero'
+    'Midgardsormr Zero'
 ])
 tdamage_expected_300 = set([
     'Mym',
-    'Super_Mym'
+    'Super Mym'
 ])
 
 print('UNIMPLEMENTED')
