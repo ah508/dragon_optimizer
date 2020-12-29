@@ -1,6 +1,6 @@
 {
     "class": {
-        "forbidden": true,
+        "forbidden": false,
         "key": "reborn_zeph",
         "buff": 0,
         "skill": 1
@@ -21,8 +21,8 @@
         "mapnum": null
     },
     "C1": {
-        "rtime": 0,
-        "dtime": 23,
+        "rtime": 21,
+        "dtime": 21,
         "ndamage": 4.16,
         "bdamage": 0.00,
         "sp": 5,
@@ -36,8 +36,8 @@
         "mapnum": "1"
     },
     "C2": {
-        "rtime": 0,
-        "dtime": 44,
+        "rtime": 49,
+        "dtime": 49,
         "ndamage": 4.24,
         "bdamage": 0.00,
         "sp": 5,
@@ -50,10 +50,10 @@
         },
         "mapnum": "2"
     },
-    "C3": {
-        "rtime": 0,
-        "dtime": 63,
-        "ndamage": 12.15,
+    "C3a": {
+        "rtime": 45,
+        "dtime": 45,
+        "ndamage": 4.05,
         "bdamage": 0.00,
         "sp": 5,
         "type": "a",
@@ -65,9 +65,39 @@
         },
         "mapnum": "3"
     },
+    "C3b": {
+        "rtime": 6,
+        "dtime": 6,
+        "ndamage": 4.05,
+        "bdamage": 0.00,
+        "sp": 5,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": "4"
+    },
+    "C3c": {
+        "rtime": 6,
+        "dtime": 6,
+        "ndamage": 4.05,
+        "bdamage": 0.00,
+        "sp": 5,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": "5"
+    },
     "W": {
-        "rtime": 53,
-        "dtime": 53,
+        "rtime": 52,
+        "dtime": 52,
         "ndamage": 0.0,
         "bdamage": 0.0,
         "sp": 0,
@@ -96,7 +126,7 @@
         "mapnum": null
     },
     "S": {
-        "rtime": 0,
+        "rtime": 100,
         "dtime": 0,
         "ndamage": 19.23,
         "bdamage": 0.0,
