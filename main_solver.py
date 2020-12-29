@@ -1,6 +1,6 @@
 import time
 import mip
-from marshmallow import Schema, fields, ValidationError
+from marshmallow import Schema, fields, validate, ValidationError
 from file_fetchers import fetch_dragon, fetch_key, load_data
 from data_refine import generate_state_stats, get_model_variables
 from build_methods import make_getIndex
@@ -22,100 +22,69 @@ def solve(infoset, output=True):
     solution['solvetime'] = solvetime
     return solution
 
-# def validate_min(value, minimum='zero'):
-#     if minimum == 'zero':
-#         if value < 0:
-#             raise ValidationError('Value must be non-negative')
-#     elif minimum == 'small':
-#         if value < 1e-5:
-#             raise ValidationError('Value must be greater than zero')
+class StatSchema(Schema):
+    basestr = fields.Integer(missing=1000, validate=validate.Range(min=0))
+    passivestr = fields.Float(missing=0)
+    activestr = fields.Float(missing=0)
+    coabstr = fields.Float(missing=0, validate=validate.Range(min=0))
+    passiveskd = fields.Float(missing=0)
+    activeskd = fields.Float(missing=0)
+    coabskd = fields.Float(missing=0, validate=validate.Range(min=0))
+    passivefs = fields.Float(missing=0)
+    activefs = fields.Float(missing=0)
+    coabfs = fields.Float(missing=0, validate=validate.Range(min=0))
+    critchance = fields.Float(missing=0, validate=validate.Range(min=0))
+    critmod = fields.Float(missing=0, validate=validate.Range(min=-1.7))
+    afflicpun = fields.Float(missing=0)
+    breakpun = fields.Float(missing=0)
+    breakmod = fields.Float(missing=0.6, validate=validate.Range(min=1e-5))
+    basedef = fields.Float(missing=10, validate=validate.Range(min=1e-5))
+    defmod = fields.Float(missing=0, validate=validate.Range(min=0, max=0.5))
+    eleres = fields.Float(missing=0)
+    aspd = fields.Float(missing=0)
+    ahst = fields.Float(missing=0)
+    eleadv = fields.Float(missing=1, validate=validate.Range(min=0))
+    dboost = fields.Float(missing=0.2, validate=validate.Range(min=0))
+    energized = fields.Bool(missing=False)
+    inspired = fields.Bool(missing=False)
+    broken = fields.Bool(missing=False)
+    bog = fields.Bool(missing=False)
+    bufftime = fields.Float(missing=0, validate=validate.Range(min=0))
 
-# class InputValidator(Schema):
-#     dragon = fields.String(required=True, error_messages={"dragon is required"})
-
-
-def check_input(input_dict):
-    errlist = []
-    reqinput = [
-        {'id' : 'dragon', 'default' : None, 't' : str},
-        {'id' : 'mode', 'default' : None, 't' : str},
-        {'id' : 'transform time', 'default' : None, 't' : int},
-        {'id' : 'skill', 'default' : 1, 't' : int},
-        {'id' : 'stats', 'default' : None, 't' : dict},
-        {'id' : 'relax', 'default' : False, 't' : bool},
-        {'id' : 'leniency', 'default' : 0, 't' : int}
-    ]
-    for req in reqinput:
-        if req['id'] not in input_dict:
-            if req['default'] == None:
-                errlist.append('{} is a mandatory input field'.format(req['id']))
-            else:
-                input_dict[req['id']] = req['default']
-        else:
-            if not isinstance(input_dict[req['id']], req['t']):
-                try:
-                    input_dict[req['id']] = req['t'](input_dict[req['id']])
-                except ValueError:
-                    errlist.append('input {} is not of a valid type.'.format(req['id']))
-    banned = [
-        'Gala Thor',
-        'Giovanni',
-        'Shishimai',
-        'Horus',
-        'Mini Hildy',
-        'Mini Zodi',
-        'Barbatos'
-    ]
-    if 'dragon' in input_dict:
-        if input_dict['dragon'] in banned:
-            errlist.append('{} is not implemented'.format(input_dict['dragon']))
-    reqstats = [
-        {'id' : 'basestr', 'default' : 1000, 't' : float, 'min' : 0},
-        {'id' : 'passivestr', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'activestr', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'coabstr', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'passiveskd', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'activeskd', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'coabskd', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'passivefs', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'activefs', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'coabfs', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'critchance', 'default' : 0, 't' : float, 'min' : 0},
-        {'id' : 'critmod', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'afflicpun', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'breakmod', 'default' : 0.6, 't' : float, 'min' : 1e-4},
-        {'id' : 'breakpun', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'basedef', 'default' : 10, 't' : float, 'min' : 1e-4},
-        {'id' : 'defmod','default' : 0, 't' : float, 'min' : None},
-        {'id' : 'eleres', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'aspd', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'ahst', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'eleadv', 'default' : 1, 't' : float, 'min' : 0},
-        {'id' : 'dboost', 'default' : 0, 't' : float, 'min' : None},
-        {'id' : 'energized', 'default' : False, 't' : bool, 'min' : None},
-        {'id' : 'inspired', 'default' : False, 't' : bool, 'min' : None},
-        {'id' : 'broken', 'default' : False, 't' : bool, 'min' : None},
-        {'id' : 'bog', 'default' : False, 't' : bool, 'min' : None},
-        {'id' : 'bufftime', 'default' : 0, 't' : float, 'min' : None}
-    ]
-    s = 'stats' # this is harder to read, but it's for the sake of brevity
-    for stat in reqstats:
-        if stat['id'] not in input_dict[s]:
-            input_dict[s][stat['id']] = stat['default']
-        else:
-            if not isinstance(input_dict[s][stat['id']], stat['t']):
-                try:
-                    input_dict[s][stat['id']] = stat['t'](input_dict[s][stat['id']])
-                except ValueError:
-                    errlist.append('stat {} is not of a valid type.'.format(stat['id']))
-                    continue
-            if stat['min'] and input_dict[s][stat['id']] < stat['min']:
-                errlist.append('stat {} is below the minimum permitted value of {}'.format(stat['id'], stat['min']))
-    if errlist:
-        return errlist
-    else:
-        return False
-
+class InputSchema(Schema):
+    dragon = fields.String(
+        required=True, 
+        error_messages={"required": "dragon is required"},
+        validate=[
+            validate.Length(max=40),
+            validate.NoneOf([
+                'Gala Thor',
+                'Giovanni',
+                'Shishimai',
+                'Horus',
+                'Mini Hildy',
+                'Mini Zodi',
+                'Barbatos'
+            ])
+        ]
+    )
+    mode = fields.String(
+        required=True, 
+        error_messages={"required": "mode is required"},
+        validate=validate.OneOf(['puremod', 'effmod', 'damage'])
+    )
+    transform_time = fields.Integer(
+        required=True, 
+        error_messages={"required": "transformation time is required"},
+        data_key="transform time"
+    )
+    skill = fields.Integer(
+        required=True, 
+        error_messages={"required": "skill is required"}
+    )
+    relax = fields.Bool(missing=False)
+    leniency = fields.Integer(missing=0)
+    stats = fields.Nested(StatSchema)
 
 if __name__ == "__main__":
     faux_infoset = {
@@ -136,7 +105,7 @@ if __name__ == "__main__":
             'critchance' : 0,
             'critmod' : 0,
             'afflicpun' : 0,
-            'breakmod' : 0,
+            'breakmod' : 0.6,
             'breakpun' : 0,
             'basedef' : 10,
             'defmod' : 0,
@@ -153,4 +122,7 @@ if __name__ == "__main__":
         }
     }
     
-    solve(faux_infoset)
+    testschema = InputSchema()
+    out = testschema.load(faux_infoset)
+    print(out)
+    # solve(faux_infoset)
