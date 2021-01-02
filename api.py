@@ -16,6 +16,8 @@ class Optimize(Resource):
         validator = InputSchema()
         try:
             parsed = validator.load(json_data)
+            if parsed['leniency'] > parsed['transform_time']:
+                raise ValidationError("leniency exceeds transformation duration")
         except ValidationError as e:
             return 'error: {}'.format(str(e)), 400
         print(parsed)
