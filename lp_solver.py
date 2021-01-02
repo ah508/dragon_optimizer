@@ -56,6 +56,7 @@ def solve_model(model, varrange, state_values, min_frames=True, output=True, rel
         model.verbose = 0
     model.optimize(relax=relaxation) # right here is where you'd change model properties for speed
     if model.status not in [mip.OptimizationStatus.OPTIMAL]:
+        print(model.status)
         solution['dataTable'].append({'id' : 'status', 'value' : 'INFEASIBLE'})
         solution['decisionVariables'].append({'id' : 'N/A', 'value' : 'N/A'})
         return solution
