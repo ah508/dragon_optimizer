@@ -17,7 +17,7 @@ class Optimize(Resource):
         try:
             parsed = validator.load(json_data)
         except ValidationError as e:
-            return e, 400
+            return 'error: {}'.format(str(e)), 400
         print(parsed)
         solution = solve(parsed, output=False)
         print(solution)

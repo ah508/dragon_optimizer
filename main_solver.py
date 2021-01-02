@@ -23,33 +23,33 @@ def solve(infoset, output=True):
     return solution
 
 class StatSchema(Schema):
-    basestr = fields.Integer(missing=1000, validate=validate.Range(min=0))
-    passivestr = fields.Float(missing=0)
-    activestr = fields.Float(missing=0)
-    coabstr = fields.Float(missing=0, validate=validate.Range(min=0))
-    passiveskd = fields.Float(missing=0)
-    activeskd = fields.Float(missing=0)
-    coabskd = fields.Float(missing=0, validate=validate.Range(min=0))
-    passivefs = fields.Float(missing=0)
-    activefs = fields.Float(missing=0)
-    coabfs = fields.Float(missing=0, validate=validate.Range(min=0))
-    critchance = fields.Float(missing=0, validate=validate.Range(min=0))
-    critmod = fields.Float(missing=0, validate=validate.Range(min=-1.7))
-    afflicpun = fields.Float(missing=0)
-    breakpun = fields.Float(missing=0)
-    breakmod = fields.Float(missing=0.6, validate=validate.Range(min=1e-5))
-    basedef = fields.Float(missing=10, validate=validate.Range(min=1e-5))
+    basestr = fields.Integer(missing=1000, validate=validate.Range(min=0, max=1000000))
+    passivestr = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
+    activestr = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
+    coabstr = fields.Float(missing=0, validate=validate.Range(min=0, max=100))
+    passiveskd = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
+    activeskd = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
+    coabskd = fields.Float(missing=0, validate=validate.Range(min=0, max=100))
+    passivefs = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
+    activefs = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
+    coabfs = fields.Float(missing=0, validate=validate.Range(min=0, max=100))
+    critchance = fields.Float(missing=0, validate=validate.Range(min=0, max=1))
+    critmod = fields.Float(missing=0, validate=validate.Range(min=-1.7, max=100))
+    afflicpun = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
+    breakpun = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
+    breakmod = fields.Float(missing=0.6, validate=validate.Range(min=1e-3, max=100))
+    basedef = fields.Float(missing=10, validate=validate.Range(min=1e-3, max=100))
     defmod = fields.Float(missing=0, validate=validate.Range(min=0, max=0.5))
-    eleres = fields.Float(missing=0)
-    aspd = fields.Float(missing=0)
-    ahst = fields.Float(missing=0)
-    eleadv = fields.Float(missing=1, validate=validate.Range(min=0))
-    dboost = fields.Float(missing=0.2, validate=validate.Range(min=0))
+    eleres = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
+    aspd = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
+    ahst = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
+    eleadv = fields.Float(missing=1, validate=validate.Range(min=0, max=100))
+    dboost = fields.Float(missing=0.2, validate=validate.Range(min=0, max=100))
     energized = fields.Bool(missing=False)
     inspired = fields.Bool(missing=False)
     broken = fields.Bool(missing=False)
     bog = fields.Bool(missing=False)
-    bufftime = fields.Float(missing=0, validate=validate.Range(min=0))
+    bufftime = fields.Float(missing=0, validate=validate.Range(min=0, max=100))
 
 class InputSchema(Schema):
     dragon = fields.String(
@@ -76,7 +76,8 @@ class InputSchema(Schema):
     transform_time = fields.Integer(
         required=True, 
         error_messages={"required": "transformation time is required"},
-        data_key="transform time"
+        data_key="transform time",
+        validate=validate.Range(min=1, max=1000000)
     )
     skill = fields.Integer(
         required=True, 
