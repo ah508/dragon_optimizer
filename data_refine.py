@@ -154,7 +154,6 @@ def make_dformula(mode):
                 bpun = 1
             elerescoeff = 1 + stats['eleres']
             critcoeff = 1 + critc*(0.7 + stats['critmod'])
-            print(critcoeff)
             puncoeff = (1 + stats['afflicpun'])*bpun
             strcoeff = (
                 stats['basestr']
