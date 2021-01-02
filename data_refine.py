@@ -58,6 +58,10 @@ def make_dformula(mode):
                 critc = 1
             else:
                 critc = min(stats['critchance'], 1)
+            if atype == 'a':
+                standcoeff = 1 + stats['standatk']
+            else:
+                standcoeff = 1
             if atype == 's':
                 if stats['energized'] and energized:
                     pskd = stats['passiveskd'] + 0.5
@@ -102,6 +106,7 @@ def make_dformula(mode):
                 *base_mod
                 *critcoeff
                 *puncoeff
+                *standcoeff
                 *skdcoeff
                 *fscoeff
                 *stats['eleadv']
@@ -117,6 +122,10 @@ def make_dformula(mode):
                 critc = 1
             else:
                 critc = min(stats['critchance'], 1)
+            if atype == 'a':
+                standcoeff = 1 + stats['standatk']
+            else:
+                standcoeff = 1
             if atype == 's':
                 if stats['energized'] and energized:
                     pskd = stats['passiveskd'] + 0.5
@@ -165,6 +174,7 @@ def make_dformula(mode):
                 *base_mod
                 *critcoeff
                 *puncoeff
+                *standcoeff
                 *skdcoeff
                 *fscoeff
                 *stats['eleadv']

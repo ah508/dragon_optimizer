@@ -24,6 +24,7 @@ def solve(infoset, output=True):
 
 class StatSchema(Schema):
     basestr = fields.Integer(missing=1000, validate=validate.Range(min=0, max=1000000))
+    standatk = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
     passivestr = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
     activestr = fields.Float(missing=0, validate=validate.Range(min=-100, max=100))
     coabstr = fields.Float(missing=0, validate=validate.Range(min=0, max=100))
