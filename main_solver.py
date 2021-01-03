@@ -91,7 +91,7 @@ class InputSchema(Schema):
 
 if __name__ == "__main__":
     faux_infoset = {
-        'dragon' : 'Gala Reborn Poseidon',
+        'dragon' : 'High Brunhilda',
         'mode' : 'effmod',
         'relax' : False,
         'leniency' : 0,

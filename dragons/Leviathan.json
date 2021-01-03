@@ -65,7 +65,7 @@
         },
         "mapnum": "3"
     },
-    "DUMMY_S": {
+    "C2_skl": {
         "rtime": -11,
         "dtime": -11,
         "ndamage": 0.0,
@@ -80,7 +80,7 @@
         },
         "mapnum": null
     },
-    "DUMMY_E": {
+    "C2_end": {
         "rtime": -11,
         "dtime": -11,
         "ndamage": 0.0,

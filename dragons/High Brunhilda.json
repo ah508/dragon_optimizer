@@ -80,7 +80,7 @@
         },
         "mapnum": "4"
     },
-    "D_Sa": {
+    "C3a_skl": {
         "rtime": 0,
         "dtime": 0,
         "ndamage": 0.0,
@@ -95,7 +95,7 @@
         },
         "mapnum": null
     },
-    "D_Ea": {
+    "C3a_end": {
         "rtime": 0,
         "dtime": 0,
         "ndamage": 0.0,
@@ -110,7 +110,7 @@
         },
         "mapnum": null
     },
-    "D_Sb": {
+    "C3b_skl": {
         "rtime": -20,
         "dtime": -20,
         "ndamage": 0.0,
@@ -125,7 +125,7 @@
         },
         "mapnum": null
     },
-    "D_Eb": {
+    "C3b_end": {
         "rtime": -20,
         "dtime": -20,
         "ndamage": 0.0,

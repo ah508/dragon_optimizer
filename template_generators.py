@@ -193,16 +193,16 @@ def generate_c3_delay(constraint_class, n_attacks, d_map, file_name):
     # in place of normal staircase:
     constraint_class.add_const(['Normal', 'Normal'], [1, 2], [-1, 1], '<=', 0)
     constraint_class.add_const(['Normal', 'Normal'], [2, 3], [-1, 1], '<=', 0)
-    constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [3, 'W', 'DUMMY_S', 'DUMMY_E'], [-1, 1, 1, 1], '<=', 0)
+    constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [3, 'W', 'C3_skl', 'C3_end'], [-1, 1, 1, 1], '<=', 0)
 
     constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [1, 'W', 'D', 'S'], [1, -1, -1, -1], '<=', 1)
-    constraint_class.add_const(['Normal', 'Normal'], ['S', 'DUMMY_S'], [-1, 1], '<=', 0)
-    constraint_class.add_const(['Normal'], ['DUMMY_E'], [1], '<=', 1)
+    constraint_class.add_const(['Normal', 'Normal'], ['S', 'C3_skl'], [-1, 1], '<=', 0)
+    constraint_class.add_const(['Normal'], ['C3_end'], [1], '<=', 1)
     constraint_class.remap_dict(d_map)
     constraint_class.make_vars()
     constraint_class.constr_to_mip()
     constraint_class.new_state_order([['Transform', 'Normal']])
-    constraint_class.add_instruct(['Normal'], moves + ['DUMMY_S', 'DUMMY_E', 'W', 'D', 'S'], 'frames', '<=', 'transform_time')
+    constraint_class.add_instruct(['Normal'], moves + ['C3_skl', 'C3_end', 'W', 'D', 'S'], 'frames', '<=', 'transform_time')
     constraint_class.add_instruct(['Normal'], ['S'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
 
@@ -214,17 +214,17 @@ def generate_hbh(constraint_class, n_attacks, d_map, file_name):
     # in place of normal staircase:
     constraint_class.add_const(['Normal', 'Normal'], [1, 2], [-1, 1], '<=', 0)
     constraint_class.add_const(['Normal', 'Normal'], [2, 3], [-1, 1], '<=', 0)
-    constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [3, 4, 'D_Sa', 'D_Ea'], [-1, 1, 1, 1], '==', 0) #take note of sign
-    constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [4, 'W', 'D_Sb', 'D_Eb'], [-1, 1, 1, 1], '<=', 0)
+    constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [3, 4, 'C3a_skl', 'C3a_end'], [-1, 1, 1, 1], '==', 0) #take note of sign
+    constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [4, 'W', 'C3b_skl', 'C3b_end'], [-1, 1, 1, 1], '<=', 0)
 
     constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [1, 'W', 'D', 'S'], [1, -1, -1, -1], '<=', 1)
-    constraint_class.add_const(['Normal', 'Normal', 'Normal'], ['S', 'D_Sa', 'D_Sb'], [-1, 1, 1], '<=', 0)
-    constraint_class.add_const(['Normal', 'Normal'], ['D_Ea', 'D_Eb'], [1, 1], '<=', 1)
+    constraint_class.add_const(['Normal', 'Normal', 'Normal'], ['S', 'C3a_skl', 'C3b_skl'], [-1, 1, 1], '<=', 0)
+    constraint_class.add_const(['Normal', 'Normal'], ['C3a_end', 'C3b_end'], [1, 1], '<=', 1)
     constraint_class.remap_dict(d_map)
     constraint_class.make_vars()
     constraint_class.constr_to_mip()
     constraint_class.new_state_order([['Transform', 'Normal']])
-    constraint_class.add_instruct(['Normal'], moves + ['D_Sa', 'D_Ea', 'D_Sb', 'D_Eb', 'W', 'D', 'S'], 'frames', '<=', 'transform_time')
+    constraint_class.add_instruct(['Normal'], moves + ['C3a_skl', 'C3a_end', 'C3b_skl', 'C3b_end', 'W', 'D', 'S'], 'frames', '<=', 'transform_time')
     constraint_class.add_instruct(['Normal'], ['S'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
 
@@ -237,7 +237,7 @@ def generate_leviathan(constraint_class, n_attacks, d_map, file_name):
 
     # in place of normal staircase:
     constraint_class.add_const(['Normal', 'Normal', 'Exit1_1'], [1, 2, 1], [-1, 1, -1], '<=', 0)
-    constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal', 'Exit1_1'], [2, 3, 'DUMMY_S', 'DUMMY_E', 2], [-1, 1, 1, 1, -1], '<=', 0)
+    constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal', 'Exit1_1'], [2, 3, 'C2_skl', 'C2_end', 2], [-1, 1, 1, 1, -1], '<=', 0)
     constraint_class.add_const(['Normal', 'Normal', 'Exit1_1'], [3, 'W', 3], [-1, 1, -1], '<=', 0)
     # second staircase as per usual:
     one_d_stair(constraint_class, n_attacks, 'Boost1_1', 'Exit1_1', 1)
@@ -245,15 +245,15 @@ def generate_leviathan(constraint_class, n_attacks, d_map, file_name):
     constraint_class.add_const(['Normal', 'Normal', 'Normal'], [1, 'W', 'D'], [1, -1, -1], '<=', 1)
     constraint_class.add_const(['Normal', 'Boost1_1', 'Boost1_1', 'Boost1_1'], ['S', 1, 'W', 'D'], [-1, 1, -1, -1], '<=', 0)
     constraint_class.add_const(['Exit1_1', 'Exit1_1', 'Exit1_1'], list(range(1, n_attacks+1)), [1] * n_attacks, '<=', 1)
-    constraint_class.add_const(['Normal', 'Normal'], ['S', 'DUMMY_S'], [-1, 1], '<=', 0)
-    constraint_class.add_const(['Boost1_1'], ['DUMMY_S'], [1], '==', 0)
-    constraint_class.add_const(['Normal', 'Boost1_1'], ['DUMMY_E', 'DUMMY_E'], [1, 1], '<=', 1)
+    constraint_class.add_const(['Normal', 'Normal'], ['S', 'C2_skl'], [-1, 1], '<=', 0)
+    constraint_class.add_const(['Boost1_1'], ['C2_skl'], [1], '==', 0)
+    constraint_class.add_const(['Normal', 'Boost1_1'], ['C2_end', 'C2_end'], [1, 1], '<=', 1)
 
     constraint_class.remap_dict(d_map)
     constraint_class.make_vars()
     constraint_class.constr_to_mip()
     constraint_class.new_state_order([['Transform', 'Normal'], ['Boost1_1']])
-    constraint_class.add_instruct(['Normal', 'Boost1_1'], moves + ['DUMMY_S', 'DUMMY_E', 'W', 'D'], 'frames', '<=', 'transform_time')
+    constraint_class.add_instruct(['Normal', 'Boost1_1'], moves + ['C2_skl', 'C2_end', 'W', 'D'], 'frames', '<=', 'transform_time')
     constraint_class.add_instruct(['Boost1_1'], moves + ['W', 'D'], 'frames', '<=', 'buff duration')
     constraint_class.add_instruct(['Normal'], ['S'], 'skill', '<=', 'skill')
     constraint_class.to_file(file_name)
