@@ -1,36 +1,30 @@
-Please note: the program is undergoing a rewrite at the moment. There's a great deal of
-missing data, and even more missing documentation, and some of the stuff that used to
-be possible may not be reimplemented yet, or may not be planned for reimplementation.
+Please note: the program recently underwent a rewrite. There's a great deal of
+missing documentation, and some of the stuff that used to be possible may not be 
+reimplemented.
 
 This is a program designed to find the optimal sequence of actions to take during dragon
 form in Dragalia Lost, a mobile title developed by Cygames and published by Nintendo.
 Specifically, given an arbitrary, finite time in which to act, we wish to determine a
-set of actions (potentially ordered) within that timeframe which will maximize either:
-    a) Total Damage Dealt (in %)
-    b) Damage Dealt per Second (in %)
-
-(a) is achieved by modeling the situation as a Linear Programming Problem (LPP) and
-using an existing solver to determine the optimum value. (b) is achieved by solving for
-(a) in two cases, and then selecting the case with the higher dps.
-Note: this hasn't yet been reimplemented.
+set of actions (potentially ordered) within that timeframe which will maximize total 
+damage dealt by modeling the problem with linear programming.
 ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 
 Dependencies:
 To run this program, you'll need some additional software installed. Namely,
 - Python 3.6+
 - numpy
+- marshmallow
 - python mip
 ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 
 To use the program:
-Before anything else, run template_setup.py to generate templates for the solver to use.
-Without these you actually can't do anything. Hope that they're all named correctly
-because I won't be double checking that for a few days.
+Run template_setup.py before anything else. This is required to generate templates for
+the solver to use. If you don't do this, you can't instantiate any solves.
 
-Run main_solver.py from the command line. To change the chosen dragon or
-selected settings, you'll need to modify the testing dictionary (also found
-in main_solver). This is jankier than the previous version. It will get better,
-just give me a bit of time.
+After that, you can test to make sure everything works by running main_solver.py from the 
+command line. To run non-test cases, you can either edit the testing dictionary (found in 
+main_solver.py) or write your own interface. InputSchema is the format you want to match.
+This is pretty jank, but it's also meant to run on a server, not as a standalone application.
 ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 
 FAQ (probably)
@@ -48,11 +42,8 @@ A. Yep. It's hard to say whether or not that would be a better approach. Linear
     have any interest - such a solver is not in my future plans.
 
 Q. "Are there plans to make this program more comprehensive?"
-A. Yes.
+A. Yes...ish. I do plan to work on this more but I'm running out of free time
+    with which to do so.
 
-Q. "I see that in the sheet, some attacks that are two hits are listed as just one 
-    single hit. What's up with that?"
-A. In those cases, the attack in question is a proper projectile. If the first hit would
-    occur, the second hit follows inevitably. You would be correct to call out that this
-    introduces inaccuracies both with buff handling and at the end of dragon time, but 
-    accurately modeling stuff like that is... difficult with the current approach.
+Q. "What happened to the old optimzier?"
+A. I ripped it up. It was bloated, difficult to maintain, and the dependencies were hellish.
