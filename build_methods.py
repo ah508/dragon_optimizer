@@ -197,24 +197,34 @@ class Make_Constraints:
         # second skill selection  [-11]
 
     def add_rule(self, pstate, parent, cstate, children):
-        self.rules[parent] = {
-            'state' : pstate,
-            'children' : children,
-            'child states' : cstate
-        }
+        try:
+            self.rules[pstate][parent] = {
+                'reduce_to' : parent,
+                'children' : children,
+                'child_states' : cstate
+            }
+        except KeyError:
+            self.rules[pstate] = {}
+            self.rules[pstate][parent] = {
+                'reduce_to' : parent,
+                'children' : children,
+                'child_states' : cstate
+            }
 
     def convert_rules(self, mapping):
         new_dict = {}
-        for k, v in self.rules.items():
-            if k in mapping.keys():
-                temp_key = mapping[k]
-            else:
-                temp_key = k
-            new_dict[temp_key] = {
-                'state' : v['state'],
-                'children' : [mapping[val] if val in mapping.keys() else val for val in v['children']],
-                'child states' : v['child states']
-            }
+        for keystate, pstate in self.rules.items():
+            for k, v in pstate.items():
+                if k in mapping.keys():
+                    temp_key = mapping[k]
+                else:
+                    temp_key = k
+                new_key = keystate + temp_key
+                new_dict[new_key] = {
+                    'reduce_to' : temp_key if 'Exit' not in keystate else keystate,
+                    'children' : [mapping[val] if val in mapping.keys() else val for val in v['children']],
+                    'child_states' : v['child_states']
+                }
         self.rules = new_dict
 
     def to_file(self, tag):
