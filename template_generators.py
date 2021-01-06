@@ -5,7 +5,7 @@ def generate_no_boosts(constraint_class, n_attacks, d_map, file_name):
     for i in range(n_attacks):
         moves[i] = d_map[i+1]
 
-    for i in range(1, n_attacks-1):
+    for i in range(1, n_attacks):
         constraint_class.add_rule('Normal', i, ['Normal', 'Normal', 'Normal'], [i+1, 'D', 'S'])
     constraint_class.add_rule('Transform', 'T', ['Normal', 'Normal'], [1, 'S'])
     constraint_class.add_rule('Normal', n_attacks, ['Normal', 'Normal', 'Normal'], ['W', 'D', 'S'])
@@ -30,7 +30,7 @@ def generate_single_boosts(constraint_class, n_attacks, d_map, file_name):
     for i in range(n_attacks):
         moves[i] = d_map[i+1]
 
-    for i in range(1, n_attacks-1):
+    for i in range(1, n_attacks):
         constraint_class.add_rule('Normal', i, ['Normal', 'Normal', 'Normal'], [i+1, 'D', 'S'])
         constraint_class.add_rule('Boost1_1', i, ['Boost1_1', 'Boost1_1', 'Exit1_1'], [i+1, 'D', i])
         constraint_class.add_rule('Exit1_1', i, ['Normal', 'Normal'], [i+1, 'D'])
@@ -70,7 +70,7 @@ def generate_two_boosts(constraint_class, n_attacks, d_map, file_name):
     # it would make it harder to find bugs
     # on the other hand, it would make bugs less likely
     # on the other other hand... 
-    for i in range(1, n_attacks-1):
+    for i in range(1, n_attacks):
         constraint_class.add_rule('Normal', i, ['Normal', 'Normal', 'Normal'], [i+1, 'D', 'S'])
         constraint_class.add_rule('Boost1_1', i, ['Boost1_1', 'Boost1_1', 'Boost1_1', 'Exit1_1'], [i+1, 'D', 'S', i])
         constraint_class.add_rule('Exit1_1', i, ['Post1_1', 'Post1_1', 'Post1_1'], [i+1, 'D', 'S'])
@@ -211,7 +211,7 @@ def generate_styx(constraint_class, n_attacks, d_map, file_name):
     for i in range(n_attacks):
         moves[i] = d_map[i+1]
 
-    for i in range(1, n_attacks-1):
+    for i in range(1, n_attacks):
         constraint_class.add_rule('Normal', i, ['Normal', 'Normal', 'Normal', 'Normal', 'Normal', 'Normal'], [i+1, 'D', 'S0', 'S1', 'S2', 'S3'])
     constraint_class.add_rule('Transform', 'T', ['Normal', 'Normal'], [1, 'S0'])
     constraint_class.add_rule('Normal', n_attacks, ['Normal', 'Normal', 'Normal', 'Normal', 'Normal', 'Normal'], ['W', 'D', 'S0', 'S1', 'S2', 'S3'])
@@ -241,7 +241,7 @@ def generate_supmym(constraint_class, n_attacks, d_map, file_name):
     for i in range(n_attacks):
         moves[i] = d_map[i+1]
 
-    for i in range(1, n_attacks-1):
+    for i in range(1, n_attacks):
         constraint_class.add_rule('Normal', i, ['Normal', 'Normal', 'Normal'], [i+1, 'D', 'S'])
     constraint_class.add_rule('Transform', 'T', ['Normal', 'Normal'], [1, 'S'])
     constraint_class.add_rule('Normal', n_attacks, ['Normal', 'Normal', 'Normal'], ['W', 'D', 'S'])
@@ -383,7 +383,7 @@ def generate_reborn_pz(constraint_class, n_attacks, d_map, file_name):
     for i in range(n_attacks):
         moves[i] = d_map[i+1]
 
-    for i in range(1, n_attacks-1):
+    for i in range(1, n_attacks):
         constraint_class.add_rule('Normal', i, ['Normal', 'Normal', 'Normal', 'End'], [i+1, 'D', 'S', 'S'])
     constraint_class.add_rule('Transform', 'T', ['Normal', 'Normal'], [1, 'S'])
     constraint_class.add_rule('Normal', n_attacks, ['Normal', 'Normal', 'End'], ['W', 'D', 'S'])
