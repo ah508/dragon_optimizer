@@ -268,7 +268,7 @@ def generate_c3_delay(constraint_class, n_attacks, d_map, file_name):
 
     constraint_class.add_rule('Normal', 1, ['Normal', 'Normal', 'Normal'], [2, 'D', 'S'])
     constraint_class.add_rule('Normal', 2, ['Normal', 'Normal', 'Normal'], [3, 'D', 'S'])
-    constraint_class.add_rule('Normal', 3, ['Normal', 'Normal', 'Normal', 'Normal', 'Normal'], [4, 'D', 'W', 'C3_skl', 'C3_end'])
+    constraint_class.add_rule('Normal', 3, ['Normal', 'Normal', 'Normal', 'Normal', 'Normal'], ['D', 'W', 'C3_skl', 'C3_end'])
     constraint_class.add_rule('Transform', 'T', ['Normal', 'Normal'], [1, 'S'])
     constraint_class.add_rule('Normal', 'C3_skl', ['Normal'], ['S'])
     constraint_class.add_rule('Normal', 'C3_end', [], [])
@@ -384,7 +384,7 @@ def generate_reborn_pz(constraint_class, n_attacks, d_map, file_name):
         moves[i] = d_map[i+1]
 
     for i in range(1, n_attacks-1):
-        constraint_class.add_rule('Normal', i, ['Normal', 'Normal', 'Normal' 'End'], [i+1, 'D', 'S', 'S'])
+        constraint_class.add_rule('Normal', i, ['Normal', 'Normal', 'Normal', 'End'], [i+1, 'D', 'S', 'S'])
     constraint_class.add_rule('Transform', 'T', ['Normal', 'Normal'], [1, 'S'])
     constraint_class.add_rule('Normal', n_attacks, ['Normal', 'Normal', 'End'], ['W', 'D', 'S'])
     constraint_class.add_rule('Normal', 'S', ['Normal'], [1])
