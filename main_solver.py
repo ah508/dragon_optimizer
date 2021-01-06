@@ -18,6 +18,7 @@ def solve(infoset, output=True):
     state_values = generate_state_stats(template, dragon, infoset, getIndex)
     set_model_constraints(model, ref_vec, template, state_values, getIndex)
     solution = solve_model(model, ref_vec, state_values, output=output, relaxation=infoset['relax'])
+    solution['rules'] = template['rules']
     solvetime = time.time() - startttime
     solution['solvetime'] = solvetime
     return solution

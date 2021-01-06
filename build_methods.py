@@ -92,6 +92,7 @@ class Make_Constraints:
         self.state_order = [['Transform', 'Normal']]
         self.boost_on = None
         self.boost_num = 0
+        self.rules = {}
 
     def set_boost(self, boost_on, max_boosts):
         self.boost_on = boost_on
@@ -120,15 +121,12 @@ class Make_Constraints:
 
         Parameters
         ----------
-        old_dict : { }
-            The dictionary to be re-keyed.
         mapping: { }
             A dictionary mapping from old to new keys.
         
         Returns
         -------
-        new_dict: { }
-            A dictionary identical to old_dict, but with different key names.
+        None. This method modifies attributes of the class.
         '''
 
         new_dict = {}
@@ -197,7 +195,27 @@ class Make_Constraints:
         # overlap 1               [-9]
         # overlap 2               [-10]
         # second skill selection  [-11]
-    
+
+    def add_rule(self, pstate, parent, cstate, children):
+        self.rules[parent] = {
+            'state' : pstate,
+            'children' : children,
+            'child states' : cstate
+        }
+
+    def convert_rules(self, mapping):
+        new_dict = {}
+        for k, v in self.rules.items():
+            if k in mapping.keys():
+                temp_key = mapping[k]
+            else:
+                temp_key = k
+            new_dict[temp_key] = {
+                'state' : v['state'],
+                'children' : [mapping[val] if val in mapping.keys() else val for val in v['children']],
+                'child states' : v['child states']
+            }
+        self.rules = new_dict
 
     def to_file(self, tag):
         outbound = {
@@ -206,7 +224,8 @@ class Make_Constraints:
             'state order' : self.state_order,
             'instructions' : self.instructions,
             'boost on' : self.boost_on,
-            'boost num' : self.boost_num
+            'boost num' : self.boost_num,
+            'rules' : self.rules
         }
 
         # filepath = os.getcwd() + '/lptemplates/'
