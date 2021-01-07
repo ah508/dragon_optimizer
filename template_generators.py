@@ -78,7 +78,7 @@ def generate_two_boosts(constraint_class, n_attacks, d_map, file_name):
         constraint_class.add_rule('Boost1_2', i, ['Boost1_2', 'Boost1_2', 'Exit1_2'], [i+1, 'D', i])
         constraint_class.add_rule('Exit1_2', i, ['Normal', 'Normal'], [i+1, 'D'])
         constraint_class.add_rule('Boost2_1', i, ['Boost2_1', 'Boost2_1', 'Exit2_1'], [i+1, 'D', i])
-        constraint_class.add_rule('Exit2_1', i, ['Boost1_3', 'Boost1_3'], [i+1, 'D'])
+        constraint_class.add_rule('Exit2_1', i, ['Boost1_3', 'Boost1_3', 'Exit1_3'], [i+1, 'D', i])
         constraint_class.add_rule('Boost1_3', i, ['Boost1_3', 'Boost1_3', 'Exit1_3'], [i+1, 'D', i])
         constraint_class.add_rule('Exit1_3', i, ['Normal', 'Normal'], [i+1, 'D'])
     constraint_class.add_rule('Transform', 'T', ['Normal', 'Normal'], [1, 'S'])
