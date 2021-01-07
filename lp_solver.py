@@ -67,9 +67,11 @@ def solve_model(model, varrange, state_values, min_frames=True, output=True, rel
         model.optimize(relax=relaxation)
     for i in range(size):
         if abs(varrange[i].x) > 1e-6: # only non-zeros
-          solution['decisionVariables'].append({'id' : [varrange[i].name], 'value' : varrange[i].x})
-          min_r_frames += varrange[i].x*state_values['realframes'][i]
-          min_d_frames += varrange[i].x*state_values['frames'][i]
+            if 'Dummy' in varrange[i].name:
+                continue 
+            solution['decisionVariables'].append({'id' : [varrange[i].name], 'value' : varrange[i].x})
+            min_r_frames += varrange[i].x*state_values['realframes'][i]
+            min_d_frames += varrange[i].x*state_values['frames'][i]
     if min_r_frames <= 0:
         dps = 0
     else:
