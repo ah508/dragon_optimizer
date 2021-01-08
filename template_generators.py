@@ -386,7 +386,7 @@ def generate_reborn_pz(constraint_class, n_attacks, d_map, file_name):
     for i in range(1, n_attacks):
         constraint_class.add_rule('Normal', i, ['Normal', 'Normal', 'Normal', 'End'], [i+1, 'D', 'S', 'S'])
     constraint_class.add_rule('Transform', 'T', ['Normal', 'Normal'], [1, 'S'])
-    constraint_class.add_rule('Normal', n_attacks, ['Normal', 'Normal', 'End'], ['W', 'D', 'S'])
+    constraint_class.add_rule('Normal', n_attacks, ['Normal', 'Normal', 'Normal', 'End'], ['W', 'D', 'S', 'S'])
     constraint_class.add_rule('Normal', 'S', ['Normal'], [1])
     constraint_class.add_rule('Normal', 'D', ['Normal', 'End'], [1, 'S'])
     constraint_class.add_rule('Normal', 'W', ['Normal', 'End'], [1, 'S'])

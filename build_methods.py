@@ -222,7 +222,7 @@ class Make_Constraints:
                 new_key = keystate + temp_key
                 c_map = [mapping[val] if val in mapping.keys() else val for val in v['children']]
                 new_dict[new_key] = {
-                    'reduce_to' : temp_key if 'Exit' not in keystate else keystate,
+                    'reduce_to' : temp_key if 'Exit' not in keystate else 'Buff end',
                     'children' : [v['child_states'][i] + c_map[i] for i in range(len(c_map))]
                 }
         self.rules = new_dict
