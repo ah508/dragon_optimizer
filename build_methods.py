@@ -221,8 +221,13 @@ class Make_Constraints:
                     temp_key = k
                 new_key = keystate + temp_key
                 c_map = [mapping[val] if val in mapping.keys() else val for val in v['children']]
+                r_to = temp_key if 'Exit' not in keystate else 'buff_end'
+                if 'Exit' in keystate:
+                    r_to = 'buff_end'
+                if temp_key.endswith(('_end', '_skl')):
+                    r_to = ''
                 new_dict[new_key] = {
-                    'reduce_to' : temp_key if 'Exit' not in keystate else 'Buff end',
+                    'reduce_to' : r_to,
                     'children' : [v['child_states'][i] + c_map[i] for i in range(len(c_map))]
                 }
         self.rules = new_dict
