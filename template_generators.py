@@ -284,6 +284,8 @@ def generate_c3_delay(constraint_class, n_attacks, d_map, file_name):
 
     constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [1, 'W', 'D', 'S'], [1, -1, -1, -1], '<=', 1)
     constraint_class.add_const(['Normal', 'Normal'], ['S', 'C3_skl'], [-1, 1], '<=', 0)
+    constraint_class.add_const(['Normal'], ['C3_skl'], [1], '<=', 1)
+    constraint_class.add_const(['Normal', 'Normal'], [3, 'C3_skl'], [-1, 1], '<=', 0)
     constraint_class.add_const(['Normal'], ['C3_end'], [1], '<=', 1)
     constraint_class.remap_dict(d_map)
     constraint_class.make_vars()
@@ -320,6 +322,9 @@ def generate_hbh(constraint_class, n_attacks, d_map, file_name):
 
     constraint_class.add_const(['Normal', 'Normal', 'Normal', 'Normal'], [1, 'W', 'D', 'S'], [1, -1, -1, -1], '<=', 1)
     constraint_class.add_const(['Normal', 'Normal', 'Normal'], ['S', 'C3a_skl', 'C3b_skl'], [-1, 1, 1], '<=', 0)
+    constraint_class.add_const(['Normal', 'Normal'], ['C3a_skl', 'C3b_skl'], [1, 1], '<=', 1)
+    constraint_class.add_const(['Normal', 'Normal'], [3, 'C3a_skl'], [-1, 1], '<=', 0)
+    constraint_class.add_const(['Normal', 'Normal'], [4, 'C3b_skl'], [-1, 1], '<=', 0)
     constraint_class.add_const(['Normal', 'Normal'], ['C3a_end', 'C3b_end'], [1, 1], '<=', 1)
     constraint_class.remap_dict(d_map)
     constraint_class.make_vars()
