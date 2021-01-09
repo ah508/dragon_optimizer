@@ -351,6 +351,7 @@ def generate_leviathan(constraint_class, n_attacks, d_map, file_name):
     constraint_class.add_rule('Normal', 'W', ['Normal'], [1])
     constraint_class.add_rule('Boost1_1', 'D', ['Boost1_1'], [1])
     constraint_class.add_rule('Boost1_1', 'W', ['Boost1_1'], [1])
+    constraint_class.add_rule('Boost1_1', 'C2_end', [], [])
     constraint_class.convert_rules(d_map) 
     
     constraint_class.set_boost('S', 1)
