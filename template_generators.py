@@ -372,7 +372,7 @@ def generate_leviathan(constraint_class, n_attacks, d_map, file_name):
 
     constraint_class.add_const(['Normal', 'Normal', 'Normal'], [1, 'W', 'D'], [1, -1, -1], '<=', 1)
     constraint_class.add_const(['Normal', 'Boost1_1', 'Boost1_1', 'Boost1_1'], ['S', 1, 'W', 'D'], [-1, 1, -1, -1], '<=', 0)
-    constraint_class.add_const(['Exit1_1', 'Exit1_1', 'Exit1_1'], [1, 2, 3], [1, 1, 1], '<=', 1)
+    constraint_class.add_const(['Exit1_1', 'Exit1_1', 'Exit1_1', 'Boost1_1'], [1, 2, 3, 'C2_END'], [1, 1, 1, 1], '<=', 1)
     constraint_class.add_const(['Normal', 'Normal'], ['S', 'C2_skl'], [-1, 1], '<=', 0)
     constraint_class.add_const(['Normal', 'Normal'], [2, 'C2_skl'], [-1, 1], '<=', 0)
     constraint_class.add_const(['Boost1_1'], ['C2_skl'], [1], '==', 0)
