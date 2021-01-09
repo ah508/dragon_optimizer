@@ -50,7 +50,7 @@ def generate_single_boosts(constraint_class, n_attacks, d_map, file_name):
     one_d_stair(constraint_class, n_attacks, 'Boost1_1', 'Exit1_1', 1)
     constraint_class.add_const(['Normal', 'Normal', 'Normal'], [1, 'W', 'D'], [1, -1, -1], '<=', 1)
     constraint_class.add_const(['Normal', 'Boost1_1', 'Boost1_1', 'Boost1_1'], ['S', 1, 'W', 'D'], [-1, 1, -1, -1], '<=', 0)
-    constraint_class.add_const(['Exit1_1', 'Exit1_1', 'Exit1_1'], list(range(1, n_attacks+1)), [1] * n_attacks, '<=', 1)
+    constraint_class.add_const(['Exit1_1'] * n_attacks, list(range(1, n_attacks+1)), [1] * n_attacks, '<=', 1)
     constraint_class.remap_dict(d_map)
     constraint_class.make_vars()
     constraint_class.constr_to_mip()
@@ -115,12 +115,12 @@ def generate_two_boosts(constraint_class, n_attacks, d_map, file_name):
     constraint_class.add_const(['Boost1_1', 'Boost2_1', 'Boost2_1', 'Boost2_1'], ['S', 1, 'W', 'D'], [-1, 1, -1, -1], '<=', 0)
     constraint_class.add_const(['Boost1_3', 'Boost1_3', 'Boost1_3'], [1, 'W', 'D'], [1, -1, -1], '<=', 0)
 
-    constraint_class.add_const(['Exit1_1', 'Exit1_1', 'Exit1_1', 'Exit2_1', 'Exit2_1', 'Exit2_1'], 
+    constraint_class.add_const((['Exit1_1'] * n_attacks) + (['Exit2_1'] * n_attacks), 
                 (list(range(1, n_attacks+1)) + list(range(1, n_attacks+1))),
                 [1] * n_attacks*2,
                 '<=',
                 1)
-    constraint_class.add_const(['Exit1_2', 'Exit1_2', 'Exit1_2', 'Exit1_3', 'Exit1_3', 'Exit1_3'], 
+    constraint_class.add_const((['Exit1_2'] * n_attacks) + (['Exit1_3'] * n_attacks), 
                 (list(range(1, n_attacks+1)) + list(range(1, n_attacks+1))),
                 [1] * n_attacks*2,
                 '<=',
