@@ -80,12 +80,12 @@
         },
         "mapnum": null
     },
-    "C2_end": {
-        "rtime": -11,
-        "dtime": -11,
-        "ndamage": 0.0,
+    "C2_END": {
+        "rtime": 47,
+        "dtime": 47,
+        "ndamage": 8.88,
         "bdamage": 0.0,
-        "sp": 0,
+        "sp": 5,
         "type": "a",
         "effect": {
             "value": null,

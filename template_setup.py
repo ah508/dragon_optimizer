@@ -46,7 +46,7 @@ generate_c3_delay(C3_delay, 3, C_3MAP, 'C3DELAY')
 
 threehit1b = build_tree(ONE_S_BOOST, include_all=[1, 2, 3, 'W', 'D', 'S'])
 fourhit1b = build_tree(ONE_S_BOOST, include_all=[1, 2, 3, 4, 'W', 'D', 'S'])
-levi_tree = build_tree(ONE_S_BOOST, include_all=[1, 2, 3, 'C2_skl', 'C2_end', 'W', 'D', 'S'])
+levi_tree = build_tree(ONE_S_BOOST, include_all=[1, 2, 3, 'C2_skl', 'C2_END', 'W', 'D', 'S'])
 
 C3b = Make_Constraints(threehit1b)
 C4b_1 = Make_Constraints(fourhit1b)
