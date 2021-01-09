@@ -77,10 +77,10 @@ def solve_model(model, varrange, state_values, min_frames=True, output=True, rel
     else:
         dps = round((60*max_damage/min_r_frames), 2)
 
-    solution['dataTable'].append({'id' : 'max damage', 'value' : max_damage})
-    solution['dataTable'].append({'id' : 'real time', 'value' : min_r_frames})
-    solution['dataTable'].append({'id' : 'dragon time', 'value' : min_d_frames})
-    solution['dataTable'].append({'id' : 'dps', 'value' : dps})
+    solution['dataTable'].append({'id' : 'Max Damage', 'value' : max_damage})
+    solution['dataTable'].append({'id' : 'DPS', 'value' : dps})
+    solution['dataTable'].append({'id' : 'Dragon Time', 'value' : min_d_frames})
+    solution['dataTable'].append({'id' : 'Real Time', 'value' : min_r_frames})
     if output:
         print('solution:')
         for v in model.vars:
