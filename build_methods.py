@@ -226,6 +226,8 @@ class Make_Constraints:
                     r_to = 'buff_end'
                 if temp_key.endswith(('_end', '_skl')):
                     r_to = ''
+                if temp_key.endswith(('C2_END')):
+                    r_to = 'C2'
                 new_dict[new_key] = {
                     'reduce_to' : r_to,
                     'children' : [v['child_states'][i] + c_map[i] for i in range(len(c_map))]
