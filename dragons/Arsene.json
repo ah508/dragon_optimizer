@@ -1,0 +1,143 @@
+{
+    "class": {
+        "forbidden": false,
+        "key": "TC5DS1B0",
+        "buff": 0,
+        "skill": 1
+    },
+    "T": {
+        "rtime": 102,
+        "dtime": 0,
+        "ndamage": 2.00,
+        "bdamage": 0.00,
+        "sp": 0,
+        "type": "t",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": null
+    },
+    "C1": {
+        "rtime": 23,
+        "dtime": 23,
+        "ndamage": 4.9,
+        "bdamage": 0.00,
+        "sp": 5,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": "1"
+    },
+    "C2": {
+        "rtime": 39,
+        "dtime": 39,
+        "ndamage": 5.7,
+        "bdamage": 0.00,
+        "sp": 5,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": "2"
+    },
+    "C3": {
+        "rtime": 37,
+        "dtime": 37,
+        "ndamage": 7.8,
+        "bdamage": 0.00,
+        "sp": 5,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": "3"
+    },
+    "C4": {
+        "rtime": 37,
+        "dtime": 37,
+        "ndamage": 7.8,
+        "bdamage": 0.00,
+        "sp": 5,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": "4"
+    },
+    "C5": {
+        "rtime": 28,
+        "dtime": 28,
+        "ndamage": 7.8,
+        "bdamage": 0.00,
+        "sp": 5,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": "5"
+    },
+    "W": {
+        "rtime": 70,
+        "dtime": 70,
+        "ndamage": 0.00,
+        "bdamage": 0.00,
+        "sp": 0,
+        "type": "a",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": null
+    },
+    "D": {
+        "rtime": 40,
+        "dtime": 40,
+        "ndamage": 0.00,
+        "bdamage": 0.00,
+        "sp": 0,
+        "type": "d",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": null
+    },
+    "S": {
+        "rtime": 198,
+        "dtime": 0,
+        "ndamage": 25.4,
+        "bdamage": 0.00,
+        "sp": 0,
+        "type": "s",
+        "effect": {
+            "value": null,
+            "type": null,
+            "timing": null,
+            "duration": null
+        },
+        "mapnum": null
+    }
+}
