@@ -22,7 +22,7 @@
     },
     "C1": {
         "rtime": 30,
-        "dtime": 0,
+        "dtime": 30,
         "ndamage": 3.0,
         "bdamage": 0.0,
         "sp": 0,
