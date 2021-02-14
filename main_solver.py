@@ -63,9 +63,7 @@ class InputSchema(Schema):
                 'Gala Thor',
                 'Giovanni',
                 'Shishimai',
-                'Mini Hildy',
-                'Mini Zodi',
-                'Barbatos'
+                'Menoetius'
             ])
         ]
     )
@@ -91,7 +89,7 @@ class InputSchema(Schema):
 
 if __name__ == "__main__":
     faux_infoset = {
-        'dragon' : 'Horus',
+        'dragon' : 'Menoetius',
         'mode' : 'effmod',
         'relax' : False,
         'leniency' : 0,
