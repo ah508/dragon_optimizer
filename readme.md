@@ -10,7 +10,6 @@ missing documentation, and some of the stuff that used to be possible may not be
 reimplemented.
 
 ## Dependencies
----
 To run this program, you'll need some additional software installed. Namely,
 - Python 3.6+
 - numpy
@@ -18,7 +17,6 @@ To run this program, you'll need some additional software installed. Namely,
 - [python mip](https://python-mip.readthedocs.io/en/latest/)
 
 ## Using the program
----
 Before anything else, run **template_setup.py** (you may need to manually add a folder or two). 
 This is required to generate templates for the solver to use. 
 If you don't do this, you can't instantiate any solves.
@@ -29,7 +27,6 @@ main_solver.py) or write your own interface. InputSchema is the format you want 
 This is pretty jank, but it's also meant to run on a server, not as a standalone application.
 
 ## FAQ (probably)
----
 Q. "What's with the awful dependency list?"
 A. Hey, I think it's quite reasonable this time, you should have seen it before!
 
