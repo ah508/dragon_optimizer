@@ -16,6 +16,8 @@ To run this program, you'll need some additional software installed. Namely,
 - marshmallow
 - [python mip](https://python-mip.readthedocs.io/en/latest/)
 
+These are all in **requirements.txt**
+
 ## Using the program
 Before anything else, run **template_setup.py** (you may need to manually add a folder or two). 
 This is required to generate templates for the solver to use. 
