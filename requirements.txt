@@ -1,5 +1,5 @@
 numpy == 1.22.0
-Flask == 1.1.2
+Flask == 2.3.2
 Flask-RESTful == 0.3.8
 flask-cors == 3.0.9
 mip == 1.12.0
